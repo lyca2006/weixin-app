@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>测测你的命中注定是谁？</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* 星星背景 */
+.stars {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.5); }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  min-height: 100vh;
+}
+
+/* 开始页 */
+.page { display: none; }
+.page.active { display: block; }
+
+.start-page {
+  text-align: center;
+  padding-top: 15vh;
+}
+.start-icon {
+  font-size: 72px;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.start-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.start-subtitle {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+.start-btn {
+  display: inline-block;
+  padding: 16px 48px;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  border: none;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 30px rgba(245,87,108,0.4);
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: 2px;
+}
+.start-btn:active {
+  transform: scale(0.95);
+}
+.start-note {
+  margin-top: 24px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.35);
+}
+
+/* 题目页 */
+.quiz-page { padding-top: 20px; }
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f093fb, #f5576c);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 30px;
+}
+
+.question-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 28px 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in {
+  0% { opacity: 0; transform: translateX(40px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.question-num {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+.question-text {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+.question-hint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.option-btn {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+  line-height: 1.4;
+}
+.option-btn:active {
+  transform: scale(0.97);
+}
+.option-btn.selected {
+  background: rgba(245,87,108,0.2);
+  border-color: #f5576c;
+  box-shadow: 0 0 20px rgba(245,87,108,0.15);
+}
+.option-letter {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 14px;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+.option-btn.selected .option-letter {
+  background: #f5576c;
+}
+
+/* 结果页 */
+.result-page {
+  padding-top: 10vh;
+  text-align: center;
+}
+.result-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 36px 24px 28px;
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: result-in 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes result-in {
+  0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.result-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(245,87,108,0.1), transparent, rgba(240,147,251,0.1), transparent);
+  animation: rotate-bg 6s linear infinite;
+}
+@keyframes rotate-bg {
+  100% { transform: rotate(360deg); }
+}
+.result-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.result-label {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+  letter-spacing: 3px;
+}
+.result-avatar {
+  width: 130px; height: 130px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid rgba(245,87,108,0.5);
+  box-shadow: 0 8px 30px rgba(245,87,108,0.3);
+  margin-bottom: 18px;
+  animation: avatar-glow 2s ease-in-out infinite alternate;
+}
+@keyframes avatar-glow {
+  0% { box-shadow: 0 8px 30px rgba(245,87,108,0.3); }
+  100% { box-shadow: 0 8px 50px rgba(245,87,108,0.6), 0 0 60px rgba(240,147,251,0.2); }
+}
+.result-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.result-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fda085;
+  margin-bottom: 20px;
+  text-shadow: 0 0 12px rgba(253,160,133,0.4);
+  letter-spacing: 1px;
+}
+.result-match {
+  display: inline-block;
+  padding: 6px 18px;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.result-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.75);
+  text-align: left;
+  margin-bottom: 20px;
+}
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.result-tag {
+  padding: 5px 14px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.retry-btn, .share-btn {
+  padding: 12px 28px;
+  border-radius: 24px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.retry-btn {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+.retry-btn:active { transform: scale(0.95); }
+.share-btn {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(245,87,108,0.4);
+}
+.share-btn:active { transform: scale(0.95); }
+
+/* 心跳动画 */
+.heartbeat { animation: heartbeat 1.2s ease-in-out infinite; }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+}
+
+/* 飘落的心 */
+.falling-heart {
+  position: fixed;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 100;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="container">
+  <!-- 开始页 -->
+  <div class="page active" id="startPage">
+    <div class="start-page">
+      <div class="start-icon heartbeat">💘</div>
+      <div class="start-title">点男模，不如点群友</div>
+      <div class="start-subtitle">
+        8道灵魂拷问<br>
+        帮你找到与你最般配的那个他<br>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">匹配男神 →</button>
+      <div class="start-note">本测试纯属娱乐，请举报群主👉细总</div>
+    </div>
+  </div>
+
+  <!-- 题目页 -->
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText"></div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-card">
+        <div class="result-inner" id="resultInner"></div>
+      </div>
+      <div class="result-actions" style="margin-top: 24px;">
+        <button class="retry-btn" onclick="restart()">再测一次</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 群友数据库 ====================
+const members = [
+  {
+    id: 'chenzhong',
+    name: '陈总',
+    avatar: 'avatars/chenzhong.png',
+    title: '🏆 商界传奇·人生赢家',
+    tags: ['霸道总裁', '见多识广', '成熟稳重', '实力多金', '人生导师'],
+    desc: '站在金字塔顶端的男人，阅历比小说还精彩。跟他在一起，你看到的是更大的世界，感受到的是从容不迫的安全感。不用说太多甜言蜜语，他的实力就是最好的情话。选择他，就是选择了一种高配人生。',
+    // 维度: 成熟型, 事业型, 稳重型
+    traits: { mature: 5, career: 5, steady: 4, humor: 1, warm: 1, active: 1 }
+  },
+  {
+    id: 'xizhong',
+    name: '细总',
+    avatar: 'avatars/xizhong.png',
+    title: '👑 万人迷·灵魂社交家',
+    tags: ['人格魅力', '真诚暖心', '超强凝聚力', '心思细腻', '广结善缘'],
+    desc: '他就是那种走到哪里都能成为核心的人。不是因为他最张扬，而是因为他最真诚。记得住每个人的喜好，操心着每个人的感受，把一群陌生人变成了家人。这样的男人，值得被好好珍惜。',
+    traits: { mature: 2, career: 1, steady: 3, humor: 2, warm: 5, active: 4 }
+  },
+  {
+    id: 'yisheng',
+    name: '医生',
+    avatar: 'avatars/yisheng.png',
+    title: '💪 白衣男神·行走的荷尔蒙',
+    tags: ['高颜值', '健身达人', '医者仁心', '阳光开朗', '钻石单身汉'],
+    desc: '白天救死扶伤，晚上健身房挥汗如雨。又帅又有正经职业还年轻？这种配置在现实中居然真的存在。更可怕的是人家性格还开朗。姐妹们，不心动是不可能的，这辈子都不可能的。',
+    traits: { mature: 1, career: 4, steady: 2, humor: 2, warm: 2, active: 5 }
+  },
+  {
+    id: 'fengfeng',
+    name: '锋锋',
+    avatar: 'avatars/fengfeng.png',
+    title: '🎯 暖男天花板·情商之王',
+    tags: ['高情商', '风趣幽默', '感情专一', '正直暖心', '给人台阶王'],
+    desc: '全场最会说话的人，但不是油嘴滑舌那种——他是真的关心你才说得那么到位。吵架他能把你逗笑，尴尬他能帮你解围，受伤他默默陪着你。最重要的是，认定了就是一辈子。这样的男人，请直接锁死。',
+    traits: { mature: 1, career: 1, steady: 3, humor: 5, warm: 5, active: 2 }
+  },
+  {
+    id: 'xiaolinge',
+    name: '小林哥',
+    avatar: 'avatars/xiaolinge.png',
+    title: '🌊 定海神针·全场安全感',
+    tags: ['大哥气质', '成熟客观', '开朗大方', '和事佬', '人缘超好'],
+    desc: '不管多大的风浪，他往那一站，你就觉得没事了。不偏不倚、不急不躁，像个大哥哥一样罩着所有人。跟他在一起，你不用演、不用装，做自己就好。因为他看人从来不带滤镜，但他对你的好从来不打折。',
+    traits: { mature: 5, career: 1, steady: 5, humor: 2, warm: 3, active: 1 }
+  },
+  {
+    id: 'zhangtiancai',
+    name: '张天赋',
+    avatar: 'avatars/zhangtiancai.png',
+    title: '✨ 宝藏男孩·灵魂有趣到发光',
+    tags: ['帅气逼人', '超爱孩子', '一针见血', '有趣灵魂', '大方坦荡'],
+    desc: '帅是真的帅，有趣更是真的有趣。别人讲半天讲不明白的事，他一句话戳到你心里。而且这个男人超爱小朋友——想象一下他带娃的样子，心都化了。大大方方不扭捏，说话直接但不伤人，这种有趣的灵魂真的可遇不可求。',
+    traits: { mature: 1, career: 2, steady: 1, humor: 5, warm: 4, active: 4 }
+  },
+  {
+    id: 'daxiang',
+    name: '大象',
+    avatar: 'avatars/daxiang.png',
+    title: '🎉 快乐制造机·全场MVP',
+    tags: ['美食家', '阳光大男孩', 'C位体质', '活动达人', '人气爆棚'],
+    desc: '他就是那种不管去哪都自带BGM的人。识食物者为俊杰——他不仅会吃、会挑，还能带你解锁隐藏美食地图。到哪里都是焦点，各种局他来组织你就负责开心就好。跟他在一起，生活永远不会无聊，每天都是美食综艺现场。',
+    traits: { mature: 1, career: 1, steady: 1, humor: 4, warm: 4, active: 5 }
+  },
+  {
+    id: 'king',
+    name: 'KING',
+    avatar: 'avatars/king.png',
+    title: '🏛️ 铁饭碗暖男·宠妻狂魔预定',
+    tags: ['国企精英', '收入稳定', '专一深情', '成熟老实', '细心体贴'],
+    desc: '别人追求刺激，他追求的是给你一个稳稳的家。国企工作雷打不动，收入可观从不乱花。认准了一个人就全心全意，细心到连你自己都没注意的事他都记在心里。这种男人不会给你轰轰烈烈，但他给你的是踏踏实实的一辈子。',
+    traits: { mature: 3, career: 4, steady: 5, humor: 1, warm: 3, active: 1 }
+  },
+  {
+    id: 'chensheng',
+    name: '陈生',
+    avatar: 'avatars/chensheng.png',
+    title: '🎩 金融型男·潮流先锋',
+    tags: ['汇丰精英', '高颜值', '潮流达人', '工作稳定', '品味在线'],
+    desc: '在汇丰上班的帅哥，穿搭品味在线得不像话。能把西装穿出T台感，也能把休闲穿出高级感。工作体面稳定，审美在线，长得还帅——这种集帅气与稳定于一身的男人，就是现实版的偶像剧男主。',
+    traits: { mature: 2, career: 5, steady: 3, humor: 1, warm: 2, active: 4 }
+  },
+  {
+    id: 'xiaofei',
+    name: '小肥',
+    avatar: 'avatars/xiaofei.png',
+    title: '🎙️ 氛围之王·被耽误的脱口秀大师',
+    tags: ['天生喜剧人', '真性情', '社交鬼才', '反差魅力', '宝藏男孩'],
+    desc: '这个男人是老天爷追着赏饭吃的喜剧天才。别人绞尽脑汁讲笑话，他随便一句话就能让全场笑到肚子疼。最难得的是——他的幽默不是表演，是骨子里的真实和通透。看似大大咧咧，其实内心比谁都清醒，看人看事一针见血。跟他在一起不需要任何伪装，因为他会让你知道：做真实的自己，才是最有魅力的。这种男人，一旦认真起来，反差感直接拉满，谁扛得住？',
+    traits: { mature: 2, career: 1, steady: 2, humor: 5, warm: 2, active: 5 }
+  },
+  {
+    id: 'gushen',
+    name: '股神',
+    avatar: 'avatars/gushen.png',
+    title: '📈 财神转世·理财界的天选之人',
+    tags: ['投资大师', '股场战神', '涨停收割机', '财商超群', '慧眼识金'],
+    desc: '别人炒股是韭菜，他炒股是镰刀。当你还在研究K线的时候，他已经在数涨停板了。有赢无输不是传说，在他身上是日常操作。跟他在一起，你不一定会变成股神，但你一定不用担心钱的事。这就是嫁给财富自由的感觉。',
+    traits: { mature: 3, career: 5, steady: 2, humor: 2, warm: 1, active: 4 }
+  },
+  {
+    id: 'liangzhong',
+    name: '梁总',
+    avatar: 'avatars/liangzhong.png',
+    title: '🌍 隐世富豪·行走的世界地图',
+    tags: ['低调多金', '旅行家', '阅历深厚', '识人无数', '性格极好'],
+    desc: '真正有钱的人从来不炫，梁总就是那种你跟他聊了三个月才发现他居然这么有实力的人。足迹遍布全球，吃过见过的世界比你刷过的短视频还精彩。但他最厉害的不是钱，是那双看人极准的眼睛——他说靠谱的人，从没看走眼过。性格好到离谱，朋友多到手机通讯录要翻三页。跟他在一起，你收获的不只是诗和远方，还有一个真正懂生活的灵魂旅伴。',
+    traits: { mature: 4, career: 3, steady: 2, humor: 1, warm: 3, active: 4 }
+  },
+  {
+    id: 'tmc',
+    name: 'TMC',
+    avatar: 'avatars/tmc.png',
+    title: '🔥 全能男神·行走的费洛蒙',
+    tags: ['痞帅天花板', '健身型男', '爱阅读', '高端玩咖', '万人迷体质'],
+    desc: '有钱还帅就够过分了，偏偏还爱健身爱看书——灵魂和肉体双重暴击。白天翻几页书充实灵魂，晚上化身夜场王者魅力全开。这种又痞又帅、又野又有内涵的男人，是所有女生嘴上说"不要"但心里疯狂尖叫的类型。异性缘好？不好才奇怪。',
+    traits: { mature: 2, career: 3, steady: 1, humor: 2, warm: 1, active: 5 }
+  }
+];
+
+// ==================== 题目设计 ====================
+const questions = [
+  {
+    q: '周五晚上终于下班了，你最想怎么度过？',
+    hint: '选择最贴近你内心的那个答案',
+    options: [
+      { text: '🍷 找一家安静的餐厅，点杯酒慢慢享受', scores: { mature: 2, steady: 2, career: 1 } },
+      { text: '🎉 约上朋友嗨起来！火锅烧烤走一波', scores: { humor: 2, active: 2, warm: 1 } },
+      { text: '🏋️ 去健身房撸铁，流汗才是最好的放松', scores: { active: 3, career: 1 } },
+      { text: '📖 窝在沙发上看书追剧，享受独处时光', scores: { steady: 2, mature: 1, warm: 1 } }
+    ]
+  },
+  {
+    q: '如果另一半和你吵架了，你最希望对方怎么做？',
+    hint: '没有对错，只有偏好',
+    options: [
+      { text: '🤝 冷静下来理性沟通，把问题说清楚', scores: { mature: 3, steady: 2 } },
+      { text: '🤗 先一个拥抱，什么都不说也没关系', scores: { warm: 3, steady: 1 } },
+      { text: '😂 想办法逗我笑，笑着笑着就不气了', scores: { humor: 3, warm: 1, active: 1 } },
+      { text: '🎁 用行动证明，比如突然出现在楼下', scores: { active: 2, career: 1, warm: 1 } }
+    ]
+  },
+  {
+    q: '你觉得理想伴侣最重要的特质是？',
+    hint: '只能选一个，很残酷但很真实',
+    options: [
+      { text: '💰 有事业心和经济实力，给你安全感', scores: { career: 3, mature: 2 } },
+      { text: '💝 体贴入微，记得你说过的每一句话', scores: { warm: 3, steady: 1 } },
+      { text: '😊 有趣的灵魂，和他在一起永远不无聊', scores: { humor: 3, active: 1 } },
+      { text: '💪 颜值在线身材好，赏心悦目很重要', scores: { active: 2, career: 1, humor: 1 } }
+    ]
+  },
+  {
+    q: '闺蜜跟你说她被男朋友气哭了，你第一反应是？',
+    hint: '本能反应最能暴露你的性格',
+    options: [
+      { text: '🔥 谁？地址发来，姐妹帮你出气！', scores: { active: 3, humor: 1 } },
+      { text: '🧸 先抱抱，哭完再慢慢说', scores: { warm: 3, steady: 1 } },
+      { text: '🤔 冷静分析一下，到底是谁的问题', scores: { mature: 3, steady: 1 } },
+      { text: '🍰 走！带你去吃好吃的，吃饱了再想', scores: { humor: 2, active: 2, warm: 1 } }
+    ]
+  },
+  {
+    q: '以下哪种约会方式最让你心动？',
+    hint: '想象一下画面',
+    options: [
+      { text: '🌃 在城市最高的餐厅看夜景吃法餐', scores: { career: 2, mature: 2, steady: 1 } },
+      { text: '🏖️ 一起去海边散步，聊聊以后的事', scores: { warm: 2, steady: 2, mature: 1 } },
+      { text: '🎢 游乐场疯玩一天，比赛谁叫得更大声', scores: { active: 3, humor: 2 } },
+      { text: '🍜 他带你去只有本地人才知道的小店', scores: { humor: 1, warm: 1, active: 1, mature: 1 } }
+    ]
+  },
+  {
+    q: '你更受不了另一半哪个缺点？',
+    hint: '反向测试你最在意什么',
+    options: [
+      { text: '😐 无聊，聊天像面试一样', scores: { humor: 3, active: 1 } },
+      { text: '😤 不上进，对未来没规划', scores: { career: 3, mature: 1 } },
+      { text: '🥶 冷漠，从不主动关心你', scores: { warm: 3, steady: 1 } },
+      { text: '🌀 不靠谱，说过的话从来不算', scores: { steady: 3, mature: 1 } }
+    ]
+  },
+  {
+    q: '如果另一半突然给你一个惊喜，你希望是？',
+    hint: '你的选择暴露了你的内心需求',
+    options: [
+      { text: '💎 一份你念叨很久但舍不得买的礼物', scores: { career: 2, warm: 1, mature: 1 } },
+      { text: '📝 一封手写信，写满了和你的回忆', scores: { warm: 3, steady: 1 } },
+      { text: '✈️ 两张机票，说走就走的旅行', scores: { active: 3, humor: 1 } },
+      { text: '🍳 回到家发现他已经做好了一桌你爱吃的菜', scores: { warm: 2, steady: 2, humor: 1 } }
+    ]
+  },
+  {
+    q: '最后一题！选一句最打动你的情话：',
+    hint: '相信直觉',
+    options: [
+      { text: '"我这辈子只认定你一个人"', scores: { steady: 3, warm: 1, mature: 1 } },
+      { text: '"有我在，什么都不用怕"', scores: { mature: 3, career: 1, steady: 1 } },
+      { text: '"跟你在一起每天都好开心"', scores: { humor: 2, active: 2, warm: 1 } },
+      { text: '"我想带你去看更大的世界"', scores: { active: 2, career: 2, mature: 1 } }
+    ]
+  }
+];
+
+// ==================== 游戏逻辑 ====================
+let currentQ = 0;
+let answers = [];
+
+// 分组：按答题倾向分成4组，每组2-4人
+// A多 → 成熟稳重派：陈总、小林哥、梁总
+// B多 → 暖心体贴派：细总、锋锋、KING
+// C多 → 有趣灵魂派：张天赋、小肥、大象、小林哥
+// D多 → 魅力行动派：医生、TMC、陈生、股神
+// 每个人可以出现在多个组里，确保都有机会
+const groups = {
+  A: ['chenzhong', 'xiaolinge', 'liangzhong', 'king'],
+  B: ['xizhong', 'fengfeng', 'king', 'xiaolinge'],
+  C: ['zhangtiancai', 'xiaofei', 'daxiang', 'fengfeng'],
+  D: ['yisheng', 'tmc', 'chensheng', 'gushen']
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  currentQ = 0;
+  answers = [];
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const percent = ((currentQ) / questions.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressText').textContent = `${currentQ + 1} / ${questions.length}`;
+
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'card-in 0.4s ease';
+
+  const letters = ['A', 'B', 'C', 'D'];
+  card.innerHTML = `
+    <div class="question-num">第 ${currentQ + 1} 题</div>
+    <div class="question-text">${q.q}</div>
+    ${q.hint ? `<div class="question-hint">${q.hint}</div>` : ''}
+    <div class="options">
+      ${q.options.map((opt, i) => `
+        <div class="option-btn" onclick="selectOption(${i}, this)">
+          <div class="option-letter">${letters[i]}</div>
+          <div>${opt.text}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function selectOption(idx, el) {
+  el.classList.add('selected');
+  const allBtns = el.parentElement.querySelectorAll('.option-btn');
+  allBtns.forEach(b => { b.style.pointerEvents = 'none'; });
+
+  answers.push(['A', 'B', 'C', 'D'][idx]);
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < questions.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 500);
+}
+
+function showResult() {
+  const match = findBestMatch();
+  showPage('resultPage');
+  spawnHearts();
+
+  document.getElementById('resultInner').innerHTML = `
+    <div class="result-label">✨ 你的命中注定是 ✨</div>
+    <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
+    <div class="result-name">${match.name}</div>
+    <div class="result-title">${match.title}</div>
+    <div class="result-desc">${match.desc}</div>
+  `;
+}
+
+function findBestMatch() {
+  // 统计ABCD各选了几次
+  const count = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => count[a]++);
+
+  // 找出票数最高的类型（可能有并列）
+  const maxCount = Math.max(count.A, count.B, count.C, count.D);
+  const topTypes = Object.keys(count).filter(k => count[k] === maxCount);
+
+  // 从并列的类型中随机选一个
+  const chosenType = topTypes[Math.floor(Math.random() * topTypes.length)];
+
+  // 从对应组里随机选一个人
+  const group = groups[chosenType];
+  const chosenId = group[Math.floor(Math.random() * group.length)];
+
+  return members.find(m => m.id === chosenId);
+}
+
+function restart() {
+  showPage('startPage');
+}
+
+function shareResult() {
+  const name = document.querySelector('.result-name')?.textContent || '';
+  const text = `我刚测出我的命中注定是「${name}」！快来测测你的是谁？💘`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text + '\n' + location.href).then(() => {
+      alert('已复制到剪贴板，快去群里分享吧！💕');
+    }).catch(() => {
+      prompt('复制以下内容分享到群里：', text);
+    });
+  } else {
+    prompt('复制以下内容分享到群里：', text);
+  }
+}
+
+// ==================== 视觉效果 ====================
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDuration = (1 + Math.random() * 3) + 's';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(star);
+  }
+}
+
+function spawnHearts() {
+  const emojis = ['💕', '💗', '💖', '💘', '✨', '🌟', '💝'];
+  for (let i = 0; i < 15; i++) {
+    setTimeout(() => {
+      const heart = document.createElement('div');
+      heart.className = 'falling-heart';
+      heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.top = '-30px';
+      heart.style.fontSize = (16 + Math.random() * 20) + 'px';
+      heart.style.animationDuration = (3 + Math.random() * 3) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 6000);
+    }, i * 200);
+  }
+}
+
+createStars();
+</script>
+</body>
+</html>
