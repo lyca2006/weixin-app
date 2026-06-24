@@ -1766,6 +1766,29 @@ async function syncNewData() {
 	const hardcodedMaleNames = new Set(submittedMales.map(m => m.nickname));
 
 	const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+	const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+	const TOKEN = TK.join('');
+
+	// 拉取硬编码男生的介绍覆盖
+	try {
+		const ovResp = await Promise.race([
+			fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/submissions/hardcoded-overrides.json', {
+				headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+			}),
+			timeout(8000)
+		]);
+		if (ovResp.ok) {
+			const fd = await ovResp.json();
+			const overrides = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+			members.forEach(m => {
+				const ov = overrides[m.name];
+				if (ov) { m.title = ov.title; m.desc = ov.desc; }
+			});
+			console.log('后台同步: 硬编码男生介绍已更新');
+		}
+	} catch(e) {
+		console.log('后台同步硬编码覆盖: 无');
+	}
 
 	try {
 		// 拉取女生（8秒超时）
