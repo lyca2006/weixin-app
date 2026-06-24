@@ -36,7 +36,13 @@ body {
 .card {
   background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;
   margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);
+  display: flex; gap: 16px; align-items: flex-start;
 }
+.card-avatar {
+  width: 60px; height: 60px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  border: 2px solid rgba(245,87,108,0.3);
+}
+.card-body { flex: 1; min-width: 0; }
 .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .card-left { display: flex; align-items: center; gap: 8px; flex: 1; }
 .card-name {
@@ -203,18 +209,21 @@ function renderCards() {
     }).join('');
 
     return `<div class="card">
-      <div class="card-top">
-        <div class="card-left">
-          <span class="card-name">${d.nickname}</span>
-          <span class="card-gender ${d.gender}">${d.gender === 'male' ? '♂ 男' : '♀ 女'}</span>
+      ${d.avatar ? `<img class="card-avatar" src="${d.avatar}" alt="${d.nickname}">` : ''}
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-left">
+            <span class="card-name">${d.nickname}</span>
+            <span class="card-gender ${d.gender}">${d.gender === 'male' ? '♂ 男' : '♀ 女'}</span>
+          </div>
+          <div class="card-actions">
+            <button class="action-btn" onclick="openRename(${idx})">✏️ 改名</button>
+            <button class="action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>
+          </div>
         </div>
-        <div class="card-actions">
-          <button class="action-btn" onclick="openRename(${idx})">✏️ 改名</button>
-          <button class="action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>
-        </div>
+        <div style="font-size:15px;font-family:monospace;color:#4fc3f7;letter-spacing:2px;user-select:all;padding:4px 0">${abcdResult}</div>
+        <div class="card-time">${d.time || ''}</div>
       </div>
-      <div style="font-size:15px;font-family:monospace;color:#4fc3f7;letter-spacing:2px;user-select:all;padding:4px 0">${abcdResult}</div>
-      <div class="card-time">${d.time || ''}</div>
     </div>`;
   }).join('');
 }
