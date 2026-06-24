@@ -85,14 +85,16 @@ let allData = [];
 let currentFilter = 'all';
 
 const LABELS = {
-  hairstyle: '发型',
-  look_score: '颜值自评',
-  personality: '性格',
-  hobby: '周末',
-  charm: '魅力点',
-  food: '饮食',
-  love_style: '感情观',
-  one_word: '自我介绍'
+  style: '穿衣风格',
+  date_detail: '约会细节',
+  recharge: '充电方式',
+  conflict: '冲突反应',
+  heartbeat: '心动瞬间',
+  hidden_trait: '隐形优点',
+  sleep: '睡眠习惯',
+  dealbreaker: '受不了的',
+  money: '花钱方式',
+  ideal_animal: '理想另一半'
 };
 
 function setFilter(f, el) {
@@ -115,7 +117,7 @@ function renderCards() {
   list.innerHTML = filtered.map(d => {
     const rows = Object.entries(d.answers || {}).map(([k, v]) => {
       const label = LABELS[k] || k;
-      const val = k === 'look_score' ? `${'⭐'.repeat(Math.min(v,5))} ${v}分` : v;
+      const val = v;
       return `<div class="card-row"><span class="card-label">${label}</span><span class="card-value">${val}</span></div>`;
     }).join('');
 
