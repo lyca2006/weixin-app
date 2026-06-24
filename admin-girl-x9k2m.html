@@ -1104,13 +1104,46 @@ async function batchSaveAll() {
   let successCount = 0;
   let failCount = 0;
 
+  // 收集所有被修改的硬编码男生的override
+  const hardcodedOverrides = {};
   for (const idx of modifiedSet) {
     const d = allData[idx];
-    if (d._isHardcoded) {
-      // Hardcoded males: skip saving but count as success
-      successCount++;
-      continue;
+    if (d._isHardcoded && d._introOverride) {
+      hardcodedOverrides[d.nickname] = { title: d._introOverride.title, desc: d._introOverride.desc };
     }
+  }
+
+  // 如果有硬编码男生改动，先读取已有的overrides再合并保存
+  if (Object.keys(hardcodedOverrides).length > 0) {
+    try {
+      const overrideFile = 'hardcoded-overrides.json';
+      let existingSha = null;
+      let existingData = {};
+      const checkResp = await fetch(`${API}/${overrideFile}`, {
+        headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (checkResp.ok) {
+        const fd = await checkResp.json();
+        existingSha = fd.sha;
+        try { existingData = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, ''))))); } catch(e) {}
+      }
+      const merged = { ...existingData, ...hardcodedOverrides };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(merged, null, 2))));
+      const body = { message: '更新硬编码男生介绍', content, branch: 'main' };
+      if (existingSha) body.sha = existingSha;
+      const putResp = await fetch(`${API}/${overrideFile}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify(body)
+      });
+      if (putResp.ok) successCount++;
+      else failCount++;
+    } catch(e) { console.error(e); failCount++; }
+  }
+
+  for (const idx of modifiedSet) {
+    const d = allData[idx];
+    if (d._isHardcoded) continue; // 已在上面处理
     const ok = await saveEntry(d);
     if (ok) successCount++;
     else failCount++;
@@ -1170,7 +1203,7 @@ async function loadAll() {
         } catch(e) { console.error(e); return null; }
       }));
 
-      submittedData = results.filter(c => c !== null);
+      submittedData = results.filter(c => c !== null && c._filename !== 'hardcoded-overrides.json');
     }
   } catch(e) {
     console.error(e);
@@ -1178,10 +1211,26 @@ async function loadAll() {
     return;
   }
 
+  // 读取硬编码男生的override并应用
+  let hardcodedOverrides = {};
+  try {
+    const ovResp = await fetch(`${API}/hardcoded-overrides.json`, {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (ovResp.ok) {
+      const fd = await ovResp.json();
+      hardcodedOverrides = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+    }
+  } catch(e) {}
+
   // Combine: submitted data first, then hardcoded males
   // Deep clone hardcoded males so we don't mutate the original
   const deletedHardcoded = new Set(JSON.parse(localStorage.getItem('deletedHardcoded') || '[]'));
-  const males = hardcodedMales.filter(m => !deletedHardcoded.has(m.nickname)).map(m => ({ ...m }));
+  const males = hardcodedMales.filter(m => !deletedHardcoded.has(m.nickname)).map(m => {
+    const ov = hardcodedOverrides[m.nickname];
+    if (ov) return { ...m, _introOverride: ov, _introCache: ov };
+    return { ...m };
+  });
 
   allData = [...submittedData, ...males];
 
