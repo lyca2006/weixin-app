@@ -942,10 +942,8 @@ function renderCards() {
     // Buttons row
     let btnsHtml = `<button class="card-action-btn regen" onclick="regenInline(${idx})">🔄 换一版</button>`;
     btnsHtml += `<button class="card-action-btn" onclick="openEditIntro(${idx})">✏️ 编辑</button>`;
-    if (!isHardcoded) {
-      btnsHtml += `<button class="card-action-btn" onclick="openRename(${idx})">📝 改名</button>`;
-      btnsHtml += `<button class="card-action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>`;
-    }
+    btnsHtml += `<button class="card-action-btn" onclick="openRename(${idx})">📝 改名</button>`;
+    btnsHtml += `<button class="card-action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>`;
 
     return `<div class="card${isModified ? ' modified' : ''}" id="card-${idx}">
       <div class="card-header">
