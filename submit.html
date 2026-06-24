@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>女神档案提交</title>
+<title>群友档案收集</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -22,232 +22,149 @@ body {
   color: #fff;
 }
 
-.stars {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-.star {
-  position: absolute;
-  width: 2px; height: 2px;
-  background: #fff;
-  border-radius: 50%;
-  animation: twinkle ease-in-out infinite alternate;
-}
-@keyframes twinkle {
-  0% { opacity: 0.2; transform: scale(1); }
-  100% { opacity: 1; transform: scale(1.5); }
-}
+.stars { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
+.star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle ease-in-out infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
 
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 420px;
-  margin: 0 auto;
-  padding: 40px 16px;
-}
-
+.container { position: relative; z-index: 1; max-width: 420px; margin: 0 auto; padding: 20px 16px 40px; min-height: 100vh; }
 .page { display: none; }
 .page.active { display: block; }
 
-/* 表单页 */
-.form-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-.form-icon {
-  font-size: 56px;
-  margin-bottom: 16px;
-  animation: float 3s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-.form-title {
-  font-size: 26px;
-  font-weight: 700;
+/* 开始页 */
+.start-page { text-align: center; padding-top: 12vh; }
+.start-icon { font-size: 64px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.start-title {
+  font-size: 26px; font-weight: 700; margin-bottom: 10px;
   background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 8px;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.form-subtitle {
-  font-size: 14px;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.6;
-}
+.start-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 32px; }
 
-.form-card {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 28px 22px;
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.form-group {
-  margin-bottom: 24px;
-}
-.form-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.8);
-  margin-bottom: 8px;
-  display: block;
-}
-.form-label .required {
-  color: #f5576c;
-  margin-left: 2px;
-}
-.form-input {
-  width: 100%;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.06);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.2s;
-  font-family: inherit;
-}
-.form-input:focus {
-  border-color: rgba(245,87,108,0.6);
-}
-.form-input::placeholder {
-  color: rgba(255,255,255,0.3);
-}
-textarea.form-input {
-  height: 100px;
-  resize: none;
-  line-height: 1.6;
-}
-
-/* 头像上传 */
-.avatar-upload {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.avatar-preview {
-  width: 120px; height: 120px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.06);
-  border: 2px dashed rgba(255,255,255,0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  transition: all 0.2s;
-}
-.avatar-preview:active {
-  transform: scale(0.96);
-}
-.avatar-preview.has-image {
-  border-style: solid;
-  border-color: rgba(245,87,108,0.5);
-}
-.avatar-preview img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-}
-.avatar-placeholder {
-  text-align: center;
-  color: rgba(255,255,255,0.3);
-  font-size: 13px;
-  line-height: 1.6;
-}
-.avatar-placeholder .icon {
-  font-size: 32px;
-  display: block;
-  margin-bottom: 4px;
-}
-.avatar-hint {
-  font-size: 12px;
-  color: rgba(255,255,255,0.3);
-}
-input[type="file"] { display: none; }
-
-/* 提交按钮 */
-.submit-btn {
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, #f093fb, #f5576c);
-  border: none;
-  border-radius: 14px;
-  color: #fff;
-  font-size: 17px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 6px 24px rgba(245,87,108,0.4);
+/* 性别选择 */
+.gender-section { display: flex; gap: 16px; justify-content: center; margin-bottom: 28px; }
+.gender-btn {
+  width: 120px; height: 120px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
-  letter-spacing: 1px;
 }
-.submit-btn:active {
-  transform: scale(0.97);
+.gender-btn:active { transform: scale(0.95); }
+.gender-btn.selected { border-color: #f5576c; background: rgba(245,87,108,0.15); box-shadow: 0 4px 20px rgba(245,87,108,0.3); }
+.gender-btn .icon { font-size: 40px; margin-bottom: 6px; }
+.gender-btn .label { font-size: 15px; font-weight: 600; }
+
+/* 昵称输入 */
+.name-section { margin-bottom: 24px; }
+.name-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-align: center; }
+.name-input {
+  width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
+  color: #fff; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s;
 }
-.submit-btn:disabled {
-  opacity: 0.5;
-  pointer-events: none;
+.name-input:focus { border-color: rgba(245,87,108,0.6); }
+.name-input::placeholder { color: rgba(255,255,255,0.3); }
+
+.start-btn {
+  display: inline-block; padding: 14px 44px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 28px;
+  color: #fff; font-size: 17px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(245,87,108,0.4); -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s; letter-spacing: 1px;
+}
+.start-btn:active { transform: scale(0.95); }
+.start-btn:disabled { opacity: 0.4; pointer-events: none; }
+.start-note { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3); }
+.error-hint { color: #f5576c; font-size: 13px; margin-top: 8px; min-height: 20px; text-align: center; }
+
+/* 题目页 */
+.quiz-page { padding-top: 20px; }
+.progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #f093fb, #f5576c); border-radius: 2px; transition: width 0.4s ease; }
+.progress-text { text-align: right; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+
+.question-card {
+  background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px; padding: 28px 22px; border: 1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in { 0% { opacity: 0; transform: translateX(40px); } 100% { opacity: 1; transform: translateX(0); } }
+
+.q-num { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+.q-text { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 24px; }
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn {
+  display: flex; align-items: center; padding: 14px 16px;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px; color: #fff; font-size: 15px; cursor: pointer;
+  transition: all 0.2s; -webkit-tap-highlight-color: transparent; text-align: left; line-height: 1.4;
+}
+.opt-btn:active { transform: scale(0.97); }
+.opt-btn.selected { background: rgba(245,87,108,0.2); border-color: #f5576c; }
+.opt-letter {
+  width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; margin-right: 12px; flex-shrink: 0; transition: all 0.2s;
+}
+.opt-btn.selected .opt-letter { background: #f5576c; }
+
+/* 自填输入 */
+.custom-input-wrap { margin-top: 10px; display: flex; gap: 8px; }
+.custom-input {
+  flex: 1; padding: 12px 14px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 10px;
+  color: #fff; font-size: 14px; outline: none;
+}
+.custom-input:focus { border-color: rgba(245,87,108,0.6); }
+.custom-input::placeholder { color: rgba(255,255,255,0.3); }
+.custom-submit {
+  padding: 12px 18px; background: linear-gradient(135deg, #f093fb, #f5576c);
+  border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
 }
 
-/* 成功页 */
-.success-page {
-  text-align: center;
-  padding-top: 20vh;
+/* 打分题 */
+.score-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
 }
-.success-icon {
-  font-size: 72px;
-  margin-bottom: 20px;
+.score-btn {
+  padding: 14px 0; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px; color: #fff; font-size: 18px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; text-align: center; -webkit-tap-highlight-color: transparent;
 }
-.success-title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 12px;
+.score-btn:active { transform: scale(0.92); }
+.score-btn.selected { background: rgba(245,87,108,0.25); border-color: #f5576c; }
+
+/* 自由输入题 */
+.free-input {
+  width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
+  color: #fff; font-size: 15px; outline: none; resize: none; height: 90px;
+  font-family: inherit; line-height: 1.6;
+}
+.free-input:focus { border-color: rgba(245,87,108,0.6); }
+.free-input::placeholder { color: rgba(255,255,255,0.3); }
+.free-submit {
+  margin-top: 12px; width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 12px;
+  color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+
+/* 结果页 */
+.result-page { text-align: center; padding-top: 15vh; }
+.result-icon { font-size: 72px; margin-bottom: 16px; }
+.result-title {
+  font-size: 24px; font-weight: 700; margin-bottom: 10px;
   background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.success-desc {
-  font-size: 15px;
-  color: rgba(255,255,255,0.6);
-  line-height: 1.6;
-}
+.result-desc { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.8; }
 
-/* Loading overlay */
-.loading {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
+/* Loading */
+.loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999; }
 .loading.hidden { display: none; }
-.loading-spinner {
-  width: 40px; height: 40px;
-  border: 3px solid rgba(255,255,255,0.2);
-  border-top-color: #f5576c;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+.loading-spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #f5576c; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { 100% { transform: rotate(360deg); } }
-
-.error-msg {
-  color: #f5576c;
-  font-size: 13px;
-  margin-top: 6px;
-  display: none;
-}
 </style>
 </head>
 <body>
@@ -256,134 +173,248 @@ input[type="file"] { display: none; }
 <div class="loading hidden" id="loading"><div class="loading-spinner"></div></div>
 
 <div class="container">
-  <!-- 表单页 -->
-  <div class="page active" id="formPage">
-    <div class="form-header">
-      <div class="form-icon">👸</div>
-      <div class="form-title">女神档案提交</div>
-      <div class="form-subtitle">填写你的信息，加入专属女神图鉴<br>资料仅管理员可见，请放心填写</div>
-    </div>
+  <!-- 开始页 -->
+  <div class="page active" id="startPage">
+    <div class="start-page">
+      <div class="start-icon">📋</div>
+      <div class="start-title">群友档案收集</div>
+      <div class="start-subtitle">回答8个小问题<br>帮你生成专属人物卡</div>
 
-    <div class="form-card">
-      <div class="form-group">
-        <label class="form-label">昵称 <span class="required">*</span></label>
-        <input class="form-input" id="inputName" type="text" placeholder="你的群昵称" maxlength="20">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">自我介绍 <span class="required">*</span></label>
-        <textarea class="form-input" id="inputDesc" placeholder="用几句话介绍一下自己的优点、性格特点&#10;例如：开朗爱笑，喜欢旅行和美食，朋友说我是团队里的开心果"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">上传头像 <span class="required">*</span></label>
-        <div class="avatar-upload">
-          <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('fileInput').click()">
-            <div class="avatar-placeholder">
-              <span class="icon">📷</span>
-              点击上传
-            </div>
-          </div>
-          <div class="avatar-hint">建议使用正方形图片，会自动裁剪</div>
-          <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)">
+      <div class="gender-section">
+        <div class="gender-btn" onclick="selectGender('male', this)">
+          <div class="icon">🧑</div>
+          <div class="label">男生</div>
+        </div>
+        <div class="gender-btn" onclick="selectGender('female', this)">
+          <div class="icon">👩</div>
+          <div class="label">女生</div>
         </div>
       </div>
 
-      <button class="submit-btn" id="submitBtn" onclick="submitForm()">提交档案 ✨</button>
-      <div class="error-msg" id="errorMsg"></div>
+      <div class="name-section">
+        <div class="name-label">你的群昵称</div>
+        <input class="name-input" id="inputName" type="text" placeholder="请填写你在群里的昵称" maxlength="20">
+      </div>
+
+      <button class="start-btn" onclick="startQuiz()">开始填写 →</button>
+      <div class="error-hint" id="startError"></div>
+      <div class="start-note">资料仅管理员可见，请放心填写</div>
     </div>
   </div>
 
-  <!-- 成功页 -->
-  <div class="page" id="successPage">
-    <div class="success-page">
-      <div class="success-icon">🎉</div>
-      <div class="success-title">提交成功！</div>
-      <div class="success-desc">你的女神档案已收录<br>请耐心等待测试上线～</div>
+  <!-- 题目页 -->
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText"></div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-icon">🎉</div>
+      <div class="result-title">提交成功！</div>
+      <div class="result-desc">你的专属档案已生成<br>等管理员为你量身定制人物介绍吧～</div>
     </div>
   </div>
 </div>
 
 <script>
-let avatarBase64 = null;
+let gender = '';
+let nickname = '';
+let currentQ = 0;
+let answers = {};
+
+const questions = [
+  {
+    id: 'hairstyle',
+    q: '你现在的发型是？',
+    type: 'choice_or_custom',
+    options: ['💇‍♀️ 长直发', '🌊 大波浪/卷发', '✂️ 短发', '🎀 中长发'],
+    customPlaceholder: '其他发型，请描述...'
+  },
+  {
+    id: 'look_score',
+    q: '给自己的颜值打个分？',
+    hint: '大胆打！反正只有管理员看得到',
+    type: 'score'
+  },
+  {
+    id: 'personality',
+    q: '朋友们觉得你是什么类型的人？',
+    type: 'choice',
+    options: ['🌞 开朗话多·自来熟', '🌙 安静内敛·慢热型', '🎭 外表高冷·内心火热', '🎪 人来疯·气氛担当']
+  },
+  {
+    id: 'hobby',
+    q: '周末最想做什么？',
+    type: 'choice_or_custom',
+    options: ['🏠 宅家追剧打游戏', '🏃 运动健身出出汗', '🛍️ 逛街喝咖啡拍照', '⛺ 户外露营旅行'],
+    customPlaceholder: '其他爱好...'
+  },
+  {
+    id: 'charm',
+    q: '你觉得自己最吸引人的地方是？',
+    type: 'choice_or_custom',
+    options: ['😊 笑容/长相', '🧠 聪明/能力强', '💗 温柔/善解人意', '😂 幽默/有趣'],
+    customPlaceholder: '其他魅力点...'
+  },
+  {
+    id: 'food',
+    q: '以下哪个最能代表你的饮食风格？',
+    type: 'choice',
+    options: ['🔥 无辣不欢', '🍰 甜食星人', '🥗 养生健康派', '🍜 什么都吃·来者不拒']
+  },
+  {
+    id: 'love_style',
+    q: '你在感情中更看重什么？',
+    type: 'choice',
+    options: ['🛡️ 安全感·靠得住', '❤️‍🔥 心动感·来电很重要', '🤝 三观合·聊得来', '🎯 上进心·一起变更好']
+  },
+  {
+    id: 'one_word',
+    q: '用一句话介绍一下自己吧！',
+    hint: '优点、特长、性格、什么都行',
+    type: 'free',
+    placeholder: '例如：爱笑的吃货，朋友说我是行走的开心果...'
+  }
+];
 
 function createStars() {
-  const container = document.getElementById('stars');
-  for (let i = 0; i < 60; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.animationDuration = (1 + Math.random() * 3) + 's';
-    star.style.animationDelay = (Math.random() * 3) + 's';
-    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
-    container.appendChild(star);
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDuration = (1+Math.random()*3)+'s';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    c.appendChild(s);
   }
 }
 
-function handleImage(input) {
-  if (!input.files || !input.files[0]) return;
-  const file = input.files[0];
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const size = 200;
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-
-      const minDim = Math.min(img.width, img.height);
-      const sx = (img.width - minDim) / 2;
-      const sy = (img.height - minDim) / 2;
-      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
-
-      avatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
-
-      const preview = document.getElementById('avatarPreview');
-      preview.innerHTML = `<img src="${avatarBase64}">`;
-      preview.classList.add('has-image');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+function selectGender(g, el) {
+  gender = g;
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
 }
 
-function showError(msg) {
-  const el = document.getElementById('errorMsg');
-  el.textContent = msg;
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3000);
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-async function submitForm() {
-  const name = document.getElementById('inputName').value.trim();
-  const desc = document.getElementById('inputDesc').value.trim();
+function startQuiz() {
+  nickname = document.getElementById('inputName').value.trim();
+  const err = document.getElementById('startError');
+  if (!gender) { err.textContent = '请选择性别'; return; }
+  if (!nickname) { err.textContent = '请填写群昵称'; return; }
+  err.textContent = '';
+  currentQ = 0;
+  answers = {};
+  showPage('quizPage');
+  renderQuestion();
+}
 
-  if (!name) return showError('请填写昵称');
-  if (!desc) return showError('请填写自我介绍');
-  if (!avatarBase64) return showError('请上传头像');
+function renderQuestion() {
+  const q = questions[currentQ];
+  const pct = (currentQ / questions.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${currentQ+1} / ${questions.length}`;
 
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'card-in 0.4s ease';
+
+  let body = '';
+  const letters = ['A','B','C','D','E'];
+
+  if (q.type === 'choice' || q.type === 'choice_or_custom') {
+    body = `<div class="options">
+      ${q.options.map((o,i) => `<div class="opt-btn" onclick="pickOption('${q.id}','${o.replace(/'/g,"\\'")}',this)">
+        <div class="opt-letter">${letters[i]}</div><div>${o}</div>
+      </div>`).join('')}
+    </div>`;
+    if (q.type === 'choice_or_custom') {
+      body += `<div class="custom-input-wrap">
+        <input class="custom-input" id="customInput" placeholder="${q.customPlaceholder || '自己填写...'}">
+        <button class="custom-submit" onclick="pickCustom('${q.id}')">确定</button>
+      </div>`;
+    }
+  } else if (q.type === 'score') {
+    body = `<div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<div class="score-btn" onclick="pickScore('${q.id}',${n},this)">${n}</div>`
+      ).join('')}
+    </div>`;
+  } else if (q.type === 'free') {
+    body = `<textarea class="free-input" id="freeInput" placeholder="${q.placeholder || ''}"></textarea>
+      <button class="free-submit" onclick="pickFree('${q.id}')">下一题 →</button>`;
+  }
+
+  card.innerHTML = `
+    <div class="q-num">第 ${currentQ+1} 题</div>
+    <div class="q-text">${q.q}</div>
+    ${q.hint ? `<div style="font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:16px;font-style:italic">${q.hint}</div>` : ''}
+    ${body}
+  `;
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < questions.length) {
+    renderQuestion();
+  } else {
+    submitAll();
+  }
+}
+
+function pickOption(id, val, el) {
+  answers[id] = val;
+  el.classList.add('selected');
+  el.parentElement.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+  setTimeout(nextQuestion, 400);
+}
+
+function pickCustom(id) {
+  const v = document.getElementById('customInput').value.trim();
+  if (!v) return;
+  answers[id] = v;
+  setTimeout(nextQuestion, 200);
+}
+
+function pickScore(id, n, el) {
+  answers[id] = n;
+  el.classList.add('selected');
+  el.parentElement.querySelectorAll('.score-btn').forEach(b => b.style.pointerEvents = 'none');
+  setTimeout(nextQuestion, 400);
+}
+
+function pickFree(id) {
+  const v = document.getElementById('freeInput').value.trim();
+  if (!v) return;
+  answers[id] = v;
+  setTimeout(nextQuestion, 200);
+}
+
+async function submitAll() {
   document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('submitBtn').disabled = true;
+
+  const profile = {
+    nickname: nickname,
+    gender: gender,
+    answers: answers,
+    time: new Date().toLocaleString('zh-CN')
+  };
 
   try {
     const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
     const token = TK.join('');
-    const timestamp = Date.now();
-    const safeName = name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
-    const filename = `submissions/${timestamp}_${safeName}.json`;
-
-    const data = {
-      name: name,
-      desc: desc,
-      avatar: avatarBase64,
-      time: new Date().toLocaleString('zh-CN')
-    };
-
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+    const ts = Date.now();
+    const safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    const filename = `submissions/${gender}_${ts}_${safeName}.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
 
     const resp = await fetch(`https://api.github.com/repos/lyca2006/weixin-app/contents/${filename}`, {
       method: 'PUT',
@@ -392,28 +423,20 @@ async function submitForm() {
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json'
       },
-      body: JSON.stringify({
-        message: `女神档案: ${name}`,
-        content: content,
-        branch: 'main'
-      })
+      body: JSON.stringify({ message: `档案: ${nickname}`, content: content, branch: 'main' })
     });
 
     if (resp.ok) {
-      document.getElementById('formPage').classList.remove('active');
-      document.getElementById('successPage').classList.add('active');
+      showPage('resultPage');
     } else {
-      const err = await resp.json();
-      showError('提交失败，请稍后重试');
-      console.error(err);
+      alert('提交失败，请稍后重试');
     }
   } catch(e) {
-    showError('网络错误，请检查网络后重试');
+    alert('网络错误，请检查网络后重试');
     console.error(e);
   }
 
   document.getElementById('loading').classList.add('hidden');
-  document.getElementById('submitBtn').disabled = false;
 }
 
 createStars();
