@@ -3,259 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>女神档案管理</title>
+<title>群友档案管理</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-
 body {
-  min-height: 100vh;
-  background: #0f0f1a;
+  min-height: 100vh; background: #0f0f1a;
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   color: #fff;
 }
+.container { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
 
-.container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px 16px;
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-
-/* 登录页 */
-.login-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  text-align: center;
-}
-.login-title {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 24px;
-  color: rgba(255,255,255,0.8);
-}
-.login-input {
-  padding: 14px 20px;
-  width: 240px;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-  color: #fff;
-  font-size: 15px;
-  text-align: center;
-  outline: none;
-  margin-bottom: 16px;
-}
-.login-input:focus { border-color: #f5576c; }
-.login-input::placeholder { color: rgba(255,255,255,0.3); }
-.login-btn {
-  padding: 12px 40px;
-  background: linear-gradient(135deg, #f093fb, #f5576c);
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.login-error {
-  color: #f5576c;
-  font-size: 13px;
-  margin-top: 12px;
-  display: none;
-}
-
-/* 管理页 */
-.admin-page { display: none; }
-.admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.admin-title {
-  font-size: 20px;
-  font-weight: 700;
-}
-.admin-count {
-  font-size: 14px;
-  color: rgba(255,255,255,0.5);
-}
+.title { font-size: 20px; font-weight: 700; }
+.count { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
 .refresh-btn {
-  padding: 8px 16px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 8px;
-  color: #fff;
-  font-size: 13px;
-  cursor: pointer;
+  padding: 8px 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer;
 }
 
-.loading-text {
-  text-align: center;
-  color: rgba(255,255,255,0.4);
-  padding: 40px;
-  font-size: 14px;
+/* 筛选 */
+.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.filter-btn {
+  padding: 6px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer;
 }
+.filter-btn.active { background: rgba(245,87,108,0.2); border-color: #f5576c; color: #fff; }
+
+.loading-text { text-align: center; color: rgba(255,255,255,0.4); padding: 40px; font-size: 14px; }
 
 /* 卡片 */
 .card {
-  background: rgba(255,255,255,0.06);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-  border: 1px solid rgba(255,255,255,0.08);
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;
+  margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);
 }
-.card-avatar {
-  width: 80px; height: 80px;
-  border-radius: 12px;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 2px solid rgba(245,87,108,0.3);
-}
-.card-info { flex: 1; }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .card-name {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-size: 18px; font-weight: 700;
   background: linear-gradient(135deg, #f093fb, #f5576c);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.card-desc {
-  font-size: 14px;
-  color: rgba(255,255,255,0.65);
-  line-height: 1.6;
-  margin-bottom: 6px;
+.card-gender {
+  padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600;
 }
-.card-time {
-  font-size: 11px;
-  color: rgba(255,255,255,0.25);
-}
+.card-gender.male { background: rgba(66,165,245,0.2); color: #42a5f5; }
+.card-gender.female { background: rgba(245,87,108,0.2); color: #f5576c; }
+.card-time { font-size: 11px; color: rgba(255,255,255,0.2); }
 
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: rgba(255,255,255,0.3);
-}
+.card-answers { display: flex; flex-direction: column; gap: 8px; }
+.card-row { display: flex; gap: 8px; font-size: 13px; line-height: 1.5; }
+.card-label { color: rgba(255,255,255,0.35); flex-shrink: 0; min-width: 56px; }
+.card-value { color: rgba(255,255,255,0.75); }
+
+.empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
 </style>
 </head>
 <body>
-
 <div class="container">
-  <!-- 登录页 -->
-  <div id="loginPage" class="login-page">
-    <div class="login-title">🔐 管理员验证</div>
-    <input class="login-input" id="pwdInput" type="password" placeholder="请输入管理密码" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">进入</button>
-    <div class="login-error" id="loginError">密码错误</div>
+  <div class="header">
+    <div>
+      <div class="title">📋 群友档案</div>
+      <div class="count" id="countText">加载中...</div>
+    </div>
+    <button class="refresh-btn" onclick="loadAll()">🔄 刷新</button>
   </div>
 
-  <!-- 管理页 -->
-  <div id="adminPage" class="admin-page">
-    <div class="admin-header">
-      <div>
-        <div class="admin-title">👸 女神档案</div>
-        <div class="admin-count" id="countText">加载中...</div>
-      </div>
-      <button class="refresh-btn" onclick="loadSubmissions()">🔄 刷新</button>
-    </div>
-    <div id="cardList"><div class="loading-text">正在加载...</div></div>
+  <div class="filter-bar">
+    <div class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">全部</div>
+    <div class="filter-btn" data-filter="female" onclick="setFilter('female',this)">👩 女生</div>
+    <div class="filter-btn" data-filter="male" onclick="setFilter('male',this)">🧑 男生</div>
   </div>
+
+  <div id="cardList"><div class="loading-text">正在加载...</div></div>
 </div>
 
 <script>
-const ADMIN_PWD = 'xiaoapp2026';
+let allData = [];
+let currentFilter = 'all';
 
-function doLogin() {
-  const pwd = document.getElementById('pwdInput').value;
-  if (pwd === ADMIN_PWD) {
-    document.getElementById('loginPage').style.display = 'none';
-    document.getElementById('adminPage').style.display = 'block';
-    loadSubmissions();
-  } else {
-    const err = document.getElementById('loginError');
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 2000);
-  }
+const LABELS = {
+  hairstyle: '发型',
+  look_score: '颜值自评',
+  personality: '性格',
+  hobby: '周末',
+  charm: '魅力点',
+  food: '饮食',
+  love_style: '感情观',
+  one_word: '自我介绍'
+};
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderCards();
 }
 
-async function loadSubmissions() {
-  const cardList = document.getElementById('cardList');
-  cardList.innerHTML = '<div class="loading-text">正在加载...</div>';
+function renderCards() {
+  const list = document.getElementById('cardList');
+  const filtered = currentFilter === 'all' ? allData : allData.filter(d => d.gender === currentFilter);
+  document.getElementById('countText').textContent = `共 ${allData.length} 份档案` + (currentFilter !== 'all' ? `，当前显示 ${filtered.length} 份` : '');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div>暂无档案</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(d => {
+    const rows = Object.entries(d.answers || {}).map(([k, v]) => {
+      const label = LABELS[k] || k;
+      const val = k === 'look_score' ? `${'⭐'.repeat(Math.min(v,5))} ${v}分` : v;
+      return `<div class="card-row"><span class="card-label">${label}</span><span class="card-value">${val}</span></div>`;
+    }).join('');
+
+    return `<div class="card">
+      <div class="card-top">
+        <div>
+          <span class="card-name">${d.nickname}</span>
+          <span class="card-gender ${d.gender}">${d.gender === 'male' ? '♂ 男' : '♀ 女'}</span>
+        </div>
+        <span class="card-time">${d.time || ''}</span>
+      </div>
+      <div class="card-answers">${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadAll() {
+  const list = document.getElementById('cardList');
+  list.innerHTML = '<div class="loading-text">正在加载...</div>';
+  allData = [];
 
   try {
     const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
     const token = TK.join('');
 
     const resp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/submissions', {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json'
-      }
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
     });
 
     if (resp.status === 404) {
-      cardList.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div>还没有人提交档案</div></div>';
-      document.getElementById('countText').textContent = '共 0 份档案';
+      allData = [];
+      renderCards();
       return;
     }
 
     const files = await resp.json();
     const jsonFiles = files.filter(f => f.name.endsWith('.json'));
-
-    if (jsonFiles.length === 0) {
-      cardList.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div>还没有人提交档案</div></div>';
-      document.getElementById('countText').textContent = '共 0 份档案';
-      return;
-    }
-
-    document.getElementById('countText').textContent = `共 ${jsonFiles.length} 份档案`;
-
-    // Sort by name (timestamp prefix = chronological)
     jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-    let html = '';
     for (const file of jsonFiles) {
       try {
-        const fileResp = await fetch(file.url, {
-          headers: {
-            'Authorization': `token ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
+        const r = await fetch(file.url, {
+          headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
         });
-        const fileData = await fileResp.json();
-        const content = JSON.parse(decodeURIComponent(escape(atob(fileData.content.replace(/\n/g, '')))));
-
-        html += `
-          <div class="card">
-            <img class="card-avatar" src="${content.avatar}" alt="${content.name}">
-            <div class="card-info">
-              <div class="card-name">${content.name}</div>
-              <div class="card-desc">${content.desc}</div>
-              <div class="card-time">${content.time}</div>
-            </div>
-          </div>
-        `;
-      } catch(e) {
-        console.error('Failed to load', file.name, e);
-      }
+        const fd = await r.json();
+        const content = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+        allData.push(content);
+      } catch(e) { console.error(e); }
     }
 
-    cardList.innerHTML = html || '<div class="empty-state"><div class="icon">📭</div><div>加载失败</div></div>';
+    renderCards();
   } catch(e) {
-    cardList.innerHTML = '<div class="loading-text">加载失败，请重试</div>';
+    list.innerHTML = '<div class="loading-text">加载失败，请重试</div>';
     console.error(e);
   }
 }
+
+loadAll();
 </script>
 </body>
 </html>
