@@ -225,7 +225,7 @@ body {
     <div class="result-page">
       <div class="result-icon">🎉</div>
       <div class="result-title">提交成功！</div>
-      <div class="result-desc">你的专属档案已生成<br>等白菜君给你匹配最优质的男生吧～</div>
+      <div class="result-desc" id="resultDesc">你的专属档案已生成</div>
     </div>
   </div>
 </div>
@@ -438,6 +438,9 @@ async function submitAll() {
     });
 
     if (resp.ok) {
+      document.getElementById('resultDesc').innerHTML = gender === 'male'
+        ? '你的专属档案已生成<br>等白菜君给你匹配最优质的女生吧～'
+        : '你的专属档案已生成<br>等白菜君给你匹配最优质的男生吧～';
       showPage('resultPage');
     } else {
       alert('提交失败，请稍后重试');
