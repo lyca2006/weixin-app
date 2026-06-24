@@ -991,8 +991,16 @@ async function showMaleResult() {
       if (tops.length === 1) femType = tops[0];
     }
 
-    // 3. 从库里拉取新男生
-    const newMales = await fetchSubmittedMales();
+    // 3. 尝试拉取新男生（设5秒超时，失败不影响）
+    let newMales = [];
+    try {
+      const fetchPromise = fetchSubmittedMales();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000));
+      newMales = await Promise.race([fetchPromise, timeoutPromise]);
+    } catch(e) {
+      console.log('拉取新男生超时或失败，仅用老男生', e);
+      newMales = [];
+    }
 
     // 4. 合并：老男生 + 新男生
     const allMales = [...members, ...newMales];
@@ -1073,8 +1081,16 @@ async function showFemaleResult() {
     // 2. 确定男生类型
     const maleType = determineMaleType(maleScores);
 
-    // 3. 从 GitHub 获取女生数据
-    const females = await fetchFemales();
+    // 3. 从 GitHub 获取女生数据（5秒超时）
+    let females = [];
+    try {
+      const fetchPromise = fetchFemales();
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000));
+      females = await Promise.race([fetchPromise, timeoutPromise]);
+    } catch(e) {
+      console.log('拉取女生超时', e);
+      females = [];
+    }
 
     if (!females || females.length === 0) {
       document.getElementById('loadingOverlay').classList.add('hidden');
