@@ -704,6 +704,141 @@ function generateFemaleIntro(a) {
   return { title, desc: parts.join('') };
 }
 
+// ==================== 男生介绍生成 ====================
+const maleOptionTexts = {
+  m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
+  m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
+  m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
+  m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
+  m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
+  m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
+  m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
+  m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
+  m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
+  m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
+};
+
+function findMaleIdx(qid, ans) {
+  const opts = maleOptionTexts[qid];
+  if (!opts || !ans) return -1;
+  return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+}
+
+function generateMaleIntro(a) {
+  if (!a) return { title: '👤 神秘男士·待解锁', desc: '一个等待被发现的宝藏男孩。' };
+
+  // 男生维度计分
+  const maleQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
+  const maleDimMap = [
+    { A:'stable', B:'active', C:'stable', D:null },
+    { A:'active', B:'active', C:'stable', D:'growth' },
+    { A:'active', B:'stable', C:'growth', D:null },
+    { A:'stable', B:'active', C:'romantic', D:null },
+    { A:'growth', B:'romantic', C:'stable', D:'active' },
+    { A:'growth', B:'stable', C:'active', D:'romantic' },
+    { A:'growth', B:'active', C:'stable', D:'romantic' },
+    { A:'stable', B:'romantic', C:'growth', D:'active' },
+    { A:'growth', B:'active', C:'stable', D:'romantic' },
+    { A:'stable', B:'romantic', C:'active', D:'growth' }
+  ];
+  const letters = ['A','B','C','D'];
+  const scores = { stable:0, romantic:0, active:0, growth:0 };
+  maleQids.forEach((qid, qi) => {
+    const idx = findMaleIdx(qid, a[qid]);
+    if (idx >= 0) {
+      const dim = maleDimMap[qi][letters[idx]];
+      if (dim) scores[dim]++;
+    }
+  });
+
+  // 判定类型
+  const maxScore = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  let maleType = 'balanced';
+  if (maxScore >= 3) {
+    const tops = Object.entries(scores).filter(([k,v]) => v === maxScore).map(([k]) => k);
+    if (tops.length === 1) maleType = tops[0];
+  }
+
+  // 男生称号词库
+  const maleTitleBanks = {
+    stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','🧸 行走的安眠药·男友版','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人','🏡 把家扛在肩上的人','🧘 佛系暖男·内心有火','🌙 深夜陪聊·不嫌你烦'],
+    romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🌸 把你宠成公主的人','🎵 氛围感制造机','💐 记住你说过每句话的人','🕯️ 浪漫不是套路是日常','🌅 黄昏散步·牵手专家','💗 懂你比你更懂自己'],
+    active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🎮 带你开黑带你飞','🍻 最佳酒搭子·首席段子手','🎯 快乐制造·ISO认证','🌊 冲浪达人·人生玩家','🎭 行走的表情包·本人比图更搞笑'],
+    growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','🎯 目标感拉满·执行力爆表','💎 越磨越亮·钻石型男','🧠 清醒脑·顶级操盘手','⛰️ 翻山越岭·一路向前','🌟 自己就是豪门的男人'],
+    balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','🎰 盲盒男神·开盖有惊喜','💯 满级人类·男性版','🌟 全能ACE·不设限','🧬 高配版男友样本','🎨 人生画家·调色盘拉满','🌊 兼容并包·宝藏本藏']
+  };
+
+  const title = pick(maleTitleBanks[maleType] || maleTitleBanks.balanced);
+
+  // 男生描述生成
+  const descParts = [];
+
+  // M2 下班后
+  const evIdx = findMaleIdx('m_evening', a.m_evening);
+  const evD = {
+    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。'],
+    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。'],
+    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。'],
+    3: ['事业心爆棚，加班是日常，但他加的每一个班都在为未来铺路。', '工作狂但不冷漠，忙归忙，心里有你的位置。']
+  };
+  if (evIdx >= 0 && evD[evIdx]) descParts.push(pick(evD[evIdx]));
+
+  // M4 小毛病（反差萌）
+  const flIdx = findMaleIdx('m_flaw', a.m_flaw);
+  const flD = {
+    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。'],
+    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。'],
+    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。'],
+    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。']
+  };
+  if (flIdx >= 0 && flD[flIdx]) descParts.push(pick(flD[flIdx]));
+
+  // M5 相处模式
+  const togIdx = findMaleIdx('m_together', a.m_together);
+  const togD = {
+    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。'],
+    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。'],
+    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。'],
+    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。']
+  };
+  if (togIdx >= 0 && togD[togIdx]) descParts.push(pick(togD[togIdx]));
+
+  // M10 感情最重要的
+  const esIdx = findMaleIdx('m_essential', a.m_essential);
+  const esD = {
+    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。'],
+    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。'],
+    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。'],
+    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。']
+  };
+  if (esIdx >= 0 && esD[esIdx]) descParts.push(pick(esD[esIdx]));
+
+  const maleEnds = [
+    '这种男生，遇到了就别犹豫，错过了就是别人的了。',
+    '他值得被认真对待——不是因为他完美，是因为他真实。',
+    '如果你想找一个能一起笑、一起扛的人，他就是答案。',
+    '遇到他，你会明白什么叫"原来你在这里"。',
+    '这种宝藏男孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。',
+    '跟他在一起，你会发现生活突然有趣了很多。',
+    '别被表面迷惑，他的内在比外在更让人心动。'
+  ];
+  descParts.push(pick(maleEnds));
+
+  if (descParts.length < 3) {
+    descParts.splice(0, 0, '他是那种第一眼就让人想认识的男生。');
+  }
+
+  return { title, desc: descParts.join('') };
+}
+
+// ==================== 统一入口 ====================
+function generateIntro(d) {
+  if (d._isHardcoded) return { title: d.title || '', desc: d.desc || '' };
+  if (d.gender === 'male') return generateMaleIntro(d.answers);
+  return generateFemaleIntro(d.answers);
+}
+
 // ==================== Filter ====================
 function setFilter(f, el) {
   currentFilter = f;
@@ -737,9 +872,13 @@ function renderCards() {
     // ABCD string (only for submitted users with answers)
     let abcdHtml = '';
     if (hasAnswers) {
-      const abcd = qIds.map(qid => {
+      const isMale = d.gender === 'male';
+      const useQids = isMale
+        ? ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential']
+        : qIds;
+      const abcd = useQids.map(qid => {
         const ans = (d.answers || {})[qid] || '';
-        const i = findIdx(qid, ans);
+        const i = isMale ? findMaleIdx(qid, ans) : findIdx(qid, ans);
         return i >= 0 ? letters[i] : '?';
       }).join('');
       abcdHtml = `<div class="card-abcd">${abcd}</div>`;
@@ -751,7 +890,7 @@ function renderCards() {
       displayTitle = d._introOverride ? d._introOverride.title : d.title;
       displayDesc = d._introOverride ? d._introOverride.desc : d.desc;
     } else {
-      const intro = d._introOverride || d._introCache || generateFemaleIntro(d.answers);
+      const intro = d._introOverride || d._introCache || generateIntro(d);
       if (!d._introOverride && !d._introCache) d._introCache = intro;
       displayTitle = (d._introOverride || d._introCache || intro).title;
       displayDesc = (d._introOverride || d._introCache || intro).desc;
@@ -809,7 +948,7 @@ function regenInline(idx) {
     showToast('男生档案暂不支持重新生成', 'info');
     return;
   }
-  const intro = generateFemaleIntro(d.answers);
+  const intro = generateIntro(d);
   d._introCache = intro;
   d._introOverride = intro;
   d.introOverride = intro;
@@ -877,7 +1016,7 @@ function openEditIntro(idx) {
   if (d._isHardcoded) {
     intro = d._introOverride || { title: d.title, desc: d.desc };
   } else {
-    intro = d._introOverride || d._introCache || generateFemaleIntro(d.answers);
+    intro = d._introOverride || d._introCache || generateIntro(d);
   }
   document.getElementById('editTitleInput').value = intro.title;
   document.getElementById('editDescInput').value = intro.desc;
@@ -1011,7 +1150,7 @@ async function loadAll() {
   // Generate initial intro cache for female submissions
   allData.forEach(d => {
     if (!d._isHardcoded && !d._introOverride && d.answers) {
-      d._introCache = generateFemaleIntro(d.answers);
+      d._introCache = generateIntro(d);
     }
   });
 
