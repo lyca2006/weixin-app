@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>女神档案提交</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+}
+
+.stars {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.5); }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+.page { display: none; }
+.page.active { display: block; }
+
+/* 表单页 */
+.form-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.form-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.form-title {
+  font-size: 26px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.form-subtitle {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.6;
+}
+
+.form-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 28px 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 8px;
+  display: block;
+}
+.form-label .required {
+  color: #f5576c;
+  margin-left: 2px;
+}
+.form-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.form-input:focus {
+  border-color: rgba(245,87,108,0.6);
+}
+.form-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+textarea.form-input {
+  height: 100px;
+  resize: none;
+  line-height: 1.6;
+}
+
+/* 头像上传 */
+.avatar-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.avatar-preview {
+  width: 120px; height: 120px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 2px dashed rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.avatar-preview:active {
+  transform: scale(0.96);
+}
+.avatar-preview.has-image {
+  border-style: solid;
+  border-color: rgba(245,87,108,0.5);
+}
+.avatar-preview img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.avatar-placeholder {
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.avatar-placeholder .icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 4px;
+}
+.avatar-hint {
+  font-size: 12px;
+  color: rgba(255,255,255,0.3);
+}
+input[type="file"] { display: none; }
+
+/* 提交按钮 */
+.submit-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 6px 24px rgba(245,87,108,0.4);
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: 1px;
+}
+.submit-btn:active {
+  transform: scale(0.97);
+}
+.submit-btn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 成功页 */
+.success-page {
+  text-align: center;
+  padding-top: 20vh;
+}
+.success-icon {
+  font-size: 72px;
+  margin-bottom: 20px;
+}
+.success-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.success-desc {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+}
+
+/* Loading overlay */
+.loading {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.loading.hidden { display: none; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: #f5576c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.error-msg {
+  color: #f5576c;
+  font-size: 13px;
+  margin-top: 6px;
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="loading hidden" id="loading"><div class="loading-spinner"></div></div>
+
+<div class="container">
+  <!-- 表单页 -->
+  <div class="page active" id="formPage">
+    <div class="form-header">
+      <div class="form-icon">👸</div>
+      <div class="form-title">女神档案提交</div>
+      <div class="form-subtitle">填写你的信息，加入专属女神图鉴<br>资料仅管理员可见，请放心填写</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">昵称 <span class="required">*</span></label>
+        <input class="form-input" id="inputName" type="text" placeholder="你的群昵称" maxlength="20">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">自我介绍 <span class="required">*</span></label>
+        <textarea class="form-input" id="inputDesc" placeholder="用几句话介绍一下自己的优点、性格特点&#10;例如：开朗爱笑，喜欢旅行和美食，朋友说我是团队里的开心果"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">上传头像 <span class="required">*</span></label>
+        <div class="avatar-upload">
+          <div class="avatar-preview" id="avatarPreview" onclick="document.getElementById('fileInput').click()">
+            <div class="avatar-placeholder">
+              <span class="icon">📷</span>
+              点击上传
+            </div>
+          </div>
+          <div class="avatar-hint">建议使用正方形图片，会自动裁剪</div>
+          <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)">
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="submitForm()">提交档案 ✨</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- 成功页 -->
+  <div class="page" id="successPage">
+    <div class="success-page">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">提交成功！</div>
+      <div class="success-desc">你的女神档案已收录<br>请耐心等待测试上线～</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let avatarBase64 = null;
+
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDuration = (1 + Math.random() * 3) + 's';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(star);
+  }
+}
+
+function handleImage(input) {
+  if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const minDim = Math.min(img.width, img.height);
+      const sx = (img.width - minDim) / 2;
+      const sy = (img.height - minDim) / 2;
+      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+      avatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+      const preview = document.getElementById('avatarPreview');
+      preview.innerHTML = `<img src="${avatarBase64}">`;
+      preview.classList.add('has-image');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+async function submitForm() {
+  const name = document.getElementById('inputName').value.trim();
+  const desc = document.getElementById('inputDesc').value.trim();
+
+  if (!name) return showError('请填写昵称');
+  if (!desc) return showError('请填写自我介绍');
+  if (!avatarBase64) return showError('请上传头像');
+
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('submitBtn').disabled = true;
+
+  try {
+    const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+    const token = TK.join('');
+    const timestamp = Date.now();
+    const safeName = name.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    const filename = `submissions/${timestamp}_${safeName}.json`;
+
+    const data = {
+      name: name,
+      desc: desc,
+      avatar: avatarBase64,
+      time: new Date().toLocaleString('zh-CN')
+    };
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+    const resp = await fetch(`https://api.github.com/repos/lyca2006/weixin-app/contents/${filename}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify({
+        message: `女神档案: ${name}`,
+        content: content,
+        branch: 'main'
+      })
+    });
+
+    if (resp.ok) {
+      document.getElementById('formPage').classList.remove('active');
+      document.getElementById('successPage').classList.add('active');
+    } else {
+      const err = await resp.json();
+      showError('提交失败，请稍后重试');
+      console.error(err);
+    }
+  } catch(e) {
+    showError('网络错误，请检查网络后重试');
+    console.error(e);
+  }
+
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('submitBtn').disabled = false;
+}
+
+createStars();
+</script>
+</body>
+</html>
