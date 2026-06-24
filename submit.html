@@ -262,68 +262,33 @@ function handleImage(input) {
   reader.readAsDataURL(input.files[0]);
 }
 
-const questions = [
-  {
-    id: 'style',
-    q: '翻遍衣柜，你穿上后最自信的那件衣服，通常是什么风格？',
-    type: 'choice',
-    options: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣']
-  },
-  {
-    id: 'date_detail',
-    q: '如果周末有约会，你希望见到对方时，他最吸引你的第一眼细节是？',
-    type: 'choice',
-    options: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓']
-  },
-  {
-    id: 'recharge',
-    q: '忙碌了一周，周五晚上你最渴望的"充电"方式是？',
-    type: 'choice',
-    options: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐']
-  },
-  {
-    id: 'conflict',
-    q: '看到社交媒体上有人发了非常偏激的引战言论，你的第一反应是？',
-    type: 'choice',
-    options: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主']
-  },
-  {
-    id: 'heartbeat',
-    q: '以下哪种"被照顾"的瞬间最让你心动？',
-    type: 'choice',
-    options: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌']
-  },
-  {
-    id: 'hidden_trait',
-    q: '在一段关系中，你觉得自己最大的"隐形优点"是？',
-    type: 'choice',
-    options: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物']
-  },
-  {
-    id: 'sleep',
-    q: '关于"睡觉"这件事，你的常态是？',
-    type: 'choice',
-    options: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒']
-  },
-  {
-    id: 'dealbreaker',
-    q: '假如你们开始共用洗手间，你最受不了他的行为是？',
-    type: 'choice',
-    options: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身']
-  },
-  {
-    id: 'money',
-    q: '如果意外得到一笔数额不小的闲钱，你更倾向于怎么花？',
-    type: 'choice',
-    options: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分']
-  },
-  {
-    id: 'ideal_animal',
-    q: '如果用一个动物来形容你理想中的"另一半"，你希望他是？',
-    type: 'choice',
-    options: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
-  }
+const femaleQuestions = [
+  { id: 'style', q: '翻遍衣柜，你穿上后最自信的那件衣服，通常是什么风格？', type: 'choice', options: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'] },
+  { id: 'date_detail', q: '如果周末有约会，你希望见到对方时，他最吸引你的第一眼细节是？', type: 'choice', options: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'] },
+  { id: 'recharge', q: '忙碌了一周，周五晚上你最渴望的"充电"方式是？', type: 'choice', options: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'] },
+  { id: 'conflict', q: '看到社交媒体上有人发了非常偏激的引战言论，你的第一反应是？', type: 'choice', options: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'] },
+  { id: 'heartbeat', q: '以下哪种"被照顾"的瞬间最让你心动？', type: 'choice', options: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'] },
+  { id: 'hidden_trait', q: '在一段关系中，你觉得自己最大的"隐形优点"是？', type: 'choice', options: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'] },
+  { id: 'sleep', q: '关于"睡觉"这件事，你的常态是？', type: 'choice', options: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'] },
+  { id: 'dealbreaker', q: '假如你们开始共用洗手间，你最受不了他的行为是？', type: 'choice', options: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'] },
+  { id: 'money', q: '如果意外得到一笔数额不小的闲钱，你更倾向于怎么花？', type: 'choice', options: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'] },
+  { id: 'ideal_animal', q: '如果用一个动物来形容你理想中的"另一半"，你希望他是？', type: 'choice', options: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅'] }
 ];
+
+const maleQuestions = [
+  { id: 'm_weekend', q: '周末早上醒来，你通常是什么状态？', type: 'choice', options: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'] },
+  { id: 'm_date', q: '第一次约女生见面，你更倾向选哪里？', type: 'choice', options: ['☕ 安静的咖啡馆或书店', '🍷 氛围感小酒馆或清吧', '🌳 户外公园或小众展览', '🍜 你踩过点的宝藏餐厅'] },
+  { id: 'm_party', q: '在朋友聚会中，你通常扮演什么角色？', type: 'choice', options: ['📋 组织者，喜欢张罗大家', '👂 倾听者，话不多但句句走心', '🎉 开心果，负责活跃气氛', '🤙 随和派，跟着大家走'] },
+  { id: 'm_strength', q: '你觉得自己最大的优点是？', type: 'choice', options: ['💪 踏实靠谱，说到做到', '😂 幽默风趣，跟我在一起不会无聊', '💗 细心温柔，能注意到别人的情绪', '🚀 有上进心，一直在努力变好'] },
+  { id: 'm_comfort', q: '如果女朋友心情不好，你第一反应会怎么做？', type: 'choice', options: ['🤝 静静陪着，等她开口', '😄 讲个笑话逗她开心', '🧠 帮她分析问题，出主意', '🫂 直接抱抱她，不说话'] },
+  { id: 'm_type', q: '你更欣赏什么样的女生？', type: 'choice', options: ['👩‍💼 独立有主见，有自己的事业', '🎊 活泼开朗，能一起疯一起玩', '🌸 温柔体贴，会照顾人', '📚 文艺安静，有内在深度'] },
+  { id: 'm_rhythm', q: '你平时的生活节奏更偏向？', type: 'choice', options: ['⏰ 规律稳定，早睡早起', '🎯 自由灵活，看状态安排', '🌙 典型夜猫子，越晚越精神', '💼 跟着工作走，不太固定'] },
+  { id: 'm_attitude', q: '你对感情的态度更接近？', type: 'choice', options: ['💍 认定了就是一辈子，不轻易开始', '🎈 享受当下，开心最重要', '🌱 慢慢来，从朋友做起', '🍀 看缘分，不强求'] },
+  { id: 'm_give', q: '你最想在感情里给对方什么？', type: 'choice', options: ['🏠 踏实的陪伴和安全感', '🎉 每天的快乐和新鲜感', '👁️ 被看见、被懂得的温暖', '🌍 带她看更大的世界'] },
+  { id: 'm_ideal', q: '用一句话形容你理想中的关系？', type: 'choice', options: ['☁️ 平平淡淡才是真', '🎢 一起疯一起玩一起探索世界', '🔗 一个眼神就懂彼此', '📈 互相成就，一起变好'] }
+];
+
+let activeQuestions = [];
 
 function createStars() {
   const c = document.getElementById('stars');
@@ -358,15 +323,16 @@ function startQuiz() {
   err.textContent = '';
   currentQ = 0;
   answers = {};
+  activeQuestions = (gender === 'male') ? maleQuestions : femaleQuestions;
   showPage('quizPage');
   renderQuestion();
 }
 
 function renderQuestion() {
-  const q = questions[currentQ];
-  const pct = (currentQ / questions.length * 100).toFixed(0);
+  const q = activeQuestions[currentQ];
+  const pct = (currentQ / activeQuestions.length * 100).toFixed(0);
   document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = `${currentQ+1} / ${questions.length}`;
+  document.getElementById('progressText').textContent = `${currentQ+1} / ${activeQuestions.length}`;
 
   const card = document.getElementById('questionCard');
   card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'card-in 0.4s ease';
@@ -407,7 +373,7 @@ function renderQuestion() {
 
 function nextQuestion() {
   currentQ++;
-  if (currentQ < questions.length) {
+  if (currentQ < activeQuestions.length) {
     renderQuestion();
   } else {
     submitAll();
