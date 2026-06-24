@@ -991,11 +991,11 @@ async function showMaleResult() {
       if (tops.length === 1) femType = tops[0];
     }
 
-    // 3. 尝试拉取新男生（设5秒超时，失败不影响）
+    // 3. 尝试拉取新男生（15秒超时，失败不影响）
     let newMales = [];
     try {
       const fetchPromise = fetchSubmittedMales();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000));
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 15000));
       newMales = await Promise.race([fetchPromise, timeoutPromise]);
     } catch(e) {
       console.log('拉取新男生超时或失败，仅用老男生', e);
@@ -1081,24 +1081,28 @@ async function showFemaleResult() {
     // 2. 确定男生类型
     const maleType = determineMaleType(maleScores);
 
-    // 3. 从 GitHub 获取女生数据（5秒超时）
+    // 3. 从 GitHub 获取女生数据（15秒超时，失败重试一次）
     let females = [];
-    try {
-      const fetchPromise = fetchFemales();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000));
-      females = await Promise.race([fetchPromise, timeoutPromise]);
-    } catch(e) {
-      console.log('拉取女生超时', e);
-      females = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const fetchPromise = fetchFemales();
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 15000));
+        females = await Promise.race([fetchPromise, timeoutPromise]);
+        if (females && females.length > 0) break;
+      } catch(e) {
+        console.log(`拉取女生第${attempt+1}次失败`, e);
+        females = [];
+      }
     }
 
     if (!females || females.length === 0) {
       document.getElementById('loadingOverlay').classList.add('hidden');
       showPage('resultPage');
       document.getElementById('resultInner').innerHTML = `
-        <div class="empty-state">
-          <div class="empty-icon">😢</div>
-          <div class="empty-text">暂时没有匹配的女生，请稍后再试</div>
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:48px;margin-bottom:16px">😅</div>
+          <div style="font-size:16px;margin-bottom:20px;color:rgba(255,255,255,0.7)">网络开小差了，没拉到女生数据</div>
+          <button onclick="showFemaleResult()" style="padding:12px 28px;border-radius:24px;border:none;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;font-size:15px;font-weight:600;cursor:pointer">🔄 再试一次</button>
         </div>
       `;
       return;
