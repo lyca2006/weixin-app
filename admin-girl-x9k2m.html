@@ -1017,7 +1017,16 @@ function openDelete(idx) {
 async function confirmDelete() {
   if (pendingIdx < 0) return;
   const d = allData[pendingIdx];
-  if (d._isHardcoded) { closeModal('deleteModal'); return; }
+  if (d._isHardcoded) {
+    const deleted = JSON.parse(localStorage.getItem('deletedHardcoded') || '[]');
+    deleted.push(d.nickname);
+    localStorage.setItem('deletedHardcoded', JSON.stringify(deleted));
+    allData.splice(pendingIdx, 1);
+    closeModal('deleteModal');
+    renderCards();
+    showToast('删除成功', 'success');
+    return;
+  }
   try {
     const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
@@ -1171,7 +1180,8 @@ async function loadAll() {
 
   // Combine: submitted data first, then hardcoded males
   // Deep clone hardcoded males so we don't mutate the original
-  const males = hardcodedMales.map(m => ({ ...m }));
+  const deletedHardcoded = new Set(JSON.parse(localStorage.getItem('deletedHardcoded') || '[]'));
+  const males = hardcodedMales.filter(m => !deletedHardcoded.has(m.nickname)).map(m => ({ ...m }));
 
   allData = [...submittedData, ...males];
 
