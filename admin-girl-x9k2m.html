@@ -179,9 +179,27 @@ function renderCards() {
 
   list.innerHTML = filtered.map(d => {
     const idx = allData.indexOf(d);
-    const rows = Object.entries(d.answers || {}).map(([k, v]) => {
-      const label = LABELS[k] || k;
-      return `<div class="card-row"><span class="card-label">${label}</span><span class="card-value">${v}</span></div>`;
+
+    // 每题的选项列表，用于反查ABCD
+    const optionMap = {
+      style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
+      date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
+      recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
+      conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
+      heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
+      hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
+      sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
+      dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
+      money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
+      ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
+    };
+    const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_trait','sleep','dealbreaker','money','ideal_animal'];
+    const letters = ['A','B','C','D'];
+    const abcdResult = qIds.map(qid => {
+      const ans = (d.answers || {})[qid] || '';
+      const opts = optionMap[qid] || [];
+      const idx2 = opts.indexOf(ans);
+      return idx2 >= 0 ? letters[idx2] : '?';
     }).join('');
 
     return `<div class="card">
@@ -195,8 +213,8 @@ function renderCards() {
           <button class="action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>
         </div>
       </div>
+      <div style="font-size:15px;font-family:monospace;color:#4fc3f7;letter-spacing:2px;user-select:all;padding:4px 0">${abcdResult}</div>
       <div class="card-time">${d.time || ''}</div>
-      <div class="card-answers">${rows}</div>
     </div>`;
   }).join('');
 }
