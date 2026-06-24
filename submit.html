@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案收集</title>
+<title>填写资料，开始接客</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -177,23 +177,23 @@ body {
   <div class="page active" id="startPage">
     <div class="start-page">
       <div class="start-icon">📋</div>
-      <div class="start-title">群友档案收集</div>
-      <div class="start-subtitle">回答8个小问题<br>帮你生成专属人物卡</div>
+      <div class="start-title">填写资料，开始接客</div>
+      <div class="start-subtitle">回答10个小问题<br>帮你生成专属人物卡</div>
 
       <div class="gender-section">
         <div class="gender-btn" onclick="selectGender('male', this)">
           <div class="icon">🧑</div>
-          <div class="label">男生</div>
+          <div class="label">男模</div>
         </div>
         <div class="gender-btn" onclick="selectGender('female', this)">
           <div class="icon">👩</div>
-          <div class="label">女生</div>
+          <div class="label">女模</div>
         </div>
       </div>
 
       <div class="name-section">
         <div class="name-label">你的群昵称</div>
-        <input class="name-input" id="inputName" type="text" placeholder="请填写你在群里的昵称" maxlength="20">
+        <input class="name-input" id="inputName" type="text" placeholder="群昵称" maxlength="5" style="max-width:140px">
       </div>
 
       <div class="name-section">
