@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>天天向上一家人</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* 星星背景 */
+.stars {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.star {
+  position: absolute;
+  width: 2px; height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  animation: twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  0% { opacity: 0.2; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.5); }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  min-height: 100vh;
+}
+
+/* 页面切换 */
+.page { display: none; }
+.page.active { display: block; }
+
+/* 模式选择页 */
+.mode-page {
+  text-align: center;
+  padding-top: 12vh;
+}
+.mode-icon {
+  font-size: 72px;
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.mode-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.mode-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+.mode-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.mode-btn {
+  flex: 1;
+  max-width: 160px;
+  padding: 28px 16px;
+  border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mode-btn:active {
+  transform: scale(0.95);
+}
+.mode-btn:hover {
+  border-color: rgba(245,87,108,0.5);
+  background: rgba(245,87,108,0.1);
+  box-shadow: 0 8px 30px rgba(245,87,108,0.2);
+}
+.mode-btn .btn-icon {
+  font-size: 40px;
+}
+.mode-btn .btn-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+.mode-note {
+  margin-top: 10px;
+  font-size: 16px;
+  color: rgba(255,255,255,0.8);
+  font-weight: 600;
+}
+
+/* 题目页 */
+.quiz-page { padding-top: 20px; }
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f093fb, #f5576c);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 30px;
+}
+
+.question-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 28px 22px;
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in {
+  0% { opacity: 0; transform: translateX(40px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.question-num {
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+.question-text {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 28px;
+}
+.question-hint {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.option-btn {
+  display: flex;
+  align-items: center;
+  padding: 16px 18px;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.25s;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+  line-height: 1.4;
+}
+.option-btn:active {
+  transform: scale(0.97);
+}
+.option-btn.selected {
+  background: rgba(245,87,108,0.2);
+  border-color: #f5576c;
+  box-shadow: 0 0 20px rgba(245,87,108,0.15);
+}
+.option-letter {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  margin-right: 14px;
+  flex-shrink: 0;
+  transition: all 0.25s;
+}
+.option-btn.selected .option-letter {
+  background: #f5576c;
+}
+
+/* 结果页 */
+.result-page {
+  padding-top: 10vh;
+  text-align: center;
+}
+.result-card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 36px 24px 28px;
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: result-in 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes result-in {
+  0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.result-card::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: conic-gradient(from 0deg, transparent, rgba(245,87,108,0.1), transparent, rgba(240,147,251,0.1), transparent);
+  animation: rotate-bg 6s linear infinite;
+}
+@keyframes rotate-bg {
+  100% { transform: rotate(360deg); }
+}
+.result-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.result-label {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+  letter-spacing: 3px;
+}
+.result-avatar {
+  width: 130px; height: 130px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid rgba(245,87,108,0.5);
+  box-shadow: 0 8px 30px rgba(245,87,108,0.3);
+  margin-bottom: 18px;
+  animation: avatar-glow 2s ease-in-out infinite alternate;
+}
+@keyframes avatar-glow {
+  0% { box-shadow: 0 8px 30px rgba(245,87,108,0.3); }
+  100% { box-shadow: 0 8px 50px rgba(245,87,108,0.6), 0 0 60px rgba(240,147,251,0.2); }
+}
+.result-name {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.result-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fda085;
+  margin-bottom: 20px;
+  text-shadow: 0 0 12px rgba(253,160,133,0.4);
+  letter-spacing: 1px;
+}
+.result-match {
+  display: inline-block;
+  padding: 6px 18px;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.result-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.75);
+  text-align: left;
+  margin-bottom: 20px;
+}
+.result-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.result-tag {
+  padding: 5px 14px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.retry-btn, .share-btn {
+  padding: 12px 28px;
+  border-radius: 24px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.retry-btn {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.2);
+}
+.retry-btn:active { transform: scale(0.95); }
+.share-btn {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(245,87,108,0.4);
+}
+.share-btn:active { transform: scale(0.95); }
+
+/* 心跳动画 */
+.heartbeat { animation: heartbeat 1.2s ease-in-out infinite; }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+}
+
+/* 飘落的心 */
+.falling-heart {
+  position: fixed;
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 100;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(360deg); }
+}
+
+/* Loading */
+.loading-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.loading-overlay.hidden { display: none; }
+.loading-spinner {
+  width: 40px; height: 40px;
+  border: 3px solid rgba(255,255,255,0.2);
+  border-top-color: #f5576c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.loading-text {
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+.empty-text {
+  font-size: 16px;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">正在匹配中...</div>
+</div>
+
+<div class="container">
+  <!-- 模式选择页 -->
+  <div class="page active" id="modePage">
+    <div class="mode-page">
+      <div class="mode-icon heartbeat">💘</div>
+      <div class="mode-title">天天向上一家人</div>
+      <div class="mode-subtitle">选择你的匹配模式</div>
+      <div class="mode-buttons">
+        <div class="mode-btn" onclick="enterMaleMode()">
+          <div class="btn-icon">👨</div>
+          <div class="btn-label">点男模</div>
+        </div>
+        <div class="mode-btn" onclick="enterFemaleMode()">
+          <div class="btn-icon">👩</div>
+          <div class="btn-label">匹配女生</div>
+        </div>
+      </div>
+      <div class="mode-note">如有不满，请举报群主👉细总</div>
+    </div>
+  </div>
+
+  <!-- 题目页 -->
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText"></div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-card">
+        <div class="result-inner" id="resultInner"></div>
+      </div>
+      <div class="result-actions" style="margin-top: 24px;">
+        <button class="retry-btn" onclick="restart()">再测一次</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 当前模式 ====================
+let currentMode = ''; // 'male' or 'female'
+let currentQ = 0;
+let answers = [];
+
+// ==================== 男生模式 - 群友数据库 ====================
+const members = [
+  {
+    id: 'chenzhong',
+    name: '陈总',
+    avatar: 'avatars/chenzhong.png',
+    title: '🏆 已上岸·传说中的前群友',
+    tags: ['霸道总裁', '见多识广', '成熟稳重', '实力多金', '人生导师'],
+    desc: '曾经站在金字塔顶端的男人，如今站在了退群按钮的顶端。来过、帅过、跑过。留下一个传说，带走了所有的回忆。细总说，你班衰女，一点也不给力。',
+    traits: { mature: 5, career: 5, steady: 4, humor: 1, warm: 1, active: 1 }
+  },
+  {
+    id: 'xizhong',
+    name: '细总',
+    avatar: 'avatars/xizhong.png',
+    title: '👑 万人迷·灵魂社交家',
+    tags: ['人格魅力', '真诚暖心', '超强凝聚力', '心思细腻', '广结善缘'],
+    desc: '他就是那种走到哪里都能成为核心的人。不是因为他最张扬，而是因为他最真诚。记得住每个人的喜好，操心着每个人的感受，把一群陌生人变成了家人。这样的男人，值得被好好珍惜。',
+    traits: { mature: 2, career: 1, steady: 3, humor: 2, warm: 5, active: 4 }
+  },
+  {
+    id: 'yisheng',
+    name: '医生',
+    avatar: 'avatars/yisheng.png',
+    title: '💪 白衣男神·行走的荷尔蒙',
+    tags: ['高颜值', '健身达人', '医者仁心', '阳光开朗', '钻石单身汉'],
+    desc: '白天救死扶伤，晚上健身房挥汗如雨。又帅又有正经职业还年轻？这种配置在现实中居然真的存在。最过分的是性格还阳光开朗，笑起来能把人心都融化。姐妹们，不心动是不可能的，这辈子都不可能的。',
+    traits: { mature: 1, career: 4, steady: 2, humor: 2, warm: 2, active: 5 }
+  },
+  {
+    id: 'fengfeng',
+    name: '锋锋',
+    avatar: 'avatars/fengfeng.png',
+    title: '🎯 暖男天花板·情商之王',
+    tags: ['高情商', '风趣幽默', '感情专一', '正直暖心', '给人台阶王'],
+    desc: '全场最会说话的人，但不是油嘴滑舌那种——他是真的关心你才说得那么到位。吵架他能把你逗笑，尴尬他能帮你解围，受伤他默默陪着你。最重要的是，认定了就是一辈子。这样的男人，请直接锁死。',
+    traits: { mature: 1, career: 1, steady: 3, humor: 5, warm: 5, active: 2 }
+  },
+  {
+    id: 'xiaolinge',
+    name: '小林哥',
+    avatar: 'avatars/xiaolinge.png',
+    title: '🌊 定海神针·全场安全感',
+    tags: ['大哥气质', '成熟客观', '开朗大方', '和事佬', '人缘超好'],
+    desc: '不管多大的风浪，他往那一站，你就觉得没事了。不偏不倚、不急不躁，像个大哥哥一样罩着所有人。跟他在一起，你不用演、不用装，做自己就好。因为他看人从来不带滤镜，但他对你的好从来不打折。',
+    traits: { mature: 5, career: 1, steady: 5, humor: 2, warm: 3, active: 1 }
+  },
+  {
+    id: 'zhangtiancai',
+    name: '张天赋',
+    avatar: 'avatars/zhangtiancai.png',
+    title: '✨ 宝藏男孩·灵魂有趣到发光',
+    tags: ['帅气逼人', '超爱孩子', '一针见血', '有趣灵魂', '大方坦荡'],
+    desc: '帅是真的帅，有趣更是真的有趣。别人讲半天讲不明白的事，他一句话戳到你心里。而且这个男人超爱小朋友——想象一下他带娃的样子，心都化了。大大方方不扭捏，说话直接但不伤人，这种有趣的灵魂真的可遇不可求。',
+    traits: { mature: 1, career: 2, steady: 1, humor: 5, warm: 4, active: 4 }
+  },
+  {
+    id: 'daxiang',
+    name: '大象',
+    avatar: 'avatars/daxiang.png',
+    title: '🎉 快乐制造机·全场MVP',
+    tags: ['美食家', '阳光大男孩', 'C位体质', '活动达人', '人气爆棚'],
+    desc: '他就是那种不管去哪都自带BGM的人。识食物者为俊杰——他不仅会吃、会挑，还能带你解锁隐藏美食地图。到哪里都是焦点，各种局他来组织你就负责开心就好。跟他在一起，生活永远不会无聊，每天都是美食综艺现场。',
+    traits: { mature: 1, career: 1, steady: 1, humor: 4, warm: 4, active: 5 }
+  },
+  {
+    id: 'king',
+    name: 'KING',
+    avatar: 'avatars/king.png',
+    title: '🏛️ 铁饭碗暖男·宠妻狂魔预定',
+    tags: ['国企精英', '收入稳定', '专一深情', '成熟老实', '细心体贴'],
+    desc: '别人追求刺激，他追求的是给你一个稳稳的家。国企工作雷打不动，收入可观从不乱花。认准了一个人就全心全意，细心到连你自己都没注意的事他都记在心里。这种男人不会给你轰轰烈烈，但他给你的是踏踏实实的一辈子。',
+    traits: { mature: 3, career: 4, steady: 5, humor: 1, warm: 3, active: 1 }
+  },
+  {
+    id: 'chensheng',
+    name: '陈生',
+    avatar: 'avatars/chensheng.png',
+    title: '🎩 金融型男·潮流先锋',
+    tags: ['汇丰精英', '高颜值', '潮流达人', '工作稳定', '品味在线'],
+    desc: '在汇丰上班的帅哥，穿搭品味在线得不像话。能把西装穿出T台感，也能把休闲穿出高级感。工作体面稳定，审美在线，长得还帅——这种集帅气与稳定于一身的男人，就是现实版的偶像剧男主。',
+    traits: { mature: 2, career: 5, steady: 3, humor: 1, warm: 2, active: 4 }
+  },
+  {
+    id: 'xiaofei',
+    name: '小肥',
+    avatar: 'avatars/xiaofei.png',
+    title: '🎙️ 氛围之王·被耽误的脱口秀大师',
+    tags: ['天生喜剧人', '真性情', '社交鬼才', '反差魅力', '宝藏男孩'],
+    desc: '这个男人是老天爷追着赏饭吃的喜剧天才。别人绞尽脑汁讲笑话，他随便一句话就能让全场笑到肚子疼。最难得的是——他的幽默不是表演，是骨子里的真实和通透。看似大大咧咧，其实内心比谁都清醒，看人看事一针见血。跟他在一起不需要任何伪装，因为他会让你知道：做真实的自己，才是最有魅力的。这种男人，一旦认真起来，反差感直接拉满，谁扛得住？',
+    traits: { mature: 2, career: 1, steady: 2, humor: 5, warm: 2, active: 5 }
+  },
+  {
+    id: 'gushen',
+    name: '股神',
+    avatar: 'avatars/gushen.png',
+    title: '📈 财神转世·理财界的天选之人',
+    tags: ['投资大师', '股场战神', '涨停收割机', '财商超群', '慧眼识金'],
+    desc: '别人炒股是韭菜，他炒股是镰刀。当你还在研究K线的时候，他已经在数涨停板了。有赢无输不是传说，在他身上是日常操作。跟他在一起，你不一定会变成股神，但你一定不用担心钱的事。这就是嫁给财富自由的感觉。',
+    traits: { mature: 3, career: 5, steady: 2, humor: 2, warm: 1, active: 4 }
+  },
+  {
+    id: 'liangzhong',
+    name: '梁总',
+    avatar: 'avatars/liangzhong.png',
+    title: '🌍 隐世富豪·行走的世界地图',
+    tags: ['低调多金', '旅行家', '阅历深厚', '识人无数', '性格极好'],
+    desc: '真正有钱的人从来不炫，梁总就是那种你跟他聊了三个月才发现他居然这么有实力的人。足迹遍布全球，吃过见过的世界比你刷过的短视频还精彩。但他最厉害的不是钱，是那双看人极准的眼睛——他说靠谱的人，从没看走眼过。性格好到离谱，朋友多到手机通讯录要翻三页。跟他在一起，你收获的不只是诗和远方，还有一个真正懂生活的灵魂旅伴。',
+    traits: { mature: 4, career: 3, steady: 2, humor: 1, warm: 3, active: 4 }
+  },
+  {
+    id: 'tmc',
+    name: 'TMC',
+    avatar: 'avatars/tmc.png',
+    title: '🔥 全能男神·行走的荷尔蒙',
+    tags: ['痞帅天花板', '健身型男', '爱阅读', '高端玩咖', '万人迷体质'],
+    desc: '有钱还帅就够过分了，偏偏还爱健身爱看书——灵魂和肉体双重暴击。白天翻几页书充实灵魂，晚上化身夜场王者魅力全开。这种又痞又帅、又野又有内涵的男人，是所有女生嘴上说"不要"但心里疯狂尖叫的类型。异性缘好？不好才奇怪。',
+    traits: { mature: 2, career: 3, steady: 1, humor: 2, warm: 1, active: 5 }
+  },
+  {
+    id: 'ruige',
+    name: '锐哥',
+    avatar: 'avatars/ruige.png',
+    title: '🔱 荒野男神·行走的安全感堡垒',
+    tags: ['男友力MAX', '肌肉型男', '户外达人', '消防正义', '会煮饭'],
+    desc: '这个男人是从户外杂志里走出来的吧？消防员的正义感和安全感，配上一身扛得起帐篷也扛得起你的肌肉，光站在那里就让人觉得天塌了都不怕。周末带你露营看星星、桨板划湖面，晚上还能给你做一桌热腾腾的饭菜。能喝酒能聊天，上山下海全都行。这种又野又暖、又硬又会照顾人的男人，简直就是言情小说照进现实。',
+    traits: { mature: 3, career: 2, steady: 3, humor: 2, warm: 3, active: 5 }
+  },
+  {
+    id: 'zhongzhong',
+    name: '钟总',
+    avatar: 'avatars/zhongzhong.png',
+    title: '🎬 电影脸男主·沉稳系天花板',
+    tags: ['帅气俊朗', '沉稳老成', '衣品满分', '男人味十足', '值得依靠'],
+    desc: '有些男人的魅力不是说出来的，是往那一站你就感觉到的。干净利落的穿搭，阳光俊朗的长相，沉稳老成的气质——这三样凑在一起，就是钟总。他不需要刻意表现什么，一开口说话那种从容和笃定，就让人觉得这个男人靠得住。不浮夸、不张扬，但每一句话都有分量。这种自带电影男主滤镜的男人，现实中真的太稀缺了。',
+    traits: { mature: 5, career: 3, steady: 4, humor: 1, warm: 2, active: 2 }
+  }
+];
+
+// ==================== 男生模式 - 题目 ====================
+const maleQuestions = [
+  {
+    q: '周五晚上终于下班了，你最想怎么度过？',
+    hint: '选择最贴近你内心的那个答案',
+    options: [
+      { text: '🍷 找一家安静的餐厅，点杯酒慢慢享受', scores: { mature: 2, steady: 2, career: 1 } },
+      { text: '🎉 约上朋友嗨起来！火锅烧烤走一波', scores: { humor: 2, active: 2, warm: 1 } },
+      { text: '🏋️ 去健身房撸铁，流汗才是最好的放松', scores: { active: 3, career: 1 } },
+      { text: '📖 窝在沙发上看书追剧，享受独处时光', scores: { steady: 2, mature: 1, warm: 1 } }
+    ]
+  },
+  {
+    q: '如果另一半和你吵架了，你最希望对方怎么做？',
+    hint: '没有对错，只有偏好',
+    options: [
+      { text: '🤝 冷静下来理性沟通，把问题说清楚', scores: { mature: 3, steady: 2 } },
+      { text: '🤗 先一个拥抱，什么都不说也没关系', scores: { warm: 3, steady: 1 } },
+      { text: '😂 想办法逗我笑，笑着笑着就不气了', scores: { humor: 3, warm: 1, active: 1 } },
+      { text: '🎁 用行动证明，比如突然出现在楼下', scores: { active: 2, career: 1, warm: 1 } }
+    ]
+  },
+  {
+    q: '你觉得理想伴侣最重要的特质是？',
+    hint: '只能选一个，很残酷但很真实',
+    options: [
+      { text: '💰 有事业心和经济实力，给你安全感', scores: { career: 3, mature: 2 } },
+      { text: '💝 体贴入微，记得你说过的每一句话', scores: { warm: 3, steady: 1 } },
+      { text: '😊 有趣的灵魂，和他在一起永远不无聊', scores: { humor: 3, active: 1 } },
+      { text: '💪 颜值在线身材好，赏心悦目很重要', scores: { active: 2, career: 1, humor: 1 } }
+    ]
+  },
+  {
+    q: '闺蜜跟你说她被男朋友气哭了，你第一反应是？',
+    hint: '本能反应最能暴露你的性格',
+    options: [
+      { text: '🔥 谁？地址发来，姐妹帮你出气！', scores: { active: 3, humor: 1 } },
+      { text: '🧸 先抱抱，哭完再慢慢说', scores: { warm: 3, steady: 1 } },
+      { text: '🤔 冷静分析一下，到底是谁的问题', scores: { mature: 3, steady: 1 } },
+      { text: '🍰 走！带你去吃好吃的，吃饱了再想', scores: { humor: 2, active: 2, warm: 1 } }
+    ]
+  },
+  {
+    q: '以下哪种约会方式最让你心动？',
+    hint: '想象一下画面',
+    options: [
+      { text: '🌃 在城市最高的餐厅看夜景吃法餐', scores: { career: 2, mature: 2, steady: 1 } },
+      { text: '🏖️ 一起去海边散步，聊聊以后的事', scores: { warm: 2, steady: 2, mature: 1 } },
+      { text: '🎢 游乐场疯玩一天，比赛谁叫得更大声', scores: { active: 3, humor: 2 } },
+      { text: '🍜 他带你去只有本地人才知道的小店', scores: { humor: 1, warm: 1, active: 1, mature: 1 } }
+    ]
+  },
+  {
+    q: '你更受不了另一半哪个缺点？',
+    hint: '反向测试你最在意什么',
+    options: [
+      { text: '😐 无聊，聊天像面试一样', scores: { humor: 3, active: 1 } },
+      { text: '😤 不上进，对未来没规划', scores: { career: 3, mature: 1 } },
+      { text: '🥶 冷漠，从不主动关心你', scores: { warm: 3, steady: 1 } },
+      { text: '🌀 不靠谱，说过的话从来不算', scores: { steady: 3, mature: 1 } }
+    ]
+  },
+  {
+    q: '如果另一半突然给你一个惊喜，你希望是？',
+    hint: '你的选择暴露了你的内心需求',
+    options: [
+      { text: '💎 一份你念叨很久但舍不得买的礼物', scores: { career: 2, warm: 1, mature: 1 } },
+      { text: '📝 一封手写信，写满了和你的回忆', scores: { warm: 3, steady: 1 } },
+      { text: '✈️ 两张机票，说走就走的旅行', scores: { active: 3, humor: 1 } },
+      { text: '🍳 回到家发现他已经做好了一桌你爱吃的菜', scores: { warm: 2, steady: 2, humor: 1 } }
+    ]
+  },
+  {
+    q: '最后一题！选一句最打动你的情话：',
+    hint: '相信直觉',
+    options: [
+      { text: '"我这辈子只认定你一个人"', scores: { steady: 3, warm: 1, mature: 1 } },
+      { text: '"有我在，什么都不用怕"', scores: { mature: 3, career: 1, steady: 1 } },
+      { text: '"跟你在一起每天都好开心"', scores: { humor: 2, active: 2, warm: 1 } },
+      { text: '"我想带你去看更大的世界"', scores: { active: 2, career: 2, mature: 1 } }
+    ]
+  }
+];
+
+// 男生模式分组
+const maleGroups = {
+  A: ['chenzhong', 'liangzhong', 'zhongzhong', 'king'],
+  B: ['xizhong', 'fengfeng', 'xiaolinge', 'daxiang'],
+  C: ['zhangtiancai', 'xiaofei', 'chensheng', 'gushen'],
+  D: ['yisheng', 'tmc', 'ruige']
+};
+
+// ==================== 女生模式 - 题目 ====================
+const femaleQuestions = [
+  {
+    q: '周末早上醒来，你最享受的打开方式是？',
+    hint: '选择最贴近你内心的答案',
+    options: [
+      { text: '😴 赖床到自然醒，刷会儿手机再起' },
+      { text: '🏃 早起跑步或健身，出一身汗再吃早餐' },
+      { text: '🧹 先收拾房间，把一切归位再做别的事' },
+      { text: '🎲 看心情，完全没规律' }
+    ]
+  },
+  {
+    q: '第一次约女生见面，你更倾向选什么地方？',
+    hint: '想象一下你最自在的场景',
+    options: [
+      { text: '☕ 环境安静的咖啡馆或书店' },
+      { text: '🍸 有氛围感的小酒馆或清吧' },
+      { text: '🌳 户外公园或小众展览' },
+      { text: '🍜 好吃的餐厅，最好是你踩过点的宝藏店' }
+    ]
+  },
+  {
+    q: '在朋友聚会中，你通常扮演什么角色？',
+    hint: '本能反应最真实',
+    options: [
+      { text: '📋 组织者，喜欢张罗大家' },
+      { text: '👂 倾听者，话不多但句句走心' },
+      { text: '🎉 开心果，负责活跃气氛' },
+      { text: '😌 随和派，跟着大家走' }
+    ]
+  },
+  {
+    q: '关于花钱这件事，你的态度更接近？',
+    hint: '没有对错，只有真实',
+    options: [
+      { text: '📊 该花花该省省，有规划不乱来' },
+      { text: '🎊 及时行乐，开心最重要' },
+      { text: '💰 偏保守，喜欢攒钱有安全感' },
+      { text: '🎓 愿意为体验买单，比如旅行或学新东西' }
+    ]
+  },
+  {
+    q: '如果女朋友情绪低落，你第一反应会怎么做？',
+    hint: '你的直觉反应',
+    options: [
+      { text: '🤫 静静陪着，等她开口再说' },
+      { text: '😄 讲个笑话或带她出去散散心' },
+      { text: '🧠 帮她分析问题，给点建议' },
+      { text: '🤗 直接抱抱她，不说话' }
+    ]
+  },
+  {
+    q: '你更欣赏什么类型的女生？',
+    hint: '跟着感觉走',
+    options: [
+      { text: '💼 独立有主见，有自己的事业和圈子' },
+      { text: '🌸 温柔体贴，会照顾人的类型' },
+      { text: '🌈 活泼开朗，能带给人快乐' },
+      { text: '📚 文艺安静，有内在深度' }
+    ]
+  },
+  {
+    q: '你的日常作息更偏向？',
+    hint: '真实的你',
+    options: [
+      { text: '🌅 规律稳定，早睡早起' },
+      { text: '🔄 自由灵活，看状态安排' },
+      { text: '🌙 偏晚睡，典型夜猫子' },
+      { text: '💼 跟着工作走，不太固定' }
+    ]
+  },
+  {
+    q: '关于做家务，你的真实想法是？',
+    hint: '诚实作答',
+    options: [
+      { text: '🤝 应该分工合作，一起承担' },
+      { text: '💪 我全包了也行，喜欢照顾人' },
+      { text: '😅 不太擅长，但愿意学' },
+      { text: '🧹 请保洁最省事，花钱买和平' }
+    ]
+  },
+  {
+    q: '在一段感情里，你最看重什么？',
+    hint: '选最核心的那个',
+    options: [
+      { text: '🛡️ 信任和安全感' },
+      { text: '🎯 共同的兴趣和三观' },
+      { text: '🔥 激情和新鲜感' },
+      { text: '🌱 彼此成长，互相成就' }
+    ]
+  },
+  {
+    q: '你对理想感情的期待，更接近哪种状态？',
+    hint: '最后一题，相信直觉',
+    options: [
+      { text: '🏠 平平淡淡才是真，有个安稳的小家就知足' },
+      { text: '🌍 保持新鲜感，一起疯一起玩一起探索世界' },
+      { text: '💫 一个眼神就懂彼此，精神上高度同频' },
+      { text: '🚀 互相成就，一起变成更好的人' }
+    ]
+  }
+];
+
+// ==================== 女生模式 - 维度评分规则 ====================
+// 男生答题 → 维度评分
+// Q1-Q10: A/B/C/D → 安稳(stable)/浪漫(romantic)/活力(active)/成长(growth)
+const maleDimensionRules = [
+  // Q1: A=安稳+1, B=活力+1, C=安稳+1, D=nothing
+  { A: 'stable', B: 'active', C: 'stable', D: null },
+  // Q2: A=安稳+1, B=浪漫+1, C=活力+1, D=成长+1
+  { A: 'stable', B: 'romantic', C: 'active', D: 'growth' },
+  // Q3: A=活力+1, B=安稳+1, C=活力+1, D=nothing
+  { A: 'active', B: 'stable', C: 'active', D: null },
+  // Q4: A=安稳+1, B=浪漫+1, C=安稳+1, D=成长+1
+  { A: 'stable', B: 'romantic', C: 'stable', D: 'growth' },
+  // Q5: A=安稳+1, B=活力+1, C=成长+1, D=浪漫+1
+  { A: 'stable', B: 'active', C: 'growth', D: 'romantic' },
+  // Q6: A=成长+1, B=安稳+1, C=活力+1, D=浪漫+1
+  { A: 'growth', B: 'stable', C: 'active', D: 'romantic' },
+  // Q7: A=安稳+1, B=nothing, C=活力+1, D=nothing
+  { A: 'stable', B: null, C: 'active', D: null },
+  // Q8: A=成长+1, B=安稳+1, C=nothing, D=成长+1
+  { A: 'growth', B: 'stable', C: null, D: 'growth' },
+  // Q9: A=安稳+1, B=成长+1, C=浪漫+1, D=成长+1
+  { A: 'stable', B: 'growth', C: 'romantic', D: 'growth' },
+  // Q10: A=安稳+1, B=活力+1, C=浪漫+1, D=成长+1
+  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' }
+];
+
+// 女生答题 → 维度评分
+// 字段顺序: style, date_detail, recharge, conflict, heartbeat, hidden_trait, sleep, dealbreaker, money, ideal_animal
+const femaleAnswerKeys = ['style', 'date_detail', 'recharge', 'conflict', 'heartbeat', 'hidden_trait', 'sleep', 'dealbreaker', 'money', 'ideal_animal'];
+const femaleDimensionRules = [
+  // Q1(style): A=成长, B=安稳, C=浪漫, D=活力
+  { A: 'growth', B: 'stable', C: 'romantic', D: 'active' },
+  // Q2(date_detail): A=安稳, B=成长, C=活力, D=浪漫
+  { A: 'stable', B: 'growth', C: 'active', D: 'romantic' },
+  // Q3(recharge): A=安稳, B=活力, C=成长, D=安稳
+  { A: 'stable', B: 'active', C: 'growth', D: 'stable' },
+  // Q4(conflict): A=安稳, B=浪漫, C=活力, D=成长
+  { A: 'stable', B: 'romantic', C: 'active', D: 'growth' },
+  // Q5(heartbeat): A=安稳, B=浪漫, C=成长, D=浪漫
+  { A: 'stable', B: 'romantic', C: 'growth', D: 'romantic' },
+  // Q6(hidden_trait): A=浪漫, B=安稳, C=安稳, D=活力
+  { A: 'romantic', B: 'stable', C: 'stable', D: 'active' },
+  // Q7(sleep): A=安稳, B=活力, C=浪漫, D=成长
+  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },
+  // Q8(dealbreaker): A=成长, B=安稳, C=活力, D=浪漫
+  { A: 'growth', B: 'stable', C: 'active', D: 'romantic' },
+  // Q9(money): A=安稳, B=成长, C=活力, D=安稳
+  { A: 'stable', B: 'growth', C: 'active', D: 'stable' },
+  // Q10(ideal_animal): A=成长, B=安稳, C=浪漫, D=活力
+  { A: 'growth', B: 'stable', C: 'romantic', D: 'active' }
+];
+
+// 女生问题选项（用来匹配存储的答案文本 → ABCD）
+const femaleOptionTexts = {
+  style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
+  date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
+  recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
+  conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
+  heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
+  hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
+  sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
+  dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
+  money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
+  ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
+};
+
+// 男→女匹配表
+const matchingTable = {
+  '安稳型': ['stable', 'romantic'],
+  '浪漫型': ['romantic', 'stable'],
+  '活力型': ['active', 'growth'],
+  '成长型': ['growth', 'active'],
+  '均衡型': ['stable', 'romantic', 'active', 'growth']
+};
+
+// ==================== 页面逻辑 ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function enterMaleMode() {
+  currentMode = 'male';
+  currentQ = 0;
+  answers = [];
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function enterFemaleMode() {
+  currentMode = 'female';
+  currentQ = 0;
+  answers = [];
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function restart() {
+  showPage('modePage');
+}
+
+function getQuestions() {
+  return currentMode === 'male' ? maleQuestions : femaleQuestions;
+}
+
+function renderQuestion() {
+  const qs = getQuestions();
+  const q = qs[currentQ];
+  const percent = ((currentQ) / qs.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressText').textContent = `${currentQ + 1} / ${qs.length}`;
+
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'card-in 0.4s ease';
+
+  const letters = ['A', 'B', 'C', 'D'];
+  card.innerHTML = `
+    <div class="question-num">第 ${currentQ + 1} 题</div>
+    <div class="question-text">${q.q}</div>
+    ${q.hint ? `<div class="question-hint">${q.hint}</div>` : ''}
+    <div class="options">
+      ${q.options.map((opt, i) => `
+        <div class="option-btn" onclick="selectOption(${i}, this)">
+          <div class="option-letter">${letters[i]}</div>
+          <div>${typeof opt === 'string' ? opt : opt.text}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function selectOption(idx, el) {
+  el.classList.add('selected');
+  const allBtns = el.parentElement.querySelectorAll('.option-btn');
+  allBtns.forEach(b => { b.style.pointerEvents = 'none'; });
+
+  answers.push(['A', 'B', 'C', 'D'][idx]);
+
+  setTimeout(() => {
+    currentQ++;
+    const qs = getQuestions();
+    if (currentQ < qs.length) {
+      renderQuestion();
+    } else {
+      if (currentMode === 'male') {
+        showMaleResult();
+      } else {
+        showFemaleResult();
+      }
+    }
+  }, 500);
+}
+
+// ==================== 男生模式 - 结果 ====================
+function showMaleResult() {
+  const match = findMaleMatch();
+  showPage('resultPage');
+  spawnHearts();
+
+  document.getElementById('resultInner').innerHTML = `
+    <div class="result-label">✨ 你的命中注定是 ✨</div>
+    <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
+    <div class="result-name">${match.name}</div>
+    <div class="result-title">${match.title}</div>
+    <div class="result-desc">${match.desc}</div>
+  `;
+}
+
+function findMaleMatch() {
+  const count = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(a => count[a]++);
+
+  const maxCount = Math.max(count.A, count.B, count.C, count.D);
+  const topTypes = Object.keys(count).filter(k => count[k] === maxCount);
+  const chosenType = topTypes[Math.floor(Math.random() * topTypes.length)];
+
+  const group = maleGroups[chosenType];
+  const chosenId = group[Math.floor(Math.random() * group.length)];
+
+  return members.find(m => m.id === chosenId);
+}
+
+// ==================== 女生模式 - 结果 ====================
+async function showFemaleResult() {
+  // 显示 loading
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+
+  try {
+    // 1. 计算男生维度
+    const maleScores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+    answers.forEach((ans, idx) => {
+      const rule = maleDimensionRules[idx];
+      const dim = rule[ans];
+      if (dim) maleScores[dim]++;
+    });
+
+    // 2. 确定男生类型
+    const maleType = determineMaleType(maleScores);
+
+    // 3. 从 GitHub 获取女生数据
+    const females = await fetchFemales();
+
+    if (!females || females.length === 0) {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+      showPage('resultPage');
+      document.getElementById('resultInner').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">😢</div>
+          <div class="empty-text">暂时没有匹配的女生，请稍后再试</div>
+        </div>
+      `;
+      return;
+    }
+
+    // 4. 给每个女生计算维度和类型
+    const scoredFemales = females.map(f => {
+      const fScores = scoreFemale(f.answers);
+      const fType = determineFemaleType(fScores);
+      return { ...f, scores: fScores, type: fType, typeKey: fType };
+    });
+
+    // 5. 10% 彩蛋：随机从所有女生中选
+    let pool;
+    if (Math.random() < 0.1) {
+      pool = scoredFemales;
+    } else {
+      // 根据匹配表筛选
+      const compatibleDims = matchingTable[maleType] || ['stable', 'romantic', 'active', 'growth'];
+      pool = scoredFemales.filter(f => {
+        const fTypeKey = typeNameToDim(f.typeKey);
+        return fTypeKey === null || compatibleDims.includes(fTypeKey);
+      });
+      // 如果筛选后为空，从所有女生中选
+      if (pool.length === 0) pool = scoredFemales;
+    }
+
+    // 6. 随机选一个
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+
+    // 7. 生成介绍文案
+    const intro = generateFemaleIntro(chosen.answers);
+
+    // 8. 显示结果
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showPage('resultPage');
+    spawnHearts();
+
+    const avatarSrc = chosen.avatar || '';
+    document.getElementById('resultInner').innerHTML = `
+      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      ${avatarSrc ? `<img class="result-avatar" src="${avatarSrc}" alt="${chosen.nickname}">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">👩</div>'}
+      <div class="result-name">${chosen.nickname}</div>
+      <div class="result-title">${intro.title}</div>
+      <div class="result-match">${maleType} × ${chosen.typeKey}</div>
+      <div class="result-desc">${intro.desc}</div>
+    `;
+
+  } catch (e) {
+    console.error('匹配出错:', e);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showPage('resultPage');
+    document.getElementById('resultInner').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">😥</div>
+        <div class="empty-text">网络出了点问题，请稍后再试</div>
+      </div>
+    `;
+  }
+}
+
+// ==================== 维度计算 ====================
+function determineMaleType(scores) {
+  const max = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  if (max < 3) return '均衡型';
+
+  const tops = [];
+  if (scores.stable === max) tops.push('安稳型');
+  if (scores.romantic === max) tops.push('浪漫型');
+  if (scores.active === max) tops.push('活力型');
+  if (scores.growth === max) tops.push('成长型');
+
+  if (tops.length > 1) return '均衡型';
+  return tops[0];
+}
+
+function determineFemaleType(scores) {
+  const max = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  if (max < 3) return '均衡型';
+
+  const tops = [];
+  if (scores.stable === max) tops.push('安稳型');
+  if (scores.romantic === max) tops.push('浪漫型');
+  if (scores.active === max) tops.push('活力型');
+  if (scores.growth === max) tops.push('成长型');
+
+  if (tops.length > 1) return '均衡型';
+  return tops[0];
+}
+
+function typeNameToDim(typeName) {
+  const map = { '安稳型': 'stable', '浪漫型': 'romantic', '活力型': 'active', '成长型': 'growth', '均衡型': null };
+  return map[typeName] !== undefined ? map[typeName] : null;
+}
+
+function scoreFemale(femaleAnswers) {
+  const scores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+
+  femaleAnswerKeys.forEach((key, idx) => {
+    const answerText = femaleAnswers[key];
+    if (!answerText) return;
+
+    const options = femaleOptionTexts[key];
+    let answerIdx = options.findIndex(opt => answerText === opt);
+    // 如果精确匹配失败，尝试模糊匹配
+    if (answerIdx === -1) {
+      answerIdx = options.findIndex(opt => answerText.includes(opt.slice(2)) || opt.includes(answerText));
+    }
+    if (answerIdx === -1) return;
+
+    const letter = ['A', 'B', 'C', 'D'][answerIdx];
+    const rule = femaleDimensionRules[idx];
+    const dim = rule[letter];
+    if (dim) scores[dim]++;
+  });
+
+  return scores;
+}
+
+// ==================== GitHub API ====================
+async function fetchFemales() {
+  const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+  const TOKEN = TK.join('');
+
+  const listResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/submissions', {
+    headers: {
+      'Authorization': `token ${TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json'
+    }
+  });
+
+  if (!listResp.ok) throw new Error('Failed to fetch file list');
+
+  const files = await listResp.json();
+  const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+
+  // 并行获取所有文件内容
+  const contents = await Promise.all(jsonFiles.map(async (f) => {
+    try {
+      const resp = await fetch(f.download_url);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }));
+
+  // 只保留女生
+  return contents.filter(c => c && c.gender === 'female');
+}
+
+// ==================== 女生介绍文案生成 ====================
+function generateFemaleIntro(femaleAnswers) {
+  const style = femaleAnswers.style || '';
+  const hiddenTrait = femaleAnswers.hidden_trait || '';
+  const recharge = femaleAnswers.recharge || '';
+  const heartbeat = femaleAnswers.heartbeat || '';
+  const sleep = femaleAnswers.sleep || '';
+  const money = femaleAnswers.money || '';
+  const conflict = femaleAnswers.conflict || '';
+
+  // ===== 生成 Title =====
+  // Title first part (from Q1 style)
+  const styleOptions = femaleOptionTexts.style;
+  const styleIdx = styleOptions.findIndex(opt => style === opt || style.includes(opt.slice(2)) || opt.includes(style));
+
+  const titleFirstParts = {
+    0: ['🥂 西装暴徒', '👔 御姐本姐'],
+    1: ['🌿 森系精灵', '☘️ 治愈系仙女'],
+    2: ['👗 人间富贵花', '🌹 精致女王'],
+    3: ['🔥 酷girl', '⚡ 潮系辣妹']
+  };
+
+  let titleFirst = '💖 神秘女孩';
+  if (styleIdx >= 0 && titleFirstParts[styleIdx]) {
+    const arr = titleFirstParts[styleIdx];
+    titleFirst = arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // Title second part (from Q6 hidden_trait)
+  const traitOptions = femaleOptionTexts.hidden_trait;
+  const traitIdx = traitOptions.findIndex(opt => hiddenTrait === opt || hiddenTrait.includes(opt.slice(2)) || opt.includes(hiddenTrait));
+
+  const titleSecondParts = {
+    0: ['·人间清醒天花板', '·情绪价值天花板'],
+    1: ['·田螺姑娘本人', '·居家女神'],
+    2: ['·人间定海神针', '·灵魂树洞'],
+    3: ['·行走的冒险家', '·有趣灵魂']
+  };
+
+  let titleSecond = '·宝藏女孩';
+  if (traitIdx >= 0 && titleSecondParts[traitIdx]) {
+    const arr = titleSecondParts[traitIdx];
+    titleSecond = arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  const title = titleFirst + titleSecond;
+
+  // ===== 生成 Description =====
+  // Q1 → 外形/风格开场
+  const styleDescs = {
+    0: [
+      '一袭利落西装走进来的时候，全场的空气都安静了三秒。',
+      '她穿西装的样子，帅到让男生都自愧不如。',
+      '衬衫扣到第二颗的随性感，是精心设计过的高级。'
+    ],
+    1: [
+      '棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。',
+      '她站在那里就自带一片草地和微风，治愈系本人无疑。',
+      '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。'
+    ],
+    2: [
+      '腰线以下全是腿，精致得像杂志封面走下来的人。',
+      '一条连衣裙穿出了整条街最好看的风景线。',
+      '她的穿搭从来不费力，但每次出场都让人移不开眼。'
+    ],
+    3: [
+      '限量球鞋踩出六亲不认的步伐，酷到骨子里。',
+      '潮牌上身自带街拍效果，走路带风。',
+      '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。'
+    ]
+  };
+
+  // Q3 → 性格/社交
+  const rechargeOptions = femaleOptionTexts.recharge;
+  const rechargeIdx = rechargeOptions.findIndex(opt => recharge === opt || recharge.includes(opt.slice(2)) || opt.includes(recharge));
+
+  const rechargeDescs = {
+    0: [
+      '骨子里是个享受独处的人，安静的时候最有魅力。',
+      '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。'
+    ],
+    1: [
+      '三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。',
+      '朋友圈子不大但个个真心，她是那种值得深交的人。'
+    ],
+    2: [
+      '健身房里挥汗如雨的样子，自律得让人佩服。',
+      '别看她精致，运动起来的狠劲能让你刮目相看。'
+    ],
+    3: [
+      '收拾完房间才觉得世界重新有了秩序，强迫症但可爱。',
+      '连调料瓶都要按大小排列的人，细节控本人。'
+    ]
+  };
+
+  // Q5 → 感情需求
+  const heartbeatOptions = femaleOptionTexts.heartbeat;
+  const heartbeatIdx = heartbeatOptions.findIndex(opt => heartbeat === opt || heartbeat.includes(opt.slice(2)) || opt.includes(heartbeat));
+
+  const heartbeatDescs = {
+    0: [
+      '她要的安全感很简单——过马路时被护在身边就够了。',
+      '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。'
+    ],
+    1: [
+      '随口说的一句话被人默默记住，这种浪漫最戳她。',
+      '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。'
+    ],
+    2: [
+      '她需要的不是花言巧语，是关键时刻那句"我来搞定"。',
+      '最让她心动的男人，是能在她脆弱时稳稳接住她的人。'
+    ],
+    3: [
+      '一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。',
+      '跟她谈恋爱，灵魂契合比什么都重要。'
+    ]
+  };
+
+  // Q6 → 隐藏优势
+  const traitDescs = {
+    0: [
+      '最难得的是，哪怕吵到天翻地覆也不会口出恶言——这种温柔是刻在骨子里的教养。',
+      '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。'
+    ],
+    1: [
+      '走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。',
+      '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。'
+    ],
+    2: [
+      '她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。',
+      '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。'
+    ],
+    3: [
+      '跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。',
+      '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。'
+    ]
+  };
+
+  // Q7 → 可爱细节（特别是 C=抱玩偶）
+  const sleepOptions = femaleOptionTexts.sleep;
+  const sleepIdx = sleepOptions.findIndex(opt => sleep === opt || sleep.includes(opt.slice(2)) || opt.includes(sleep));
+
+  const sleepDescs = {
+    0: '十一点准时关灯的自律，是她对生活的温柔仪式感。',
+    1: '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
+    2: '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
+    3: '睡眠浅得像只小猫，需要一个能给她安全感的人。'
+  };
+
+  // Q9 → 金钱态度对比
+  const moneyOptions = femaleOptionTexts.money;
+  const moneyIdx = moneyOptions.findIndex(opt => money === opt || money.includes(opt.slice(2)) || opt.includes(money));
+
+  const moneyDescs = {
+    0: '看似随性，其实存折里的数字比你想象的多得多。',
+    1: '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
+    2: '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
+    3: '赚了钱第一个想到的是家人，这种善良不是装出来的。'
+  };
+
+  // 结尾
+  const endings = [
+    '这种女生，遇到了就别犹豫，错过了就是别人的了。',
+    '她值得被认真对待——不是因为她完美，是因为她真实。',
+    '如果你想找一个能一起笑、一起扛的人，她就是最好的答案。',
+    '别被表面迷惑，她的内在比外在更让人上瘾。',
+    '遇到她，你会明白什么叫"原来你在这里"。',
+    '这种宝藏女孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，她是越了解越让人心动的类型。',
+    '跟她在一起，你会发现生活突然变得有趣了很多。'
+  ];
+
+  // ===== 组装描述 =====
+  let descParts = [];
+
+  // 开场（Q1 风格）
+  if (styleIdx >= 0 && styleDescs[styleIdx]) {
+    const arr = styleDescs[styleIdx];
+    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  // 性格（Q3 充电方式）
+  if (rechargeIdx >= 0 && rechargeDescs[rechargeIdx]) {
+    const arr = rechargeDescs[rechargeIdx];
+    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  // 感情需求（Q5 心动瞬间）
+  if (heartbeatIdx >= 0 && heartbeatDescs[heartbeatIdx]) {
+    const arr = heartbeatDescs[heartbeatIdx];
+    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  // 隐藏优势（Q6 隐形优点）
+  if (traitIdx >= 0 && traitDescs[traitIdx]) {
+    const arr = traitDescs[traitIdx];
+    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  // 可爱细节（Q7 睡觉）
+  if (sleepIdx >= 0 && sleepDescs[sleepIdx]) {
+    descParts.push(sleepDescs[sleepIdx]);
+  }
+
+  // 金钱态度（Q9）
+  if (moneyIdx >= 0 && moneyDescs[moneyIdx]) {
+    descParts.push(moneyDescs[moneyIdx]);
+  }
+
+  // 结尾
+  descParts.push(endings[Math.floor(Math.random() * endings.length)]);
+
+  // 如果描述太少（数据缺失），补一些通用描述
+  if (descParts.length < 4) {
+    descParts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
+  }
+
+  const desc = descParts.join('');
+
+  return { title, desc };
+}
+
+// ==================== 视觉效果 ====================
+function createStars() {
+  const container = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDuration = (1 + Math.random() * 3) + 's';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+    container.appendChild(star);
+  }
+}
+
+function spawnHearts() {
+  const emojis = ['💕', '💗', '💖', '💘', '✨', '🌟', '💝'];
+  for (let i = 0; i < 15; i++) {
+    setTimeout(() => {
+      const heart = document.createElement('div');
+      heart.className = 'falling-heart';
+      heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.top = '-30px';
+      heart.style.fontSize = (16 + Math.random() * 20) + 'px';
+      heart.style.animationDuration = (3 + Math.random() * 3) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 6000);
+    }, i * 200);
+  }
+}
+
+createStars();
+</script>
+</body>
+</html>
