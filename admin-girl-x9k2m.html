@@ -461,23 +461,23 @@ function generateFemaleIntro(a) {
 
   // Step 2: Check easter eggs (highest priority)
   const easterEggs = [
-    { qid: 'recharge', idx: 3, title: '🧹 收纳界的女菩萨' },
-    { qid: 'hidden_trait', idx: 1, title: '🍳 米其林·家庭版唯一主厨' },
-    { qid: 'sleep', idx: 2, title: '🧸 永远少女·可爱豁免权' },
-    { qid: 'conflict', idx: 3, title: '⚔️ 边界感女王·不好惹' },
-    { qid: 'money', idx: 1, title: '🎒 灵魂自由·流浪诗人' },
-    { qid: 'heartbeat', idx: 0, title: '🛡️ 被守护体质·公主本人' },
-    { qid: 'ideal_animal', idx: 0, title: '🦁 狮子座·驯兽师预备役' },
-    { qid: 'recharge', idx: 1, title: '🗣️ 社交女王·人间真实' },
-    { qid: 'dealbreaker', idx: 0, title: '📐 秩序神教·教主本人' },
-    { qid: 'date_detail', idx: 0, title: '✨ 细节鉴赏家·品味顶流' },
-    { qid: 'style', idx: 0, title: '👔 大女主·衣柜即战袍' },
-    { qid: 'style', idx: 1, title: '🌾 森林系·仙女不过季' },
-    { qid: 'ideal_animal', idx: 1, title: '🐕 金毛饲养员·招募中' },
-    { qid: 'ideal_animal', idx: 2, title: '🐺 狼系驯服者' },
-    { qid: 'ideal_animal', idx: 3, title: '🐱 猫系收割机' },
-    { qid: 'heartbeat', idx: 3, title: '🎧 网易云·深度共鸣者' },
-    { qid: 'hidden_trait', idx: 3, title: '🔍 有趣灵魂·超标了' }
+    { qid: 'recharge', idx: 3, titles: ['🧹 收纳界的女菩萨', '🧹 整理控·断舍离大师', '🧹 处女座附体·秩序之神'] },
+    { qid: 'hidden_trait', idx: 1, titles: ['🍳 米其林·家庭版唯一主厨', '🍳 厨房里的小魔女', '🍳 投胎级厨艺·人间烟火气'] },
+    { qid: 'sleep', idx: 2, titles: ['🧸 永远少女·可爱豁免权', '🧸 抱着玩偶入睡的大人', '🧸 外表女王·内心宝宝'] },
+    { qid: 'conflict', idx: 3, titles: ['⚔️ 边界感女王·不好惹', '⚔️ 一键拉黑·绝不回头', '⚔️ 果断姐·人间清醒'] },
+    { qid: 'money', idx: 1, titles: ['🎒 灵魂自由·流浪诗人', '🎒 用脚步丈量世界的人', '🎒 体验派·人生不设限'] },
+    { qid: 'heartbeat', idx: 0, titles: ['🛡️ 被守护体质·公主本人', '🛡️ 值得被宠的女孩', '🛡️ 安全感收割机'] },
+    { qid: 'ideal_animal', idx: 0, titles: ['🦁 狮子座·驯兽师预备役', '🦁 慕强女孩·王者匹配', '🦁 霸道总裁请排队'] },
+    { qid: 'recharge', idx: 1, titles: ['🗣️ 社交女王·人间真实', '🗣️ 八卦天后·快乐分享家', '🗣️ 朋友圈顶流'] },
+    { qid: 'dealbreaker', idx: 0, titles: ['📐 秩序神教·教主本人', '📐 牙膏必须从底部挤', '📐 精致生活·底线分明'] },
+    { qid: 'date_detail', idx: 0, titles: ['✨ 细节鉴赏家·品味顶流', '✨ 干净控·审美在线', '✨ 细节决定心动的女人'] },
+    { qid: 'style', idx: 0, titles: ['👔 大女主·衣柜即战袍', '👔 西装杀手·气场两米八', '👔 穿上战袍就无敌'] },
+    { qid: 'style', idx: 1, titles: ['🌾 森林系·仙女不过季', '🌾 棉麻少女·自带微风', '🌾 舒服就是最高级的时尚'] },
+    { qid: 'ideal_animal', idx: 1, titles: ['🐕 金毛饲养员·招募中', '🐕 暖男收割机·来者不拒', '🐕 忠犬系男友请就位'] },
+    { qid: 'ideal_animal', idx: 2, titles: ['🐺 狼系驯服者', '🐺 野性猎手·征服欲满格', '🐺 越危险越心动'] },
+    { qid: 'ideal_animal', idx: 3, titles: ['🐱 猫系收割机', '🐱 高冷鉴赏家·品味独特', '🐱 猫奴预备役·审美在线'] },
+    { qid: 'heartbeat', idx: 3, titles: ['🎧 网易云·深度共鸣者', '🎧 灵魂歌单共享人', '🎧 一首歌就能俘获的女孩'] },
+    { qid: 'hidden_trait', idx: 3, titles: ['🔍 有趣灵魂·超标了', '🔍 好奇心爆棚的猫', '🔍 每天都在解锁新世界'] }
   ];
 
   const matchedEggs = easterEggs.filter(e => findIdx(e.qid, a[e.qid]) === e.idx);
@@ -493,8 +493,8 @@ function generateFemaleIntro(a) {
 
   // Title decision: easter egg (random from matches) > type bank
   let title;
-  if (matchedEggs.length > 0) {
-    title = pick(matchedEggs).title;
+  if (matchedEggs.length > 0 && Math.random() < 0.5) {
+    const egg = pick(matchedEggs); title = pick(egg.titles);
   } else {
     title = pick(titleBanks[femaleType]);
   }
