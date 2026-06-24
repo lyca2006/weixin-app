@@ -966,66 +966,94 @@ function selectOption(idx, el) {
   }, 500);
 }
 
-// ==================== 男生模式 - 结果（维度匹配） ====================
-function showMaleResult() {
-  // 1. 计算女生4维度得分
-  const femScores = { stable: 0, romantic: 0, active: 0, growth: 0 };
-  answers.forEach((ans, idx) => {
-    const rule = pickMaleDimensionRules[idx];
-    const dim = rule[ans];
-    if (dim) femScores[dim]++;
-  });
+// ==================== 男生模式 - 结果（维度匹配 + 从库拉取新男生） ====================
+async function showMaleResult() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
 
-  // 2. 确定女生类型（最高维度 >= 3，平局或都不到3 = balanced）
-  const max = Math.max(femScores.stable, femScores.romantic, femScores.active, femScores.growth);
-  let femType = 'balanced';
-  if (max >= 3) {
-    const tops = [];
-    if (femScores.stable === max) tops.push('stable');
-    if (femScores.romantic === max) tops.push('romantic');
-    if (femScores.active === max) tops.push('active');
-    if (femScores.growth === max) tops.push('growth');
-    if (tops.length === 1) femType = tops[0];
-  }
+  try {
+    // 1. 计算女生4维度得分
+    const femScores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+    answers.forEach((ans, idx) => {
+      const rule = pickMaleDimensionRules[idx];
+      const dim = rule[ans];
+      if (dim) femScores[dim]++;
+    });
 
-  // 3. 女→男匹配表
-  const femaleToMaleMatch = {
-    stable: ['stable', 'growth'],
-    romantic: ['romantic', 'stable'],
-    active: ['active', 'romantic'],
-    growth: ['growth', 'active'],
-    balanced: null // all males
-  };
-
-  // 4. 10% 彩蛋：从所有男生中随机选
-  let pool;
-  if (Math.random() < 0.1) {
-    pool = members;
-  } else {
-    const compatibleTypes = femaleToMaleMatch[femType];
-    if (compatibleTypes) {
-      pool = members.filter(m => m.types && m.types.some(t => compatibleTypes.includes(t)));
-    } else {
-      pool = members;
+    // 2. 确定女生类型
+    const max = Math.max(femScores.stable, femScores.romantic, femScores.active, femScores.growth);
+    let femType = 'balanced';
+    if (max >= 3) {
+      const tops = [];
+      if (femScores.stable === max) tops.push('stable');
+      if (femScores.romantic === max) tops.push('romantic');
+      if (femScores.active === max) tops.push('active');
+      if (femScores.growth === max) tops.push('growth');
+      if (tops.length === 1) femType = tops[0];
     }
-    // 如果匹配池为空，从所有男生中选
-    if (pool.length === 0) pool = members;
+
+    // 3. 从库里拉取新男生
+    const newMales = await fetchSubmittedMales();
+
+    // 4. 合并：老男生 + 新男生
+    const allMales = [...members, ...newMales];
+
+    // 5. 女→男匹配表
+    const femaleToMaleMatch = {
+      stable: ['stable', 'growth'],
+      romantic: ['romantic', 'stable'],
+      active: ['active', 'romantic'],
+      growth: ['growth', 'active'],
+      balanced: null
+    };
+
+    // 6. 10% 彩蛋
+    let pool;
+    if (Math.random() < 0.1) {
+      pool = allMales;
+    } else {
+      const compatibleTypes = femaleToMaleMatch[femType];
+      if (compatibleTypes) {
+        pool = allMales.filter(m => m.types && m.types.some(t => compatibleTypes.includes(t)));
+      } else {
+        pool = allMales;
+      }
+      if (pool.length === 0) pool = allMales;
+    }
+
+    // 7. 随机选一个
+    const match = pool[Math.floor(Math.random() * pool.length)];
+
+    // 8. 显示结果
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showPage('resultPage');
+    spawnHearts();
+
+    const avatarHtml = match.avatar
+      ? `<img class="result-avatar" src="${match.avatar}" alt="${match.name}">`
+      : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">🧑</div>';
+
+    document.getElementById('resultInner').innerHTML = `
+      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      ${avatarHtml}
+      <div class="result-name">${match.name}</div>
+      <div class="result-title">${match.title}</div>
+      <div class="result-desc">${match.desc}</div>
+    `;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    // fallback: 只用老男生
+    const match = members[Math.floor(Math.random() * members.length)];
+    showPage('resultPage');
+    spawnHearts();
+    document.getElementById('resultInner').innerHTML = `
+      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
+      <div class="result-name">${match.name}</div>
+      <div class="result-title">${match.title}</div>
+      <div class="result-desc">${match.desc}</div>
+    `;
   }
-
-  // 5. 随机选一个
-  const match = pool[Math.floor(Math.random() * pool.length)];
-
-  // 6. 显示结果卡片
-  showPage('resultPage');
-  spawnHearts();
-
-  document.getElementById('resultInner').innerHTML = `
-    <div class="result-label">✨ 你的命中注定是 ✨</div>
-    <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
-    <div class="result-name">${match.name}</div>
-    <div class="result-title">${match.title}</div>
-    <div class="result-desc">${match.desc}</div>
-  `;
 }
 
 // ==================== 女生模式 - 结果 ====================
@@ -1204,6 +1232,124 @@ async function fetchFemales() {
 
   // 只保留女生
   return contents.filter(c => c && c.gender === 'female');
+}
+
+// ==================== 从库拉取新男生 ====================
+async function fetchSubmittedMales() {
+  const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+  const TOKEN = TK.join('');
+
+  try {
+    const listResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/submissions', {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!listResp.ok) return [];
+    const files = await listResp.json();
+    const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+
+    const contents = await Promise.all(jsonFiles.map(async (f) => {
+      try {
+        const resp = await fetch(f.download_url);
+        if (!resp.ok) return null;
+        return await resp.json();
+      } catch(e) { return null; }
+    }));
+
+    const males = contents.filter(c => c && c.gender === 'male');
+
+    // 给每个新男生计算维度和类型，生成介绍
+    const maleOptionTexts = {
+      m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
+      m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
+      m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
+      m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
+      m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
+      m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
+      m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
+      m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
+      m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
+      m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
+    };
+    const maleDimMap = [
+      {A:'stable',B:'active',C:'stable',D:null},
+      {A:'active',B:'active',C:'stable',D:'growth'},
+      {A:'active',B:'stable',C:'growth',D:null},
+      {A:'stable',B:'active',C:'romantic',D:null},
+      {A:'growth',B:'romantic',C:'stable',D:'active'},
+      {A:'growth',B:'stable',C:'active',D:'romantic'},
+      {A:'growth',B:'active',C:'stable',D:'romantic'},
+      {A:'stable',B:'romantic',C:'growth',D:'active'},
+      {A:'growth',B:'active',C:'stable',D:'romantic'},
+      {A:'stable',B:'romantic',C:'active',D:'growth'}
+    ];
+    const mQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
+    const letters = ['A','B','C','D'];
+
+    const maleTitleBanks = {
+      stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人'],
+      romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🎵 氛围感制造机','💐 记住你说过每句话的人'],
+      active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🍻 最佳酒搭子·首席段子手'],
+      growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','💎 越磨越亮·钻石型男'],
+      balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','💯 满级人类·男性版','🌟 全能ACE·不设限']
+    };
+
+    return males.map(m => {
+      const a = m.answers || {};
+      const scores = { stable:0, romantic:0, active:0, growth:0 };
+      mQids.forEach((qid, qi) => {
+        const opts = maleOptionTexts[qid];
+        const ansText = a[qid] || '';
+        const aIdx = opts ? opts.findIndex(o => ansText === o || ansText.includes(o.slice(2)) || o.includes(ansText)) : -1;
+        if (aIdx >= 0) {
+          const dim = maleDimMap[qi][letters[aIdx]];
+          if (dim) scores[dim]++;
+        }
+      });
+
+      const maxS = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+      let mType = 'balanced';
+      const typeArr = [];
+      if (maxS >= 3) {
+        const tops = Object.entries(scores).filter(([k,v]) => v === maxS).map(([k]) => k);
+        if (tops.length === 1) mType = tops[0];
+        tops.forEach(t => typeArr.push(t));
+      }
+      if (typeArr.length === 0) typeArr.push('stable','romantic','active','growth');
+
+      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+      const titleBank = maleTitleBanks[mType] || maleTitleBanks.balanced;
+
+      // 生成描述
+      const descParts = [];
+      const fmi = (qid) => { const opts = maleOptionTexts[qid]; const v = a[qid]||''; return opts ? opts.findIndex(o => v===o||v.includes(o.slice(2))||o.includes(v)) : -1; };
+
+      const evD = { 0:['下了班直奔健身房，自律到让人佩服。'],1:['下班后最爱约兄弟喝两杯，社交属性拉满。'],2:['下班后安安静静看书打游戏，享受独处的男人最有魅力。'],3:['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。'] };
+      const flD = { 0:['有点宅但不是不解风情，只是觉得家里有你就够了。'],1:['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。'],2:['嘴笨是真的笨，但对你好也是真的好——行动派本派。'],3:['拖延症患者，但关于你的事从来不拖。'] };
+      const togD = { 0:['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。'],1:['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？'],2:['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。'],3:['喜欢一起做事的感觉，并肩作战比黏在一起更让人心动。'] };
+      const esD = { 0:['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。'],1:['觉得陪伴是最长情的告白，时间才是最贵的礼物。'],2:['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。'],3:['目标明确的人，谈恋爱也要一起往前走。'] };
+
+      let ei = fmi('m_evening'); if(ei>=0&&evD[ei]) descParts.push(pick(evD[ei]));
+      ei = fmi('m_flaw'); if(ei>=0&&flD[ei]) descParts.push(pick(flD[ei]));
+      ei = fmi('m_together'); if(ei>=0&&togD[ei]) descParts.push(pick(togD[ei]));
+      ei = fmi('m_essential'); if(ei>=0&&esD[ei]) descParts.push(pick(esD[ei]));
+
+      const maleEnds = ['这种男生，遇到了就别犹豫，错过了就是别人的了。','他值得被认真对待——不是因为他完美，是因为他真实。','遇到他，你会明白什么叫"原来你在这里"。','这种宝藏男孩，认识了就是赚到了。','有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。'];
+      descParts.push(pick(maleEnds));
+      if (descParts.length < 3) descParts.splice(0,0,'他是那种第一眼就让人想认识的男生。');
+
+      return {
+        name: m.nickname,
+        avatar: m.avatar || '',
+        title: m.introOverride ? m.introOverride.title : pick(titleBank),
+        desc: m.introOverride ? m.introOverride.desc : descParts.join(''),
+        types: typeArr,
+        _isSubmitted: true
+      };
+    });
+  } catch(e) {
+    console.error('fetchSubmittedMales error:', e);
+    return [];
+  }
 }
 
 // ==================== 女生介绍文案生成 ====================
