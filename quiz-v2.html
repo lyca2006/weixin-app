@@ -1208,224 +1208,304 @@ async function fetchFemales() {
 
 // ==================== 女生介绍文案生成 ====================
 function generateFemaleIntro(femaleAnswers) {
-  const style = femaleAnswers.style || '';
-  const hiddenTrait = femaleAnswers.hidden_trait || '';
-  const recharge = femaleAnswers.recharge || '';
-  const heartbeat = femaleAnswers.heartbeat || '';
-  const sleep = femaleAnswers.sleep || '';
-  const money = femaleAnswers.money || '';
-  const conflict = femaleAnswers.conflict || '';
+  if (!femaleAnswers) return { title: '💖 神秘女孩·宝藏待发掘', desc: '一个等待被发现的宝藏。' };
 
-  // ===== 生成 Title =====
-  // Title first part (from Q1 style)
-  const styleOptions = femaleOptionTexts.style;
-  const styleIdx = styleOptions.findIndex(opt => style === opt || style.includes(opt.slice(2)) || opt.includes(style));
+  // Helper functions
+  function findIdx(qid, ans) {
+    const opts = femaleOptionTexts[qid];
+    if (!opts || !ans) return -1;
+    return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  const titleFirstParts = {
-    0: ['🥂 西装暴徒', '👔 御姐本姐'],
-    1: ['🌿 森系精灵', '☘️ 治愈系仙女'],
-    2: ['👗 人间富贵花', '🌹 精致女王'],
-    3: ['🔥 酷girl', '⚡ 潮系辣妹']
+  const sIdx = findIdx('style', femaleAnswers.style);
+  const tIdx = findIdx('hidden_trait', femaleAnswers.hidden_trait);
+  const rIdx = findIdx('recharge', femaleAnswers.recharge);
+  const hIdx = findIdx('heartbeat', femaleAnswers.heartbeat);
+  const slIdx = findIdx('sleep', femaleAnswers.sleep);
+  const mIdx = findIdx('money', femaleAnswers.money);
+
+  // ===== Title Generation =====
+
+  // Step 1: Calculate female type from dimension scoring
+  const dimMap = {
+    style:        ['growth','stable','romantic','active'],
+    date_detail:  ['stable','growth','active','romantic'],
+    recharge:     ['stable','active','growth','stable'],
+    conflict:     ['stable','romantic','active','growth'],
+    heartbeat:    ['stable','romantic','growth','romantic'],
+    hidden_trait: ['romantic','stable','stable','active'],
+    sleep:        ['stable','active','romantic','growth'],
+    dealbreaker:  ['growth','stable','active','romantic'],
+    money:        ['stable','growth','active','stable'],
+    ideal_animal: ['growth','stable','romantic','active']
   };
 
-  let titleFirst = '💖 神秘女孩';
-  if (styleIdx >= 0 && titleFirstParts[styleIdx]) {
-    const arr = titleFirstParts[styleIdx];
-    titleFirst = arr[Math.floor(Math.random() * arr.length)];
+  const scores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+  for (const qid of Object.keys(dimMap)) {
+    const idx = findIdx(qid, femaleAnswers[qid]);
+    if (idx >= 0 && idx < 4) {
+      scores[dimMap[qid][idx]]++;
+    }
   }
 
-  // Title second part (from Q6 hidden_trait)
-  const traitOptions = femaleOptionTexts.hidden_trait;
-  const traitIdx = traitOptions.findIndex(opt => hiddenTrait === opt || hiddenTrait.includes(opt.slice(2)) || opt.includes(hiddenTrait));
+  let femaleType = 'balanced';
+  let maxScore = 0;
+  let tieCount = 0;
+  for (const t of ['stable','romantic','active','growth']) {
+    if (scores[t] > maxScore) {
+      maxScore = scores[t];
+      femaleType = t;
+      tieCount = 1;
+    } else if (scores[t] === maxScore) {
+      tieCount++;
+    }
+  }
+  if (maxScore < 3 || tieCount > 1) femaleType = 'balanced';
 
-  const titleSecondParts = {
-    0: ['·人间清醒天花板', '·情绪价值天花板'],
-    1: ['·田螺姑娘本人', '·居家女神'],
-    2: ['·人间定海神针', '·灵魂树洞'],
-    3: ['·行走的冒险家', '·有趣灵魂']
+  // Step 2: Check easter eggs (highest priority)
+  const easterEggs = [
+    { qid: 'recharge', idx: 3, title: '🧹 收纳界的女菩萨' },
+    { qid: 'hidden_trait', idx: 1, title: '🍳 米其林·家庭版唯一主厨' },
+    { qid: 'sleep', idx: 2, title: '🧸 永远少女·可爱豁免权' },
+    { qid: 'conflict', idx: 3, title: '⚔️ 边界感女王·不好惹' },
+    { qid: 'money', idx: 1, title: '🎒 灵魂自由·流浪诗人' },
+    { qid: 'heartbeat', idx: 0, title: '🛡️ 被守护体质·公主本人' },
+    { qid: 'ideal_animal', idx: 0, title: '🦁 狮子座·驯兽师预备役' },
+    { qid: 'recharge', idx: 1, title: '🗣️ 社交女王·人间真实' },
+    { qid: 'dealbreaker', idx: 0, title: '📐 秩序神教·教主本人' },
+    { qid: 'date_detail', idx: 0, title: '✨ 细节鉴赏家·品味顶流' },
+    { qid: 'style', idx: 0, title: '👔 大女主·衣柜即战袍' },
+    { qid: 'style', idx: 1, title: '🌾 森林系·仙女不过季' },
+    { qid: 'ideal_animal', idx: 1, title: '🐕 金毛饲养员·招募中' },
+    { qid: 'ideal_animal', idx: 2, title: '🐺 狼系驯服者' },
+    { qid: 'ideal_animal', idx: 3, title: '🐱 猫系收割机' },
+    { qid: 'heartbeat', idx: 3, title: '🎧 网易云·深度共鸣者' },
+    { qid: 'hidden_trait', idx: 3, title: '🔍 有趣灵魂·超标了' }
+  ];
+
+  const matchedEggs = easterEggs.filter(e => findIdx(e.qid, femaleAnswers[e.qid]) === e.idx);
+
+  // Step 3: Main type title word banks (15 each)
+  const titleBanks = {
+    stable: ['🌙 人间清醒·睡眠冠军','🏡 氛围感居家大师','🧘 情绪稳定天花板','☕ 午后阳光型人类','📖 把日子过成诗的人','🧶 最想娶回家的第一名','🌧️ 雨天宅家体验官','🕯️ 安静但有力量','🛋️ 沙发哲学家','☁️ 行走的安眠药','🏮 把生活过成慢综艺的人','🧩 稳定型人格天花板','🌊 定海神针·温柔版','🍵 治愈系·白开水型女神','🏠 宅家界的金牌策划师'],
+    romantic: ['🎬 偶像剧女主角本尊','💌 细节控·显微镜女孩','🌸 氛围感永动机','🎭 情绪价值供应商','✨ 把日子过成电影的人','🕯️ 暗夜里的发光体','💐 仪式感十级学者','🎵 氛围组组长','🌅 黄昏浪漫捕捉者','🫧 行走的少女心贩卖机','🎀 人间温柔·永久代言人','🌙 月光收集爱好者','🎠 情绪调色师','💕 心动信号发射塔','🌸 浪漫本身·无需定义'],
+    active: ['🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🦋 社交蝴蝶·全场MVP','🧃 多巴胺分泌代言人','🎪 生活综艺总导演','🚀 永远少年·青春永驻','🎭 行走的表情包制造机','🌊 快乐冲浪·首席体验官','🎮 人生玩家·满级号','🫶 能量充电宝·蹭蹭涨','🌋 行走的快乐火山','🎪 自带BGM出场的女人','🏃‍♀️ 永远在路上的冒险家','🎯 快乐制造·ISO认证','☀️ 走到哪亮到哪的小太阳'],
+    growth: ['🏆 大女主剧本持有人','📈 人生绩优股·潜力无限','🌍 见过世面的当代女性','🧠 清醒脑·顶级玩家','👑 女王行为·日常操作','🎯 目标感天花板','📚 行走的百科全书·美女版','🚀 事业脑·恋爱也不耽误','💼 都市丽人·终极形态','🌟 自己就是豪门预备役','🧗‍♀️ 向上攀爬·永不停歇','🎓 人生优秀毕业生','💎 钻石型人格·越磨越亮','⛰️ 翻山越岭·风景这边独好','🏅 自我卷王·荣耀王者'],
+    balanced: ['🎭 百变女王·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·挖不完','🌈 行走的彩虹·哪面都精彩','🎰 盲盒级女神·开盖有惊喜','🧬 高配版人类样本','🎭 一人千面·面面俱到','🌟 多边形战士·美丽不限定','🧙‍♀️ 魔法师·切换自如','🎨 人生画家·调色盘拉满','💯 满级人类·请勿模仿','🧘‍♀️ 通透型选手·万物皆可接','🧶 多重宇宙·最佳女主角','🌊 兼容并包·海纳百川','🌟 全能ACE·无限可能']
   };
 
-  let titleSecond = '·宝藏女孩';
-  if (traitIdx >= 0 && titleSecondParts[traitIdx]) {
-    const arr = titleSecondParts[traitIdx];
-    titleSecond = arr[Math.floor(Math.random() * arr.length)];
+  // Title decision: easter egg (random from matches) > type bank
+  let title;
+  if (matchedEggs.length > 0) {
+    title = pick(matchedEggs).title;
+  } else {
+    title = pick(titleBanks[femaleType]);
   }
 
-  const title = titleFirst + titleSecond;
+  // ===== Description Building Blocks =====
 
-  // ===== 生成 Description =====
-  // Q1 → 外形/风格开场
-  const styleDescs = {
+  // Q1 style
+  const sD = {
     0: [
       '一袭利落西装走进来的时候，全场的空气都安静了三秒。',
       '她穿西装的样子，帅到让男生都自愧不如。',
-      '衬衫扣到第二颗的随性感，是精心设计过的高级。'
+      '衬衫扣到第二颗的随性感，是精心设计过的高级。',
+      '干练到骨子里，走路带风的样子让人移不开眼。'
     ],
     1: [
       '棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。',
       '她站在那里就自带一片草地和微风，治愈系本人无疑。',
-      '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。'
+      '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。',
+      '不追潮流不赶时髦，她的风格就是让人舒服到想拥抱。'
     ],
     2: [
       '腰线以下全是腿，精致得像杂志封面走下来的人。',
       '一条连衣裙穿出了整条街最好看的风景线。',
-      '她的穿搭从来不费力，但每次出场都让人移不开眼。'
+      '她的穿搭从来不费力，但每次出场都让人移不开眼。',
+      '女人味拿捏得恰到好处，时尚感浑然天成。'
     ],
     3: [
       '限量球鞋踩出六亲不认的步伐，酷到骨子里。',
       '潮牌上身自带街拍效果，走路带风。',
-      '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。'
+      '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。',
+      '球鞋配卫衣的运动风，撞衫都能赢的那种酷。'
     ]
   };
 
-  // Q3 → 性格/社交
-  const rechargeOptions = femaleOptionTexts.recharge;
-  const rechargeIdx = rechargeOptions.findIndex(opt => recharge === opt || recharge.includes(opt.slice(2)) || opt.includes(recharge));
-
-  const rechargeDescs = {
+  // Q3 recharge
+  const rD = {
     0: [
       '骨子里是个享受独处的人，安静的时候最有魅力。',
-      '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。'
+      '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。',
+      '别打扰她的独处时光，那是她给自己充电的仪式感。',
+      'I人浓度拉满，但安静的她反而最让人着迷。'
     ],
     1: [
       '三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。',
-      '朋友圈子不大但个个真心，她是那种值得深交的人。'
+      '朋友圈子不大但个个真心，她是那种值得深交的人。',
+      '社交场上的氛围担当，她往那一坐，气氛就热了。',
+      '微醺的她最可爱，话多到停不下来但每句都真心。'
     ],
     2: [
       '健身房里挥汗如雨的样子，自律得让人佩服。',
-      '别看她精致，运动起来的狠劲能让你刮目相看。'
+      '别看她精致，运动起来的狠劲能让你刮目相看。',
+      '自律到可怕，身材管理是她对自己的温柔暴击。',
+      '练完瑜伽浑身发光的样子，比化妆还好看。'
     ],
     3: [
       '收拾完房间才觉得世界重新有了秩序，强迫症但可爱。',
-      '连调料瓶都要按大小排列的人，细节控本人。'
+      '连调料瓶都要按大小排列的人，细节控本人。',
+      '整理收纳是她的解压方式，活成了秩序感的代名词。',
+      '她的房间永远一尘不染，看一眼就觉得治愈。'
     ]
   };
 
-  // Q5 → 感情需求
-  const heartbeatOptions = femaleOptionTexts.heartbeat;
-  const heartbeatIdx = heartbeatOptions.findIndex(opt => heartbeat === opt || heartbeat.includes(opt.slice(2)) || opt.includes(heartbeat));
-
-  const heartbeatDescs = {
+  // Q5 heartbeat
+  const hD = {
     0: [
       '她要的安全感很简单——过马路时被护在身边就够了。',
-      '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。'
+      '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。',
+      '不要什么惊天大礼，一个默默挡住人群的动作就够她心动好久。',
+      '安全感是她的第一需求，你稳稳地在就够了。'
     ],
     1: [
       '随口说的一句话被人默默记住，这种浪漫最戳她。',
-      '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。'
+      '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。',
+      '她的爱情密码不是鲜花钻石，是"你上次说想吃的那家我订好了"。',
+      '被重视的感觉，是她认定一个人最大的理由。'
     ],
     2: [
       '她需要的不是花言巧语，是关键时刻那句"我来搞定"。',
-      '最让她心动的男人，是能在她脆弱时稳稳接住她的人。'
+      '最让她心动的男人，是能在她脆弱时稳稳接住她的人。',
+      '不需要你完美，但需要你在她搞砸的时候说一句"有我在"。',
+      '能被兜底的感觉，比100朵玫瑰都浪漫。'
     ],
     3: [
       '一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。',
-      '跟她谈恋爱，灵魂契合比什么都重要。'
+      '跟她谈恋爱，灵魂契合比什么都重要。',
+      '聊音乐聊电影聊三观，灵魂对上了什么都对了。',
+      '她不要你有多帅多有钱，聊得来比什么都重要。'
     ]
   };
 
-  // Q6 → 隐藏优势
-  const traitDescs = {
+  // Q6 hidden_trait
+  const tD = {
     0: [
       '最难得的是，哪怕吵到天翻地覆也不会口出恶言——这种温柔是刻在骨子里的教养。',
-      '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。'
+      '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。',
+      '情商高到离谱，就算生气也让人觉得她好可爱。',
+      '再怎么吵，她的嘴也不会变成武器——这份克制让人心疼。'
     ],
     1: [
       '走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。',
-      '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。'
+      '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。',
+      '家被她收拾得像样板间，但有温度的那种。饿了？她早就开始煮了。',
+      '能把出租屋住出豪宅感的女生，持家能力值直接拉满。'
     ],
     2: [
       '她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。',
-      '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。'
+      '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。',
+      '共情力爆表，她听你说话的时候，全世界好像都安静了。',
+      '你可以跟她聊任何事，她不评判不打断，只是认真地听。'
     ],
     3: [
       '跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。',
-      '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。'
+      '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。',
+      '她像一本翻不完的书，每次以为了解她了，又会被新技能惊到。',
+      '跟她约会永远不用你安排，她的脑子里全是新鲜点子。'
     ]
   };
 
-  // Q7 → 可爱细节（特别是 C=抱玩偶）
-  const sleepOptions = femaleOptionTexts.sleep;
-  const sleepIdx = sleepOptions.findIndex(opt => sleep === opt || sleep.includes(opt.slice(2)) || opt.includes(sleep));
-
-  const sleepDescs = {
-    0: '十一点准时关灯的自律，是她对生活的温柔仪式感。',
-    1: '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
-    2: '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
-    3: '睡眠浅得像只小猫，需要一个能给她安全感的人。'
+  // Q7 sleep
+  const slD = {
+    0: [
+      '十一点准时关灯的自律，是她对生活的温柔仪式感。',
+      '规律作息，早睡早起，自律的她连睡觉都这么优秀。',
+      '熬夜？不存在的。她的生物钟比闹钟还准。',
+      '健康生活的代言人，皮肤好不是天生的，是早睡换来的。'
+    ],
+    1: [
+      '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
+      '夜越深她越精神，凌晨两点的朋友圈才是她的主场。',
+      '白天是社畜，凌晨才是真正的自己——手机越刷越清醒。',
+      '夜猫子体质，半夜给你发消息是她表达想你的方式。'
+    ],
+    2: [
+      '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
+      '表面是独立女性，睡觉抱着小熊的样子软萌到犯规。',
+      '别看她白天多酷，晚上不抱着被角就睡不着——反差萌天花板。',
+      '这个反差萌谁受得了？白天全场最飒，晚上抱着玩偶秒变小朋友。'
+    ],
+    3: [
+      '睡眠浅得像只小猫，需要一个能给她安全感的人。',
+      '敏感体质让她对世界的感知更细腻，也更需要被温柔以待。',
+      '轻度失眠选手，但这份敏感让她对细节的洞察力超乎常人。',
+      '睡不好的时候特别需要人陪，一个拥抱就是最好的安眠药。'
+    ]
   };
 
-  // Q9 → 金钱态度对比
-  const moneyOptions = femaleOptionTexts.money;
-  const moneyIdx = moneyOptions.findIndex(opt => money === opt || money.includes(opt.slice(2)) || opt.includes(money));
-
-  const moneyDescs = {
-    0: '看似随性，其实存折里的数字比你想象的多得多。',
-    1: '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
-    2: '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
-    3: '赚了钱第一个想到的是家人，这种善良不是装出来的。'
+  // Q9 money
+  const mD = {
+    0: [
+      '看似随性，其实存折里的数字比你想象的多得多。',
+      '闷声发财型选手，理财知识比很多男生都强。',
+      '花钱精打细算不是抠，是她对未来有规划的证据。',
+      '该省省该花花，每一分钱都花在刀刃上的理性派。'
+    ],
+    1: [
+      '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
+      '别人攒钱买包，她攒钱去旅行——见识就是她最好的奢侈品。',
+      '健身卡、读书会、小语种课——她把钱花在让自己增值的地方。',
+      '向上生长型，钱是拿来让自己变得更好的工具。'
+    ],
+    2: [
+      '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
+      '她的消费观很简单：人生苦短，喜欢就买，值得就花。',
+      '舍得给自己花钱的女生，骨子里是真正爱自己的。',
+      '悦己至上，买到心仪的东西时眼睛会发光——那个笑容无价。'
+    ],
+    3: [
+      '赚了钱第一个想到的是家人，这种善良不是装出来的。',
+      '给妈妈买礼物时的认真劲儿，暖到让人想把全世界都给她。',
+      '她的善良是刻在DNA里的，利他精神让人忍不住想保护她。',
+      '挣钱是为了让身边的人过得更好——这份温柔太珍贵了。'
+    ]
   };
 
-  // 结尾
-  const endings = [
+  // Endings
+  const ends = [
     '这种女生，遇到了就别犹豫，错过了就是别人的了。',
     '她值得被认真对待——不是因为她完美，是因为她真实。',
     '如果你想找一个能一起笑、一起扛的人，她就是最好的答案。',
-    '别被表面迷惑，她的内在比外在更让人上瘾。',
     '遇到她，你会明白什么叫"原来你在这里"。',
     '这种宝藏女孩，认识了就是赚到了。',
     '有些人是惊艳一瞬间，她是越了解越让人心动的类型。',
-    '跟她在一起，你会发现生活突然变得有趣了很多。'
+    '别被表面迷惑，她的内在比外在更让人上瘾。',
+    '跟她在一起，你会发现生活突然变得有趣了很多。',
+    '她不完美，但她很真——而真，才是最难得的奢侈品。',
+    '如果缘分是一道数学题，她就是那个唯一的正确答案。',
+    '兄弟，这种女生不主动追，天理难容。',
+    '别想太多了，心动就行动，她值得。',
+    '总结：宝藏本人，限量发售，先到先得。',
+    '如果你还在等一个人让你觉得"就是她了"，那现在可以停了。'
   ];
 
-  // ===== 组装描述 =====
-  let descParts = [];
+  // ===== Assemble Description =====
+  let parts = [];
+  if (sIdx >= 0 && sD[sIdx]) parts.push(pick(sD[sIdx]));
+  if (rIdx >= 0 && rD[rIdx]) parts.push(pick(rD[rIdx]));
+  if (hIdx >= 0 && hD[hIdx]) parts.push(pick(hD[hIdx]));
+  if (tIdx >= 0 && tD[tIdx]) parts.push(pick(tD[tIdx]));
+  if (slIdx >= 0 && slD[slIdx]) parts.push(pick(slD[slIdx]));
+  if (mIdx >= 0 && mD[mIdx]) parts.push(pick(mD[mIdx]));
+  parts.push(pick(ends));
 
-  // 开场（Q1 风格）
-  if (styleIdx >= 0 && styleDescs[styleIdx]) {
-    const arr = styleDescs[styleIdx];
-    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
+  if (parts.length < 4) {
+    parts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
   }
 
-  // 性格（Q3 充电方式）
-  if (rechargeIdx >= 0 && rechargeDescs[rechargeIdx]) {
-    const arr = rechargeDescs[rechargeIdx];
-    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
-  }
-
-  // 感情需求（Q5 心动瞬间）
-  if (heartbeatIdx >= 0 && heartbeatDescs[heartbeatIdx]) {
-    const arr = heartbeatDescs[heartbeatIdx];
-    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
-  }
-
-  // 隐藏优势（Q6 隐形优点）
-  if (traitIdx >= 0 && traitDescs[traitIdx]) {
-    const arr = traitDescs[traitIdx];
-    descParts.push(arr[Math.floor(Math.random() * arr.length)]);
-  }
-
-  // 可爱细节（Q7 睡觉）
-  if (sleepIdx >= 0 && sleepDescs[sleepIdx]) {
-    descParts.push(sleepDescs[sleepIdx]);
-  }
-
-  // 金钱态度（Q9）
-  if (moneyIdx >= 0 && moneyDescs[moneyIdx]) {
-    descParts.push(moneyDescs[moneyIdx]);
-  }
-
-  // 结尾
-  descParts.push(endings[Math.floor(Math.random() * endings.length)]);
-
-  // 如果描述太少（数据缺失），补一些通用描述
-  if (descParts.length < 4) {
-    descParts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
-  }
-
-  const desc = descParts.join('');
-
-  return { title, desc };
+  return { title, desc: parts.join('') };
 }
 
 // ==================== 视觉效果 ====================
