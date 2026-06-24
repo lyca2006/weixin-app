@@ -31,34 +31,34 @@ body {
 .page.active { display: block; }
 
 /* 开始页 */
-.start-page { text-align: center; padding-top: 12vh; }
-.start-icon { font-size: 64px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+.start-page { text-align: center; padding-top: 3vh; }
+.start-icon { font-size: 36px; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 .start-title {
-  font-size: 26px; font-weight: 700; margin-bottom: 10px;
+  font-size: 22px; font-weight: 700; margin-bottom: 6px;
   background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.start-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.8; margin-bottom: 32px; }
+.start-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 16px; }
 
 /* 性别选择 */
-.gender-section { display: flex; gap: 16px; justify-content: center; margin-bottom: 28px; }
+.gender-section { display: flex; gap: 12px; justify-content: center; margin-bottom: 14px; }
 .gender-btn {
-  width: 120px; height: 120px; border-radius: 20px; border: 2px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06); display: flex; flex-direction: column;
-  align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+  width: 100px; height: 56px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); display: flex; flex-direction: row;
+  align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 .gender-btn:active { transform: scale(0.95); }
 .gender-btn.selected { border-color: #f5576c; background: rgba(245,87,108,0.15); box-shadow: 0 4px 20px rgba(245,87,108,0.3); }
-.gender-btn .icon { font-size: 40px; margin-bottom: 6px; }
-.gender-btn .label { font-size: 15px; font-weight: 600; }
+.gender-btn .icon { font-size: 24px; }
+.gender-btn .label { font-size: 14px; font-weight: 600; }
 
 /* 昵称输入 */
-.name-section { margin-bottom: 24px; }
-.name-label { font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 8px; text-align: center; }
+.name-section { margin-bottom: 12px; }
+.name-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; text-align: center; }
 .name-input {
-  width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06);
+  width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
   color: #fff; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s;
 }
@@ -66,8 +66,8 @@ body {
 .name-input::placeholder { color: rgba(255,255,255,0.3); }
 
 .start-btn {
-  display: inline-block; padding: 14px 44px;
-  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 28px;
+  display: inline-block; padding: 12px 40px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 24px;
   color: #fff; font-size: 17px; font-weight: 600; cursor: pointer;
   box-shadow: 0 6px 24px rgba(245,87,108,0.4); -webkit-tap-highlight-color: transparent;
   transition: all 0.2s; letter-spacing: 1px;
@@ -199,8 +199,8 @@ body {
       <div class="name-section">
         <div class="name-label">上传你的微信头像</div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-          <div id="avatarPreview" onclick="document.getElementById('fileInput').click()" style="width:90px;height:90px;border-radius:14px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all 0.2s">
-            <div id="avatarPlaceholder" style="text-align:center;color:rgba(255,255,255,0.3);font-size:12px;line-height:1.5"><span style="font-size:28px;display:block">📷</span>点击上传</div>
+          <div id="avatarPreview" onclick="document.getElementById('fileInput').click()" style="width:70px;height:70px;border-radius:12px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all 0.2s">
+            <div id="avatarPlaceholder" style="text-align:center;color:rgba(255,255,255,0.3);font-size:11px;line-height:1.4"><span style="font-size:22px;display:block">📷</span>点击上传</div>
           </div>
           <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)" style="display:none">
         </div>
