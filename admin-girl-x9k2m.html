@@ -34,40 +34,60 @@ body {
 .loading-text { text-align: center; color: rgba(255,255,255,0.4); padding: 40px; font-size: 14px; }
 
 .card {
-  background: rgba(255,255,255,0.05); border-radius: 16px; padding: 20px;
+  background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px;
   margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);
-  display: flex; gap: 16px; align-items: flex-start;
 }
+.card-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; }
 .card-avatar {
-  width: 60px; height: 60px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
   border: 2px solid rgba(245,87,108,0.3);
 }
-.card-body { flex: 1; min-width: 0; }
-.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.card-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+.card-avatar-placeholder {
+  width: 56px; height: 56px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.card-meta { flex: 1; min-width: 0; }
+.card-top-row { display: flex; justify-content: space-between; align-items: center; }
+.card-left { display: flex; align-items: center; gap: 6px; }
 .card-name {
-  font-size: 18px; font-weight: 700;
+  font-size: 16px; font-weight: 700;
   background: linear-gradient(135deg, #f093fb, #f5576c);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.card-gender { padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.card-gender { padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; }
 .card-gender.male { background: rgba(66,165,245,0.2); color: #42a5f5; }
 .card-gender.female { background: rgba(245,87,108,0.2); color: #f5576c; }
 
-.card-actions { display: flex; gap: 6px; }
+.card-actions { display: flex; gap: 4px; }
 .action-btn {
-  padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); font-size: 11px;
-  cursor: pointer; transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+  padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); font-size: 10px;
+  cursor: pointer; transition: all 0.2s;
 }
 .action-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.action-btn.delete:hover { background: rgba(245,87,108,0.2); color: #f5576c; border-color: rgba(245,87,108,0.3); }
+.action-btn.delete:hover { background: rgba(245,87,108,0.2); color: #f5576c; }
 
-.card-time { font-size: 11px; color: rgba(255,255,255,0.2); margin-bottom: 10px; }
-.card-answers { display: flex; flex-direction: column; gap: 8px; }
-.card-row { display: flex; gap: 8px; font-size: 13px; line-height: 1.5; }
-.card-label { color: rgba(255,255,255,0.35); flex-shrink: 0; min-width: 70px; }
-.card-value { color: rgba(255,255,255,0.75); }
+.card-abcd {
+  font-size: 14px; font-family: monospace; color: #4fc3f7; letter-spacing: 2px;
+  user-select: all; padding: 2px 0; margin-top: 4px;
+}
+.card-time { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+
+/* 生成的简历区域 */
+.card-intro { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.intro-title {
+  font-size: 15px; font-weight: 700; color: #fda085; margin-bottom: 6px;
+  text-shadow: 0 0 8px rgba(253,160,133,0.3);
+}
+.intro-desc {
+  font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7;
+}
+.edit-intro-btn {
+  margin-top: 8px; padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); font-size: 10px;
+  cursor: pointer;
+}
+.edit-intro-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 
 .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
@@ -80,16 +100,24 @@ body {
 }
 .modal-overlay.hidden { display: none; }
 .modal {
-  background: #1e1e30; border-radius: 16px; padding: 24px; width: 300px;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #1e1e30; border-radius: 16px; padding: 24px; width: 340px; max-width: 90vw;
+  border: 1px solid rgba(255,255,255,0.1); max-height: 80vh; overflow-y: auto;
 }
 .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
 .modal-input {
-  width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.06);
+  width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px;
-  color: #fff; font-size: 15px; outline: none; margin-bottom: 16px;
+  color: #fff; font-size: 14px; outline: none; margin-bottom: 12px;
 }
 .modal-input:focus { border-color: #f5576c; }
+.modal-textarea {
+  width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px;
+  color: #fff; font-size: 13px; outline: none; margin-bottom: 12px;
+  resize: vertical; min-height: 120px; font-family: inherit; line-height: 1.6;
+}
+.modal-textarea:focus { border-color: #f5576c; }
+.modal-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 6px; display: block; }
 .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
 .modal-btn {
   padding: 8px 20px; border-radius: 8px; border: none; font-size: 14px;
@@ -98,6 +126,7 @@ body {
 .modal-btn.cancel { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
 .modal-btn.confirm { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; }
 .modal-btn.danger { background: #e53935; color: #fff; }
+.modal-btn.regen { background: rgba(255,255,255,0.08); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.3); }
 </style>
 </head>
 <body>
@@ -125,7 +154,7 @@ body {
     <div class="modal-title">✏️ 修改昵称</div>
     <input class="modal-input" id="renameInput" placeholder="输入新昵称">
     <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeRename()">取消</button>
+      <button class="modal-btn cancel" onclick="closeModal('renameModal')">取消</button>
       <button class="modal-btn confirm" onclick="confirmRename()">确定</button>
     </div>
   </div>
@@ -137,8 +166,24 @@ body {
     <div class="modal-title">🗑️ 确认删除</div>
     <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:16px;line-height:1.6" id="deleteMsg"></div>
     <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeDelete()">取消</button>
+      <button class="modal-btn cancel" onclick="closeModal('deleteModal')">取消</button>
       <button class="modal-btn danger" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑简历弹窗 -->
+<div class="modal-overlay hidden" id="editIntroModal">
+  <div class="modal">
+    <div class="modal-title">✏️ 编辑简历</div>
+    <label class="modal-label">封号标题</label>
+    <input class="modal-input" id="editTitleInput" placeholder="如：🌿 森系精灵·人间清醒天花板">
+    <label class="modal-label">人物描述</label>
+    <textarea class="modal-textarea" id="editDescInput" placeholder="人物描述..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn regen" onclick="regenIntro()">🔄 重新生成</button>
+      <button class="modal-btn cancel" onclick="closeModal('editIntroModal')">取消</button>
+      <button class="modal-btn confirm" onclick="confirmEditIntro()">保存</button>
     </div>
   </div>
 </div>
@@ -146,25 +191,71 @@ body {
 <script>
 let allData = [];
 let currentFilter = 'all';
-let pendingRenameIdx = -1;
-let pendingDeleteIdx = -1;
+let pendingIdx = -1;
 
 const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
 const TOKEN = TK.join('');
 const API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
 
 const LABELS = {
-  style: '穿衣风格',
-  date_detail: '约会细节',
-  recharge: '充电方式',
-  conflict: '冲突反应',
-  heartbeat: '心动瞬间',
-  hidden_trait: '隐形优点',
-  sleep: '睡眠习惯',
-  dealbreaker: '受不了的',
-  money: '花钱方式',
-  ideal_animal: '理想另一半'
+  style: '穿衣风格', date_detail: '约会细节', recharge: '充电方式', conflict: '冲突反应',
+  heartbeat: '心动瞬间', hidden_trait: '隐形优点', sleep: '睡眠习惯',
+  dealbreaker: '受不了的', money: '花钱方式', ideal_animal: '理想另一半'
 };
+
+const femaleOptionTexts = {
+  style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
+  date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
+  recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
+  conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
+  heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
+  hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
+  sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
+  dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
+  money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
+  ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
+};
+
+function findIdx(qid, ans) {
+  const opts = femaleOptionTexts[qid];
+  if (!opts || !ans) return -1;
+  return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+}
+
+function generateFemaleIntro(a) {
+  if (!a) return { title: '💖 神秘女孩·宝藏待发掘', desc: '一个等待被发现的宝藏。' };
+  const sIdx = findIdx('style', a.style);
+  const tIdx = findIdx('hidden_trait', a.hidden_trait);
+  const rIdx = findIdx('recharge', a.recharge);
+  const hIdx = findIdx('heartbeat', a.heartbeat);
+  const slIdx = findIdx('sleep', a.sleep);
+  const mIdx = findIdx('money', a.money);
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  const t1 = { 0:['🥂 西装暴徒','👔 御姐本姐'], 1:['🌿 森系精灵','☘️ 治愈系仙女'], 2:['👗 人间富贵花','🌹 精致女王'], 3:['🔥 酷girl','⚡ 潮系辣妹'] };
+  const t2 = { 0:['·人间清醒天花板','·情绪价值天花板'], 1:['·田螺姑娘本人','·居家女神'], 2:['·人间定海神针','·灵魂树洞'], 3:['·行走的冒险家','·有趣灵魂'] };
+  const title = (sIdx>=0 ? pick(t1[sIdx]) : '💖 神秘女孩') + (tIdx>=0 ? pick(t2[tIdx]) : '·宝藏女孩');
+
+  const sD = { 0:['一袭利落西装走进来的时候，全场的空气都安静了三秒。','她穿西装的样子，帅到让男生都自愧不如。'], 1:['棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。','她站在那里就自带一片草地和微风，治愈系本人无疑。'], 2:['腰线以下全是腿，精致得像杂志封面走下来的人。','一条连衣裙穿出了整条街最好看的风景线。'], 3:['限量球鞋踩出六亲不认的步伐，酷到骨子里。','潮牌上身自带街拍效果，走路带风。'] };
+  const rD = { 0:['骨子里是个享受独处的人，安静的时候最有魅力。','她最迷人的时刻，是窝在沙发上安安静静做自己的样子。'], 1:['三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。','朋友圈子不大但个个真心，她是那种值得深交的人。'], 2:['健身房里挥汗如雨的样子，自律得让人佩服。','别看她精致，运动起来的狠劲能让你刮目相看。'], 3:['收拾完房间才觉得世界重新有了秩序，强迫症但可爱。','连调料瓶都要按大小排列的人，细节控本人。'] };
+  const hD = { 0:['她要的安全感很简单——过马路时被护在身边就够了。','对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。'], 1:['随口说的一句话被人默默记住，这种浪漫最戳她。','别跟她玩套路，真心记住她说过的话，比什么礼物都管用。'], 2:['她需要的不是花言巧语，是关键时刻那句"我来搞定"。','最让她心动的男人，是能在她脆弱时稳稳接住她的人。'], 3:['一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。','跟她谈恋爱，灵魂契合比什么都重要。'] };
+  const tD = { 0:['最难得的是，哪怕吵到天翻地覆也不会口出恶言——这种温柔是刻在骨子里的教养。','她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。'], 1:['走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。','别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。'], 2:['她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。','跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。'], 3:['跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。','好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。'] };
+  const slD = { 0:'十一点准时关灯的自律，是她对生活的温柔仪式感。', 1:'报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。', 2:'睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。', 3:'睡眠浅得像只小猫，需要一个能给她安全感的人。' };
+  const mD = { 0:'看似随性，其实存折里的数字比你想象的多得多。', 1:'比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。', 2:'偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。', 3:'赚了钱第一个想到的是家人，这种善良不是装出来的。' };
+  const ends = ['这种女生，遇到了就别犹豫，错过了就是别人的了。','她值得被认真对待——不是因为她完美，是因为她真实。','如果你想找一个能一起笑、一起扛的人，她就是最好的答案。','遇到她，你会明白什么叫"原来你在这里"。','这种宝藏女孩，认识了就是赚到了。','有些人是惊艳一瞬间，她是越了解越让人心动的类型。'];
+
+  let parts = [];
+  if (sIdx>=0 && sD[sIdx]) parts.push(pick(sD[sIdx]));
+  if (rIdx>=0 && rD[rIdx]) parts.push(pick(rD[rIdx]));
+  if (hIdx>=0 && hD[hIdx]) parts.push(pick(hD[hIdx]));
+  if (tIdx>=0 && tD[tIdx]) parts.push(pick(tD[tIdx]));
+  if (slIdx>=0 && slD[slIdx]!==undefined) parts.push(typeof slD[slIdx]==='string' ? slD[slIdx] : pick(slD[slIdx]));
+  if (mIdx>=0 && mD[mIdx]!==undefined) parts.push(typeof mD[mIdx]==='string' ? mD[mIdx] : pick(mD[mIdx]));
+  parts.push(pick(ends));
+
+  return { title, desc: parts.join('') };
+}
 
 function setFilter(f, el) {
   currentFilter = f;
@@ -176,174 +267,169 @@ function setFilter(f, el) {
 function renderCards() {
   const list = document.getElementById('cardList');
   const filtered = currentFilter === 'all' ? allData : allData.filter(d => d.gender === currentFilter);
-  document.getElementById('countText').textContent = `共 ${allData.length} 份档案` + (currentFilter !== 'all' ? `，当前显示 ${filtered.length} 份` : '');
+  document.getElementById('countText').textContent = `共 ${allData.length} 份档案` + (currentFilter !== 'all' ? `，显示 ${filtered.length}` : '');
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div>暂无档案</div></div>';
     return;
   }
 
+  const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_trait','sleep','dealbreaker','money','ideal_animal'];
+  const letters = ['A','B','C','D'];
+
   list.innerHTML = filtered.map(d => {
     const idx = allData.indexOf(d);
 
-    // 每题的选项列表，用于反查ABCD
-    const optionMap = {
-      style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
-      date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
-      recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
-      conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
-      heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
-      hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
-      sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
-      dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
-      money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
-      ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
-    };
-    const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_trait','sleep','dealbreaker','money','ideal_animal'];
-    const letters = ['A','B','C','D'];
-    const abcdResult = qIds.map(qid => {
+    const abcd = qIds.map(qid => {
       const ans = (d.answers || {})[qid] || '';
-      const opts = optionMap[qid] || [];
-      const idx2 = opts.indexOf(ans);
-      return idx2 >= 0 ? letters[idx2] : '?';
+      const i = findIdx(qid, ans);
+      return i >= 0 ? letters[i] : '?';
     }).join('');
 
+    const intro = d._introOverride || generateFemaleIntro(d.answers);
+    if (!d._introOverride) d._introCache = intro;
+
+    const displayTitle = d._introOverride ? d._introOverride.title : intro.title;
+    const displayDesc = d._introOverride ? d._introOverride.desc : intro.desc;
+
+    const avatarHtml = d.avatar
+      ? `<img class="card-avatar" src="${d.avatar}" alt="${d.nickname}">`
+      : `<div class="card-avatar-placeholder">${d.gender === 'male' ? '🧑' : '👩'}</div>`;
+
     return `<div class="card">
-      ${d.avatar ? `<img class="card-avatar" src="${d.avatar}" alt="${d.nickname}">` : ''}
-      <div class="card-body">
-        <div class="card-top">
-          <div class="card-left">
-            <span class="card-name">${d.nickname}</span>
-            <span class="card-gender ${d.gender}">${d.gender === 'male' ? '♂ 男' : '♀ 女'}</span>
+      <div class="card-header">
+        ${avatarHtml}
+        <div class="card-meta">
+          <div class="card-top-row">
+            <div class="card-left">
+              <span class="card-name">${d.nickname}</span>
+              <span class="card-gender ${d.gender}">${d.gender === 'male' ? '♂ 男' : '♀ 女'}</span>
+            </div>
+            <div class="card-actions">
+              <button class="action-btn" onclick="openRename(${idx})">✏️ 改名</button>
+              <button class="action-btn delete" onclick="openDelete(${idx})">🗑️</button>
+            </div>
           </div>
-          <div class="card-actions">
-            <button class="action-btn" onclick="openRename(${idx})">✏️ 改名</button>
-            <button class="action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>
-          </div>
+          <div class="card-abcd">${abcd}</div>
+          <div class="card-time">${d.time || ''}</div>
         </div>
-        <div style="font-size:15px;font-family:monospace;color:#4fc3f7;letter-spacing:2px;user-select:all;padding:4px 0">${abcdResult}</div>
-        <div class="card-time">${d.time || ''}</div>
+      </div>
+      <div class="card-intro">
+        <div class="intro-title">${displayTitle}</div>
+        <div class="intro-desc">${displayDesc}</div>
+        <button class="edit-intro-btn" onclick="openEditIntro(${idx})">✏️ 编辑简历</button>
       </div>
     </div>`;
   }).join('');
 }
 
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); pendingIdx = -1; }
+
 // 改名
 function openRename(idx) {
-  pendingRenameIdx = idx;
+  pendingIdx = idx;
   document.getElementById('renameInput').value = allData[idx].nickname;
   document.getElementById('renameModal').classList.remove('hidden');
-  setTimeout(() => document.getElementById('renameInput').focus(), 100);
-}
-function closeRename() {
-  document.getElementById('renameModal').classList.add('hidden');
-  pendingRenameIdx = -1;
 }
 async function confirmRename() {
   const newName = document.getElementById('renameInput').value.trim();
-  if (!newName || pendingRenameIdx < 0) return;
-
-  const d = allData[pendingRenameIdx];
+  if (!newName || pendingIdx < 0) return;
+  const d = allData[pendingIdx];
   d.nickname = newName;
-
-  try {
-    const fileResp = await fetch(`${API}/${d._filename}`, {
-      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    const fileData = await fileResp.json();
-
-    const saveData = { ...d };
-    delete saveData._filename;
-    delete saveData._sha;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
-
-    await fetch(`${API}/${d._filename}`, {
-      method: 'PUT',
-      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify({ message: `改名: ${newName}`, content: content, sha: fileData.sha, branch: 'main' })
-    });
-
-    closeRename();
-    renderCards();
-  } catch(e) {
-    alert('修改失败，请重试');
-    console.error(e);
-  }
+  await saveEntry(d);
+  closeModal('renameModal');
+  renderCards();
 }
 
 // 删除
 function openDelete(idx) {
-  pendingDeleteIdx = idx;
-  document.getElementById('deleteMsg').textContent = `确定删除「${allData[idx].nickname}」的档案吗？此操作不可撤销。`;
+  pendingIdx = idx;
+  document.getElementById('deleteMsg').textContent = `确定删除「${allData[idx].nickname}」的档案吗？`;
   document.getElementById('deleteModal').classList.remove('hidden');
 }
-function closeDelete() {
-  document.getElementById('deleteModal').classList.add('hidden');
-  pendingDeleteIdx = -1;
-}
 async function confirmDelete() {
-  if (pendingDeleteIdx < 0) return;
-  const d = allData[pendingDeleteIdx];
-
+  if (pendingIdx < 0) return;
+  const d = allData[pendingIdx];
   try {
-    const fileResp = await fetch(`${API}/${d._filename}`, {
-      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    const fileData = await fileResp.json();
-
+    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const fd = await r.json();
     await fetch(`${API}/${d._filename}`, {
       method: 'DELETE',
       headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify({ message: `删除档案: ${d.nickname}`, sha: fileData.sha, branch: 'main' })
+      body: JSON.stringify({ message: `删除: ${d.nickname}`, sha: fd.sha, branch: 'main' })
     });
-
-    allData.splice(pendingDeleteIdx, 1);
-    closeDelete();
+    allData.splice(pendingIdx, 1);
+    closeModal('deleteModal');
     renderCards();
-  } catch(e) {
-    alert('删除失败，请重试');
-    console.error(e);
-  }
+  } catch(e) { alert('删除失败'); console.error(e); }
+}
+
+// 编辑简历
+function openEditIntro(idx) {
+  pendingIdx = idx;
+  const d = allData[idx];
+  const intro = d._introOverride || d._introCache || generateFemaleIntro(d.answers);
+  document.getElementById('editTitleInput').value = intro.title;
+  document.getElementById('editDescInput').value = intro.desc;
+  document.getElementById('editIntroModal').classList.remove('hidden');
+}
+function regenIntro() {
+  if (pendingIdx < 0) return;
+  const d = allData[pendingIdx];
+  const intro = generateFemaleIntro(d.answers);
+  document.getElementById('editTitleInput').value = intro.title;
+  document.getElementById('editDescInput').value = intro.desc;
+}
+async function confirmEditIntro() {
+  if (pendingIdx < 0) return;
+  const title = document.getElementById('editTitleInput').value.trim();
+  const desc = document.getElementById('editDescInput').value.trim();
+  if (!title || !desc) return;
+  const d = allData[pendingIdx];
+  d._introOverride = { title, desc };
+  d.introOverride = { title, desc };
+  await saveEntry(d);
+  closeModal('editIntroModal');
+  renderCards();
+}
+
+async function saveEntry(d) {
+  try {
+    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const fd = await r.json();
+    const saveData = { ...d };
+    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
+    await fetch(`${API}/${d._filename}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: `更新: ${d.nickname}`, content, sha: fd.sha, branch: 'main' })
+    });
+  } catch(e) { alert('保存失败'); console.error(e); }
 }
 
 async function loadAll() {
   const list = document.getElementById('cardList');
   list.innerHTML = '<div class="loading-text">正在加载...</div>';
   allData = [];
-
   try {
-    const resp = await fetch(API, {
-      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-
-    if (resp.status === 404) {
-      allData = [];
-      renderCards();
-      return;
-    }
-
+    const resp = await fetch(API, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    if (resp.status === 404) { renderCards(); return; }
     const files = await resp.json();
     const jsonFiles = files.filter(f => f.name.endsWith('.json'));
     jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
-
     for (const file of jsonFiles) {
       try {
-        const r = await fetch(file.url, {
-          headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-        });
+        const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
         const fd = await r.json();
         const content = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
         content._filename = file.name;
-        content._sha = fd.sha;
+        if (content.introOverride) content._introOverride = content.introOverride;
         allData.push(content);
       } catch(e) { console.error(e); }
     }
-
     renderCards();
-  } catch(e) {
-    list.innerHTML = '<div class="loading-text">加载失败，请重试</div>';
-    console.error(e);
-  }
+  } catch(e) { list.innerHTML = '<div class="loading-text">加载失败，请重试</div>'; console.error(e); }
 }
 
 loadAll();
