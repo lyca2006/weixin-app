@@ -421,25 +421,83 @@ function generateFemaleIntro(a) {
   const slIdx = findIdx('sleep', a.sleep);
   const mIdx = findIdx('money', a.money);
 
-  // ===== Title First Part (Q1 style) =====
-  const t1 = {
-    0: ['🥂 西装暴徒', '👔 御姐本姐', '💼 职场女王', '🖤 黑色高跟鞋', '🗡️ 飒到炸裂', '🍸 气场两米八'],
-    1: ['🌿 森系精灵', '☘️ 氧气女神', '🌾 人间四月天', '🍃 自带滤镜的文艺女', '🌸 棉麻系仙子', '🎐 走路带微风'],
-    2: ['👗 人间富贵花', '🌹 行走的种草机', '💃 穿裙子的小妖精', '🎀 精致到骨子里', '💎 移动的时尚画报', '🦢 天鹅颈本人'],
-    3: ['🔥 酷到没朋友', '⚡ 潮到不行', '👟 街头女王', '🛹 叛逆甜心', '🎸 摇滚甜妹', '🏄 飒系女孩']
+  // ===== Title Generation =====
+
+  // Step 1: Calculate female type from dimension scoring
+  const dimMap = {
+    style:        ['growth','stable','romantic','active'],
+    date_detail:  ['stable','growth','active','romantic'],
+    recharge:     ['stable','active','growth','stable'],
+    conflict:     ['stable','romantic','active','growth'],
+    heartbeat:    ['stable','romantic','growth','romantic'],
+    hidden_trait: ['romantic','stable','stable','active'],
+    sleep:        ['stable','active','romantic','growth'],
+    dealbreaker:  ['growth','stable','active','romantic'],
+    money:        ['stable','growth','active','stable'],
+    ideal_animal: ['growth','stable','romantic','active']
   };
 
-  // ===== Title Second Part (Q6 hidden_trait) =====
-  const t2 = {
-    0: ['·吵架都让人心疼', '·温柔到犯规', '·情绪价值拉满', '·被她骂都是享受', '·刀子嘴豆腐心', '·高情商代言人'],
-    1: ['·田螺姑娘本人', '·厨房里的小魔女', '·家里永远香喷喷', '·胃和心一起收买', '·把生活过成诗', '·被耽误的米其林大厨'],
-    2: ['·人形树洞', '·灵魂按摩师', '·听你说废话也不烦', '·比闺蜜还懂你', '·情绪急救站', '·行走的解忧杂货店'],
-    3: ['·行走的冒险家', '·永远在路上', '·下一秒就给你惊喜', '·好奇心爆棚的猫', '·生活永远不重样', '·自带探索雷达']
+  const scores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+  for (const qid of Object.keys(dimMap)) {
+    const idx = findIdx(qid, a[qid]);
+    if (idx >= 0 && idx < 4) {
+      scores[dimMap[qid][idx]]++;
+    }
+  }
+
+  let femaleType = 'balanced';
+  let maxScore = 0;
+  let tieCount = 0;
+  for (const t of ['stable','romantic','active','growth']) {
+    if (scores[t] > maxScore) {
+      maxScore = scores[t];
+      femaleType = t;
+      tieCount = 1;
+    } else if (scores[t] === maxScore) {
+      tieCount++;
+    }
+  }
+  if (maxScore < 3 || tieCount > 1) femaleType = 'balanced';
+
+  // Step 2: Check easter eggs (highest priority)
+  const easterEggs = [
+    { qid: 'recharge', idx: 3, title: '🧹 收纳界的女菩萨' },
+    { qid: 'hidden_trait', idx: 1, title: '🍳 米其林·家庭版唯一主厨' },
+    { qid: 'sleep', idx: 2, title: '🧸 永远少女·可爱豁免权' },
+    { qid: 'conflict', idx: 3, title: '⚔️ 边界感女王·不好惹' },
+    { qid: 'money', idx: 1, title: '🎒 灵魂自由·流浪诗人' },
+    { qid: 'heartbeat', idx: 0, title: '🛡️ 被守护体质·公主本人' },
+    { qid: 'ideal_animal', idx: 0, title: '🦁 狮子座·驯兽师预备役' },
+    { qid: 'recharge', idx: 1, title: '🗣️ 社交女王·人间真实' },
+    { qid: 'dealbreaker', idx: 0, title: '📐 秩序神教·教主本人' },
+    { qid: 'date_detail', idx: 0, title: '✨ 细节鉴赏家·品味顶流' },
+    { qid: 'style', idx: 0, title: '👔 大女主·衣柜即战袍' },
+    { qid: 'style', idx: 1, title: '🌾 森林系·仙女不过季' },
+    { qid: 'ideal_animal', idx: 1, title: '🐕 金毛饲养员·招募中' },
+    { qid: 'ideal_animal', idx: 2, title: '🐺 狼系驯服者' },
+    { qid: 'ideal_animal', idx: 3, title: '🐱 猫系收割机' },
+    { qid: 'heartbeat', idx: 3, title: '🎧 网易云·深度共鸣者' },
+    { qid: 'hidden_trait', idx: 3, title: '🔍 有趣灵魂·超标了' }
+  ];
+
+  const matchedEggs = easterEggs.filter(e => findIdx(e.qid, a[e.qid]) === e.idx);
+
+  // Step 3: Main type title word banks (15 each)
+  const titleBanks = {
+    stable: ['🌙 人间清醒·睡眠冠军','🏡 氛围感居家大师','🧘 情绪稳定天花板','☕ 午后阳光型人类','📖 把日子过成诗的人','🧶 最想娶回家的第一名','🌧️ 雨天宅家体验官','🕯️ 安静但有力量','🛋️ 沙发哲学家','☁️ 行走的安眠药','🏮 把生活过成慢综艺的人','🧩 稳定型人格天花板','🌊 定海神针·温柔版','🍵 治愈系·白开水型女神','🏠 宅家界的金牌策划师'],
+    romantic: ['🎬 偶像剧女主角本尊','💌 细节控·显微镜女孩','🌸 氛围感永动机','🎭 情绪价值供应商','✨ 把日子过成电影的人','🕯️ 暗夜里的发光体','💐 仪式感十级学者','🎵 氛围组组长','🌅 黄昏浪漫捕捉者','🫧 行走的少女心贩卖机','🎀 人间温柔·永久代言人','🌙 月光收集爱好者','🎠 情绪调色师','💕 心动信号发射塔','🌸 浪漫本身·无需定义'],
+    active: ['🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🦋 社交蝴蝶·全场MVP','🧃 多巴胺分泌代言人','🎪 生活综艺总导演','🚀 永远少年·青春永驻','🎭 行走的表情包制造机','🌊 快乐冲浪·首席体验官','🎮 人生玩家·满级号','🫶 能量充电宝·蹭蹭涨','🌋 行走的快乐火山','🎪 自带BGM出场的女人','🏃‍♀️ 永远在路上的冒险家','🎯 快乐制造·ISO认证','☀️ 走到哪亮到哪的小太阳'],
+    growth: ['🏆 大女主剧本持有人','📈 人生绩优股·潜力无限','🌍 见过世面的当代女性','🧠 清醒脑·顶级玩家','👑 女王行为·日常操作','🎯 目标感天花板','📚 行走的百科全书·美女版','🚀 事业脑·恋爱也不耽误','💼 都市丽人·终极形态','🌟 自己就是豪门预备役','🧗‍♀️ 向上攀爬·永不停歇','🎓 人生优秀毕业生','💎 钻石型人格·越磨越亮','⛰️ 翻山越岭·风景这边独好','🏅 自我卷王·荣耀王者'],
+    balanced: ['🎭 百变女王·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·挖不完','🌈 行走的彩虹·哪面都精彩','🎰 盲盒级女神·开盖有惊喜','🧬 高配版人类样本','🎭 一人千面·面面俱到','🌟 多边形战士·美丽不限定','🧙‍♀️ 魔法师·切换自如','🎨 人生画家·调色盘拉满','💯 满级人类·请勿模仿','🧘‍♀️ 通透型选手·万物皆可接','🧶 多重宇宙·最佳女主角','🌊 兼容并包·海纳百川','🌟 全能ACE·无限可能']
   };
 
-  const titleFirst = sIdx >= 0 ? pick(t1[sIdx]) : '💖 神秘女孩';
-  const titleSecond = tIdx >= 0 ? pick(t2[tIdx]) : '·宝藏女孩';
-  const title = titleFirst + titleSecond;
+  // Title decision: easter egg (random from matches) > type bank
+  let title;
+  if (matchedEggs.length > 0) {
+    title = pick(matchedEggs).title;
+  } else {
+    title = pick(titleBanks[femaleType]);
+  }
 
   // ===== Description Building Blocks =====
 
