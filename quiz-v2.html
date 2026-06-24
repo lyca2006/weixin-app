@@ -1114,8 +1114,8 @@ async function showFemaleResult() {
     // 6. 随机选一个
     const chosen = pool[Math.floor(Math.random() * pool.length)];
 
-    // 7. 生成介绍文案
-    const intro = generateFemaleIntro(chosen.answers);
+    // 7. 生成介绍文案（优先用管理员编辑过的版本）
+    const intro = chosen.introOverride || generateFemaleIntro(chosen.answers);
 
     // 8. 显示结果
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -1762,9 +1762,6 @@ function preloadData() {
 }
 
 async function syncNewData() {
-	const hardcodedFemaleNames = new Set(submittedFemales.map(f => f.nickname));
-	const hardcodedMaleNames = new Set(submittedMales.map(m => m.nickname));
-
 	const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
 	const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
 	const TOKEN = TK.join('');
@@ -1791,25 +1788,40 @@ async function syncNewData() {
 	}
 
 	try {
-		// 拉取女生（8秒超时）
+		// 拉取女生：更新已有介绍 + 新增新女生
 		const apiFemales = await Promise.race([fetchFemales(), timeout(8000)]);
-		const newFemales = apiFemales.filter(f => f && f.nickname && !hardcodedFemaleNames.has(f.nickname));
-		if (newFemales.length > 0) {
-			cachedFemales = [...cachedFemales, ...newFemales];
-			console.log('后台同步: +' + newFemales.length + '个新女生');
-		}
+		let newFCount = 0;
+		apiFemales.forEach(f => {
+			if (!f || !f.nickname) return;
+			const existingIdx = cachedFemales.findIndex(c => c.nickname === f.nickname);
+			if (existingIdx >= 0) {
+				if (f.introOverride) cachedFemales[existingIdx].introOverride = f.introOverride;
+			} else {
+				cachedFemales.push(f);
+				newFCount++;
+			}
+		});
+		if (newFCount > 0) console.log('后台同步: +' + newFCount + '个新女生');
 	} catch(e) {
 		console.log('后台同步女生: 无新数据');
 	}
 
 	try {
-		// 拉取新男生（8秒超时）
+		// 拉取提交男生：更新已有介绍 + 新增新男生
 		const apiMales = await Promise.race([fetchSubmittedMales(), timeout(8000)]);
-		const newMales = apiMales.filter(m => m && m.name && !hardcodedMaleNames.has(m.name));
-		if (newMales.length > 0) {
-			cachedNewMales = [...cachedNewMales, ...newMales];
-			console.log('后台同步: +' + newMales.length + '个新男生');
-		}
+		let newMCount = 0;
+		apiMales.forEach(m => {
+			if (!m || !m.name) return;
+			const existingIdx = cachedNewMales.findIndex(c => c.name === m.name);
+			if (existingIdx >= 0) {
+				cachedNewMales[existingIdx].title = m.title;
+				cachedNewMales[existingIdx].desc = m.desc;
+			} else {
+				cachedNewMales.push(m);
+				newMCount++;
+			}
+		});
+		if (newMCount > 0) console.log('后台同步: +' + newMCount + '个新男生');
 	} catch(e) {
 		console.log('后台同步男生: 无新数据');
 	}
