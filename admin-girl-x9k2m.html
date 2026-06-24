@@ -1180,14 +1180,35 @@ async function loadAll() {
   // Deduplicate nicknames
   deduplicateNicknames(allData);
 
-  // Generate initial intro cache for female submissions
+  // Generate intro only for entries without saved introOverride
+  const needsSave = [];
   allData.forEach(d => {
-    if (!d._isHardcoded && !d._introOverride && d.answers) {
-      d._introCache = generateIntro(d);
+    if (d._isHardcoded) return;
+    if (d._introOverride || d.introOverride) {
+      // Already has saved intro, use it
+      if (d.introOverride && !d._introOverride) d._introOverride = d.introOverride;
+      d._introCache = d._introOverride;
+    } else if (d.answers) {
+      // First time: generate and mark for auto-save
+      const intro = generateIntro(d);
+      d._introCache = intro;
+      d._introOverride = intro;
+      d.introOverride = intro;
+      d._modified = true;
+      needsSave.push(d);
     }
   });
 
   renderCards();
+
+  // Auto-save newly generated intros to GitHub so they persist
+  if (needsSave.length > 0) {
+    console.log(`自动保存 ${needsSave.length} 个新生成的介绍`);
+    for (const d of needsSave) {
+      try { await saveEntry(d); } catch(e) { console.error('auto-save failed', e); }
+    }
+    updateBatchBtn();
+  }
 }
 
 loadAll();
