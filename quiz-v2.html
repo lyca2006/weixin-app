@@ -991,15 +991,14 @@ async function showMaleResult() {
       if (tops.length === 1) femType = tops[0];
     }
 
-    // 3. 尝试拉取新男生（15秒超时，失败不影响）
-    let newMales = [];
-    try {
-      const fetchPromise = fetchSubmittedMales();
-      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 15000));
-      newMales = await Promise.race([fetchPromise, timeoutPromise]);
-    } catch(e) {
-      console.log('拉取新男生超时或失败，仅用老男生', e);
-      newMales = [];
+    // 3. 用预加载的新男生数据（如果还没加载完就等一下）
+    let newMales = cachedNewMales;
+    if (!newMales) {
+      try {
+        newMales = await fetchSubmittedMales();
+      } catch(e) {
+        newMales = [];
+      }
     }
 
     // 4. 合并：老男生 + 新男生
@@ -1081,16 +1080,12 @@ async function showFemaleResult() {
     // 2. 确定男生类型
     const maleType = determineMaleType(maleScores);
 
-    // 3. 从 GitHub 获取女生数据（15秒超时，失败重试一次）
-    let females = [];
-    for (let attempt = 0; attempt < 2; attempt++) {
+    // 3. 用预加载的女生数据（如果还没加载完就等一下）
+    let females = cachedFemales;
+    if (!females) {
       try {
-        const fetchPromise = fetchFemales();
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject('timeout'), 15000));
-        females = await Promise.race([fetchPromise, timeoutPromise]);
-        if (females && females.length > 0) break;
+        females = await fetchFemales();
       } catch(e) {
-        console.log(`拉取女生第${attempt+1}次失败`, e);
         females = [];
       }
     }
@@ -1706,7 +1701,26 @@ function spawnHearts() {
   }
 }
 
+// ==================== 预加载数据（页面打开就开始拉） ====================
+let cachedFemales = null;
+let cachedNewMales = null;
+
+async function preloadData() {
+  try {
+    const [females, males] = await Promise.all([
+      fetchFemales().catch(() => []),
+      fetchSubmittedMales().catch(() => [])
+    ]);
+    cachedFemales = females || [];
+    cachedNewMales = males || [];
+    console.log(`预加载完成: ${cachedFemales.length}个女生, ${cachedNewMales.length}个新男生`);
+  } catch(e) {
+    console.log('预加载失败', e);
+  }
+}
+
 createStars();
+preloadData();
 </script>
 </body>
 </html>
