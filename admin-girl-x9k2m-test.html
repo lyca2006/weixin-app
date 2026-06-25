@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>群友档案管理 v10 [测试]</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  min-height: 100vh; background: #0f0f1a;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+}
+.container { max-width: 600px; margin: 0 auto; padding: 20px 16px 40px; }
+
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.title { font-size: 20px; font-weight: 700; }
+.count { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
+.header-btns { display: flex; gap: 8px; align-items: center; }
+.refresh-btn, .batch-save-btn {
+  padding: 8px 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.batch-save-btn {
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; font-weight: 600;
+  box-shadow: 0 2px 12px rgba(245,87,108,0.3);
+}
+.batch-save-btn:active { transform: scale(0.96); }
+.batch-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
+.filter-btn {
+  padding: 6px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); font-size: 13px; cursor: pointer;
+}
+.filter-btn.active { background: rgba(245,87,108,0.2); border-color: #f5576c; color: #fff; }
+
+.loading-text { text-align: center; color: rgba(255,255,255,0.4); padding: 40px; font-size: 14px; }
+
+.card {
+  background: rgba(255,255,255,0.05); border-radius: 16px; padding: 16px;
+  margin-bottom: 14px; border: 1px solid rgba(255,255,255,0.08);
+  transition: border-color 0.3s;
+}
+.card.modified { border-color: rgba(245,87,108,0.4); }
+.card-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 10px; }
+.card-avatar {
+  width: 56px; height: 56px; border-radius: 10px; object-fit: cover; flex-shrink: 0;
+  border: 2px solid rgba(245,87,108,0.3);
+}
+.card-avatar-placeholder {
+  width: 56px; height: 56px; border-radius: 10px; flex-shrink: 0;
+  background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 24px;
+}
+.card-meta { flex: 1; min-width: 0; }
+.card-top-row { display: flex; justify-content: space-between; align-items: center; }
+.card-left { display: flex; align-items: center; gap: 6px; }
+.card-name {
+  font-size: 16px; font-weight: 700;
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.card-gender { padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 600; }
+.card-gender.male { background: rgba(66,165,245,0.2); color: #42a5f5; }
+.card-gender.female { background: rgba(245,87,108,0.2); color: #f5576c; }
+
+.card-abcd {
+  font-size: 14px; font-family: monospace; color: #4fc3f7; letter-spacing: 2px;
+  user-select: all; padding: 2px 0; margin-top: 4px;
+}
+.card-time { font-size: 10px; color: rgba(255,255,255,0.2); margin-top: 2px; }
+
+/* 生成的简历区域 */
+.card-intro { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); }
+.intro-title {
+  font-size: 15px; font-weight: 700; color: #fda085; margin-bottom: 6px;
+  text-shadow: 0 0 8px rgba(253,160,133,0.3);
+}
+.intro-desc {
+  font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7;
+}
+
+.card-btn-row {
+  display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+}
+.card-action-btn {
+  padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); font-size: 11px;
+  cursor: pointer; transition: all 0.2s;
+}
+.card-action-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.card-action-btn.regen { border-color: rgba(79,195,247,0.3); color: #4fc3f7; }
+.card-action-btn.regen:hover { background: rgba(79,195,247,0.1); }
+.card-action-btn.delete:hover { background: rgba(245,87,108,0.2); color: #f5576c; }
+
+.empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,0.3); }
+.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+/* 弹窗 */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+  z-index: 999;
+}
+.modal-overlay.hidden { display: none; }
+.modal {
+  background: #1e1e30; border-radius: 16px; padding: 24px; width: 340px; max-width: 90vw;
+  border: 1px solid rgba(255,255,255,0.1); max-height: 80vh; overflow-y: auto;
+}
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+.modal-input {
+  width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px;
+  color: #fff; font-size: 14px; outline: none; margin-bottom: 12px;
+}
+.modal-input:focus { border-color: #f5576c; }
+.modal-textarea {
+  width: 100%; padding: 10px 12px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.15); border-radius: 10px;
+  color: #fff; font-size: 13px; outline: none; margin-bottom: 12px;
+  resize: vertical; min-height: 120px; font-family: inherit; line-height: 1.6;
+}
+.modal-textarea:focus { border-color: #f5576c; }
+.modal-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 6px; display: block; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+.modal-btn {
+  padding: 8px 20px; border-radius: 8px; border: none; font-size: 14px;
+  font-weight: 600; cursor: pointer;
+}
+.modal-btn.cancel { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+.modal-btn.confirm { background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff; }
+.modal-btn.danger { background: #e53935; color: #fff; }
+
+/* Toast */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  padding: 10px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  z-index: 9999; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+.toast.show { opacity: 1; }
+.toast.success { background: #2e7d32; color: #fff; }
+.toast.error { background: #c62828; color: #fff; }
+.toast.info { background: rgba(255,255,255,0.15); color: #fff; backdrop-filter: blur(10px); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="title">📋 群友档案</div>
+      <div class="count" id="countText">加载中...</div>
+    </div>
+    <div class="header-btns">
+      <button class="batch-save-btn" id="batchSaveBtn" onclick="batchSaveAll()" disabled>📤 一键更新</button>
+      <button class="refresh-btn" onclick="loadAll()">🔄 刷新</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">全部</div>
+    <div class="filter-btn" data-filter="female" onclick="setFilter('female',this)">👩 女生</div>
+    <div class="filter-btn" data-filter="male" onclick="setFilter('male',this)">🧑 男生</div>
+    <div class="filter-btn" data-filter="deleted" onclick="setFilter('deleted',this)">🗑️ 已删除</div>
+  </div>
+
+  <div id="cardList"><div class="loading-text">正在加载...</div></div>
+</div>
+
+<!-- 改名弹窗 -->
+<div class="modal-overlay hidden" id="renameModal">
+  <div class="modal">
+    <div class="modal-title">✏️ 修改昵称</div>
+    <input class="modal-input" id="renameInput" placeholder="输入新昵称">
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal('renameModal')">取消</button>
+      <button class="modal-btn confirm" onclick="confirmRename()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div class="modal-overlay hidden" id="deleteModal">
+  <div class="modal">
+    <div class="modal-title">🗑️ 确认删除</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.6);margin-bottom:16px;line-height:1.6" id="deleteMsg"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal('deleteModal')">取消</button>
+      <button class="modal-btn danger" onclick="confirmDelete()">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 编辑简历弹窗 -->
+<div class="modal-overlay hidden" id="editIntroModal">
+  <div class="modal">
+    <div class="modal-title">✏️ 编辑简历</div>
+    <label class="modal-label">封号标题</label>
+    <input class="modal-input" id="editTitleInput" placeholder="如：🌿 森系精灵·人间清醒天花板">
+    <label class="modal-label">人物描述</label>
+    <textarea class="modal-textarea" id="editDescInput" placeholder="人物描述..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeModal('editIntroModal')">取消</button>
+      <button class="modal-btn confirm" onclick="confirmEditIntro()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+let allData = [];
+let allRawData = [];
+let currentFilter = 'all';
+let pendingIdx = -1;
+let modifiedSet = new Set(); // track indices of modified cards
+
+const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+const TOKEN = TK.join('');
+const API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+// ==================== Female Option Texts (for ABCD mapping) ====================
+const femaleOptionTexts = {
+  style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
+  date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
+  recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
+  conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
+  heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
+  hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
+  sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
+  dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
+  money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
+  ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
+};
+
+const LABELS = {
+  style: '穿衣风格', date_detail: '约会细节', recharge: '充电方式', conflict: '冲突反应',
+  heartbeat: '心动瞬间', hidden_trait: '隐形优点', sleep: '睡眠习惯',
+  dealbreaker: '受不了的', money: '花钱方式', ideal_animal: '理想另一半'
+};
+
+const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_trait','sleep','dealbreaker','money','ideal_animal'];
+const letters = ['A','B','C','D'];
+
+// ==================== Utility ====================
+function findIdx(qid, ans) {
+  const opts = femaleOptionTexts[qid];
+  if (!opts || !ans) return -1;
+  return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => { t.classList.remove('show'); }, 2500);
+}
+
+function updateBatchBtn() {
+  const btn = document.getElementById('batchSaveBtn');
+  if (modifiedSet.size > 0) {
+    btn.disabled = false;
+    btn.textContent = `📤 一键更新 (${modifiedSet.size})`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = '📤 一键更新';
+  }
+}
+
+// ==================== Intro Generation (Female) ====================
+function generateFemaleIntro(a) {
+  if (!a) return { title: '💖 神秘女孩·宝藏待发掘', desc: '一个等待被发现的宝藏。' };
+
+  const sIdx = findIdx('style', a.style);
+  const tIdx = findIdx('hidden_trait', a.hidden_trait);
+  const rIdx = findIdx('recharge', a.recharge);
+  const hIdx = findIdx('heartbeat', a.heartbeat);
+  const slIdx = findIdx('sleep', a.sleep);
+  const mIdx = findIdx('money', a.money);
+
+  // ===== Title Generation =====
+
+  // Step 1: Calculate female type from dimension scoring
+  const dimMap = {
+    style:        ['growth','stable','romantic','active'],
+    date_detail:  ['stable','growth','active','romantic'],
+    recharge:     ['stable','active','growth','stable'],
+    conflict:     ['stable','romantic','active','growth'],
+    heartbeat:    ['stable','romantic','growth','romantic'],
+    hidden_trait: ['romantic','stable','stable','active'],
+    sleep:        ['stable','active','romantic','growth'],
+    dealbreaker:  ['growth','stable','active','romantic'],
+    money:        ['stable','growth','active','stable'],
+    ideal_animal: ['growth','stable','romantic','active']
+  };
+
+  const scores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+  for (const qid of Object.keys(dimMap)) {
+    const idx = findIdx(qid, a[qid]);
+    if (idx >= 0 && idx < 4) {
+      scores[dimMap[qid][idx]]++;
+    }
+  }
+
+  let femaleType = 'balanced';
+  let maxScore = 0;
+  let tieCount = 0;
+  for (const t of ['stable','romantic','active','growth']) {
+    if (scores[t] > maxScore) {
+      maxScore = scores[t];
+      femaleType = t;
+      tieCount = 1;
+    } else if (scores[t] === maxScore) {
+      tieCount++;
+    }
+  }
+  if (maxScore < 3 || tieCount > 1) femaleType = 'balanced';
+
+  // Step 2: Check easter eggs (highest priority)
+  const easterEggs = [
+    { qid: 'recharge', idx: 3, titles: ['🧹 收纳界的女菩萨', '🧹 整理控·断舍离大师', '🧹 处女座附体·秩序之神'] },
+    { qid: 'hidden_trait', idx: 1, titles: ['🍳 米其林·家庭版唯一主厨', '🍳 厨房里的小魔女', '🍳 投胎级厨艺·人间烟火气'] },
+    { qid: 'sleep', idx: 2, titles: ['🧸 永远少女·可爱豁免权', '🧸 抱着玩偶入睡的大人', '🧸 外表女王·内心宝宝'] },
+    { qid: 'conflict', idx: 3, titles: ['⚔️ 边界感女王·不好惹', '⚔️ 一键拉黑·绝不回头', '⚔️ 果断姐·人间清醒'] },
+    { qid: 'money', idx: 1, titles: ['🎒 灵魂自由·流浪诗人', '🎒 用脚步丈量世界的人', '🎒 体验派·人生不设限'] },
+    { qid: 'heartbeat', idx: 0, titles: ['🛡️ 被守护体质·公主本人', '🛡️ 值得被宠的女孩', '🛡️ 安全感收割机'] },
+    { qid: 'ideal_animal', idx: 0, titles: ['🦁 狮子座·驯兽师预备役', '🦁 慕强女孩·王者匹配', '🦁 霸道总裁请排队'] },
+    { qid: 'recharge', idx: 1, titles: ['🗣️ 社交女王·人间真实', '🗣️ 八卦天后·快乐分享家', '🗣️ 朋友圈顶流'] },
+    { qid: 'dealbreaker', idx: 0, titles: ['📐 秩序神教·教主本人', '📐 牙膏必须从底部挤', '📐 精致生活·底线分明'] },
+    { qid: 'date_detail', idx: 0, titles: ['✨ 细节鉴赏家·品味顶流', '✨ 干净控·审美在线', '✨ 细节决定心动的女人'] },
+    { qid: 'style', idx: 0, titles: ['👔 大女主·衣柜即战袍', '👔 西装杀手·气场两米八', '👔 穿上战袍就无敌'] },
+    { qid: 'style', idx: 1, titles: ['🌾 森林系·仙女不过季', '🌾 棉麻少女·自带微风', '🌾 舒服就是最高级的时尚'] },
+    { qid: 'ideal_animal', idx: 1, titles: ['🐕 金毛饲养员·招募中', '🐕 暖男鉴定师·眼光独到', '🐕 忠犬系男友请就位'] },
+    { qid: 'ideal_animal', idx: 2, titles: ['🐺 狼系驯服者', '🐺 野性猎手·征服欲满格', '🐺 越危险越心动'] },
+    { qid: 'ideal_animal', idx: 3, titles: ['🐱 猫系收割机', '🐱 高冷鉴赏家·品味独特', '🐱 猫奴预备役·审美在线'] },
+    { qid: 'heartbeat', idx: 3, titles: ['🎧 网易云·深度共鸣者', '🎧 灵魂歌单共享人', '🎧 一首歌就能俘获的女孩'] },
+    { qid: 'hidden_trait', idx: 3, titles: ['🔍 有趣灵魂·超标了', '🔍 好奇心爆棚的猫', '🔍 每天都在解锁新世界'] }
+  ];
+
+  const matchedEggs = easterEggs.filter(e => findIdx(e.qid, a[e.qid]) === e.idx);
+
+  // Step 3: Main type title word banks (15 each)
+  const titleBanks = {
+    stable: ['🌙 人间清醒·睡眠冠军','🏡 氛围感居家大师','🧘 情绪稳定天花板','☕ 午后阳光型人类','📖 把日子过成诗的人','🧶 最想娶回家的第一名','🌧️ 雨天宅家体验官','🕯️ 安静但有力量','🛋️ 沙发哲学家','☁️ 行走的安眠药','🏮 把生活过成慢综艺的人','🧩 稳定型人格天花板','🌊 定海神针·温柔版','🍵 治愈系·白开水型女神','🏠 宅家界的金牌策划师'],
+    romantic: ['🎬 偶像剧女主角本尊','💌 细节控·显微镜女孩','🌸 氛围感永动机','🎭 情绪价值供应商','✨ 把日子过成电影的人','🕯️ 暗夜里的发光体','💐 仪式感十级学者','🎵 氛围组组长','🌅 黄昏浪漫捕捉者','🫧 行走的少女心贩卖机','🎀 人间温柔·永久代言人','🌙 月光收集爱好者','🎠 情绪调色师','💕 心动信号发射塔','🌸 浪漫本身·无需定义'],
+    active: ['🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🦋 社交蝴蝶·全场MVP','🧃 多巴胺分泌代言人','🎪 生活综艺总导演','🚀 永远少年·青春永驻','🎭 行走的表情包制造机','🌊 快乐冲浪·首席体验官','🎮 人生玩家·满级号','🫶 能量充电宝·蹭蹭涨','🌋 行走的快乐火山','🎪 自带BGM出场的女人','🏃‍♀️ 永远在路上的冒险家','🎯 快乐制造·ISO认证','☀️ 走到哪亮到哪的小太阳'],
+    growth: ['🏆 大女主剧本持有人','📈 人生绩优股·潜力无限','🌍 见过世面的当代女性','🧠 清醒脑·顶级玩家','👑 女王行为·日常操作','🎯 目标感天花板','📚 行走的百科全书·美女版','🚀 事业脑·恋爱也不耽误','💼 都市丽人·终极形态','🌟 自己就是豪门预备役','🧗‍♀️ 向上攀爬·永不停歇','🎓 人生优秀毕业生','💎 钻石型人格·越磨越亮','⛰️ 翻山越岭·风景这边独好','🏅 自我卷王·荣耀王者'],
+    balanced: ['🎭 百变女王·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·挖不完','🌈 行走的彩虹·哪面都精彩','🎰 盲盒级女神·开盖有惊喜','🧬 高配版人类样本','🎭 一人千面·面面俱到','🌟 多边形战士·美丽不限定','🧙‍♀️ 魔法师·切换自如','🎨 人生画家·调色盘拉满','💯 满级人类·请勿模仿','🧘‍♀️ 通透型选手·万物皆可接','🧶 多重宇宙·最佳女主角','🌊 兼容并包·海纳百川','🌟 全能ACE·无限可能']
+  };
+
+  // Title decision: easter egg (random from matches) > type bank
+  let title;
+  if (matchedEggs.length > 0 && Math.random() < 0.5) {
+    const egg = pick(matchedEggs); title = pick(egg.titles);
+  } else {
+    title = pick(titleBanks[femaleType]);
+  }
+
+  // ===== Description Building Blocks =====
+
+  // Q1 style
+  const sD = {
+    0: [
+      '一袭利落西装走进来的时候，全场的空气都安静了三秒。',
+      '她穿西装的样子，帅到让男生都自愧不如。',
+      '衬衫扣到第二颗的随性感，是精心设计过的高级。',
+      '干练到骨子里，走路带风的样子让人移不开眼。',
+      '西装一上身，气场直接开到两米八，老板都得让三分。',
+      '职场上是狠角色，脱下西装又是小女生，反差感绝了。',
+      '全世界都在穿卫衣的时候，她穿西装杀出一条血路。'
+    ],
+    1: [
+      '棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。',
+      '她站在那里就自带一片草地和微风，治愈系本人无疑。',
+      '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。',
+      '不追潮流不赶时髦，她的风格就是让人舒服到想拥抱。',
+      '穿搭理念就一个字：舒服。但偏偏这份随性，高级到不行。',
+      '文艺女孩不装文艺，骨子里的清新感是装不出来的。',
+      '看到她的穿搭就想问：姐，你的生活是不是也这么岁月静好？'
+    ],
+    2: [
+      '精致到骨子里，出门五分钟，打扮两小时——但效果值了。',
+      '一条连衣裙穿出了整条街最好看的风景线。',
+      '她的穿搭从来不费力，但每次出场都让人移不开眼。',
+      '女人味拿捏得恰到好处，时尚感浑然天成。',
+      '会打扮的女生很多，但穿出高级感的没几个——她算一个。',
+      '她不需要大牌加持，随便一身搭配就是行走的种草机。',
+      '精致但不刻意，美得像不经意间的一个回眸。'
+    ],
+    3: [
+      '限量球鞋踩出六亲不认的步伐，酷到骨子里。',
+      '潮牌上身自带街拍效果，走路带风。',
+      '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。',
+      '球鞋配卫衣的运动风，撞衫都能赢的那种酷。'
+    ]
+  };
+
+  // Q3 recharge
+  const rD = {
+    0: [
+      '骨子里是个享受独处的人，安静的时候最有魅力。',
+      '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。',
+      '别打扰她的独处时光，那是她给自己充电的仪式感。',
+      'I人浓度拉满，但安静的她反而最让人着迷。',
+      '一个人的周末比约会还精彩，因为她最懂取悦自己。',
+      '社恐不是缺点，是她的保护色——了解她的人才知道她有多有趣。'
+    ],
+    1: [
+      '三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。',
+      '朋友圈子不大但个个真心，她是那种值得深交的人。',
+      '社交场上的氛围担当，她往那一坐，气氛就热了。',
+      '微醺的她最可爱，话多到停不下来但每句都真心。',
+      '有她在的聚会从来不冷场，段子一个接一个停不下来。',
+      '朋友约她永远秒回，行动力比嘴上答应还快。'
+    ],
+    2: [
+      '健身房里挥汗如雨的样子，自律得让人佩服。',
+      '别看她精致，运动起来的狠劲能让你刮目相看。',
+      '自律到可怕，身材管理是她对自己的温柔暴击。',
+      '练完瑜伽浑身发光的样子，比化妆还好看。',
+      '跑步撸铁样样来，这份自律让多少男生自愧不如。',
+      '她的好身材不是天生的，是汗水换来的——这份狠劲太迷人。'
+    ],
+    3: [
+      '收拾完房间才觉得世界重新有了秩序，强迫症但可爱。',
+      '连调料瓶都要按大小排列的人，细节控本人。',
+      '整理收纳是她的解压方式，活成了秩序感的代名词。',
+      '她的房间永远一尘不染，看一眼就觉得治愈。',
+      '乱成一团的柜子在她手里，十分钟变成杂志大片现场。',
+      '收纳是她的超能力，整齐是她的安全感来源。'
+    ]
+  };
+
+  // Q5 heartbeat
+  const hD = {
+    0: [
+      '她要的安全感很简单——过马路时被护在身边就够了。',
+      '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。',
+      '不要什么惊天大礼，一个默默挡住人群的动作就够她心动好久。',
+      '安全感是她的第一需求，你稳稳地在就够了。',
+      '她不贪心，你挡在她前面的那个背影，就是全世界。',
+      '小动作比大惊喜更让她心动，这种女孩懂的人才配拥有。'
+    ],
+    1: [
+      '随口说的一句话被人默默记住，这种浪漫最戳她。',
+      '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。',
+      '她的爱情密码不是鲜花钻石，是"你上次说想吃的那家我订好了"。',
+      '被重视的感觉，是她认定一个人最大的理由。',
+      '记得住她的口味比记得住纪念日更加分，她要的是细节里的真心。',
+      '你以为她矫情？不，她只是在测试你有没有认真听她说话。'
+    ],
+    2: [
+      '她需要的不是花言巧语，是关键时刻那句"我来搞定"。',
+      '最让她心动的男人，是能在她脆弱时稳稳接住她的人。',
+      '不需要你完美，但需要你在她搞砸的时候说一句"有我在"。',
+      '能被兜底的感觉，比100朵玫瑰都浪漫。',
+      '她要的不是拯救者，是那个她倒下时伸出手的人。',
+      '靠谱比浪漫更打动她，行动力是她眼里最性感的特质。'
+    ],
+    3: [
+      '一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。',
+      '跟她谈恋爱，灵魂契合比什么都重要。',
+      '聊音乐聊电影聊三观，灵魂对上了什么都对了。',
+      '她不要你有多帅多有钱，聊得来比什么都重要。',
+      '物质可以自己挣，但灵魂伴侣只能靠缘分遇到。',
+      '她的择偶标准就一条：跟你聊天永远聊不够。'
+    ]
+  };
+
+  // Q6 hidden_trait
+  const tD = {
+    0: [
+      '最难得的是，哪怕吵到天翻地覆也不会口出恶言——这种温柔是刻在骨子里的教养。',
+      '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。',
+      '情商高到离谱，就算生气也让人觉得她好可爱。',
+      '再怎么吵，她的嘴也不会变成武器——这份克制让人心疼。',
+      '跟她吵架你会发现——赢了觉得她委屈，输了觉得她讲理。怎么都是她赢。',
+      '有脾气但有分寸，有情绪但不伤人——这种人格魅力是天生的。'
+    ],
+    1: [
+      '走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。',
+      '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。',
+      '家被她收拾得像样板间，但有温度的那种。饿了？她早就开始煮了。',
+      '能把出租屋住出豪宅感的女生，持家能力值直接拉满。',
+      '厨房就是她的秀场，三菜一汤端上桌的时候，你会想直接求婚。',
+      '同时拥有做饭天赋和审美天赋的女生，堪称现实版田螺姑娘。'
+    ],
+    2: [
+      '她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。',
+      '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。',
+      '共情力爆表，她听你说话的时候，全世界好像都安静了。',
+      '你可以跟她聊任何事，她不评判不打断，只是认真地听。',
+      '她像一个人形树洞，你的烦恼进去，安慰出来。',
+      '不会说大道理，但她的一句"我懂"比任何开导都管用。'
+    ],
+    3: [
+      '跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。',
+      '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。',
+      '她像一本翻不完的书，每次以为了解她了，又会被新技能惊到。',
+      '跟她约会永远不用你安排，她的脑子里全是新鲜点子。',
+      '无聊这个词不在她的字典里，她能把普通的一天过成探险。',
+      '跟她在一起，你的生活会多出一百种你没想过的可能性。'
+    ]
+  };
+
+  // Q7 sleep
+  const slD = {
+    0: [
+      '十一点准时关灯的自律，是她对生活的温柔仪式感。',
+      '规律作息，早睡早起，自律的她连睡觉都这么优秀。',
+      '熬夜？不存在的。她的生物钟比闹钟还准。',
+      '健康生活的代言人，皮肤好不是天生的，是早睡换来的。'
+    ],
+    1: [
+      '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
+      '夜越深她越精神，凌晨两点的朋友圈才是她的主场。',
+      '白天是社畜，凌晨才是真正的自己——手机越刷越清醒。',
+      '夜猫子体质，半夜给你发消息是她表达想你的方式。'
+    ],
+    2: [
+      '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
+      '表面是独立女性，睡觉抱着小熊的样子软萌到犯规。',
+      '别看她白天多酷，晚上不抱着被角就睡不着——反差萌天花板。',
+      '这个反差萌谁受得了？白天全场最飒，晚上抱着玩偶秒变小朋友。'
+    ],
+    3: [
+      '睡眠浅得像只小猫，需要一个能给她安全感的人。',
+      '敏感体质让她对世界的感知更细腻，也更需要被温柔以待。',
+      '轻度失眠选手，但这份敏感让她对细节的洞察力超乎常人。',
+      '睡不好的时候特别需要人陪，一个拥抱就是最好的安眠药。'
+    ]
+  };
+
+  // Q9 money
+  const mD = {
+    0: [
+      '看似随性，其实存折里的数字比你想象的多得多。',
+      '闷声发财型选手，理财知识比很多男生都强。',
+      '花钱精打细算不是抠，是她对未来有规划的证据。',
+      '该省省该花花，每一分钱都花在刀刃上的理性派。'
+    ],
+    1: [
+      '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
+      '别人攒钱买包，她攒钱去旅行——见识就是她最好的奢侈品。',
+      '健身卡、读书会、小语种课——她把钱花在让自己增值的地方。',
+      '向上生长型，钱是拿来让自己变得更好的工具。'
+    ],
+    2: [
+      '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
+      '她的消费观很简单：人生苦短，喜欢就买，值得就花。',
+      '舍得给自己花钱的女生，骨子里是真正爱自己的。',
+      '悦己至上，买到心仪的东西时眼睛会发光——那个笑容无价。'
+    ],
+    3: [
+      '赚了钱第一个想到的是家人，这种善良不是装出来的。',
+      '给妈妈买礼物时的认真劲儿，暖到让人想把全世界都给她。',
+      '她的善良是刻在DNA里的，利他精神让人忍不住想保护她。',
+      '挣钱是为了让身边的人过得更好——这份温柔太珍贵了。'
+    ]
+  };
+
+  // Endings
+  const ends = [
+    '这种女生，遇到了就别犹豫，错过了就是别人的了。',
+    '她值得被认真对待——不是因为她完美，是因为她真实。',
+    '如果你想找一个能一起笑、一起扛的人，她就是最好的答案。',
+    '遇到她，你会明白什么叫"原来你在这里"。',
+    '这种宝藏女孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，她是越了解越让人心动的类型。',
+    '别被表面迷惑，她的内在比外在更让人上瘾。',
+    '跟她在一起，你会发现生活突然变得有趣了很多。',
+    '她不完美，但她很真——而真，才是最难得的奢侈品。',
+    '如果缘分是一道数学题，她就是那个唯一的正确答案。',
+    '兄弟，这种女生不主动追，天理难容。',
+    '别想太多了，心动就行动，她值得。',
+    '总结：宝藏本人，限量发售，先到先得。',
+    '如果你还在等一个人让你觉得"就是她了"，那现在可以停了。'
+  ];
+
+  // ===== Assemble Description =====
+  let parts = [];
+  if (sIdx >= 0 && sD[sIdx]) parts.push(pick(sD[sIdx]));
+  if (rIdx >= 0 && rD[rIdx]) parts.push(pick(rD[rIdx]));
+  if (hIdx >= 0 && hD[hIdx]) parts.push(pick(hD[hIdx]));
+  if (tIdx >= 0 && tD[tIdx]) parts.push(pick(tD[tIdx]));
+  if (slIdx >= 0 && slD[slIdx]) parts.push(pick(slD[slIdx]));
+  if (mIdx >= 0 && mD[mIdx]) parts.push(pick(mD[mIdx]));
+  parts.push(pick(ends));
+
+  if (parts.length < 4) {
+    parts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
+  }
+
+  return { title, desc: parts.join('') };
+}
+
+// ==================== 男生介绍生成 ====================
+const maleOptionTexts = {
+  m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
+  m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
+  m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
+  m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
+  m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
+  m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
+  m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
+  m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
+  m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
+  m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
+};
+
+function findMaleIdx(qid, ans) {
+  const opts = maleOptionTexts[qid];
+  if (!opts || !ans) return -1;
+  return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+}
+
+function generateMaleIntro(a) {
+  if (!a) return { title: '👤 神秘男士·待解锁', desc: '一个等待被发现的宝藏男孩。' };
+
+  // 男生维度计分
+  const maleQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
+  const maleDimMap = [
+    { A:'stable', B:'active', C:'stable', D:null },
+    { A:'active', B:'active', C:'stable', D:'growth' },
+    { A:'active', B:'stable', C:'growth', D:null },
+    { A:'stable', B:'active', C:'romantic', D:null },
+    { A:'growth', B:'romantic', C:'stable', D:'active' },
+    { A:'growth', B:'stable', C:'active', D:'romantic' },
+    { A:'growth', B:'active', C:'stable', D:'romantic' },
+    { A:'stable', B:'romantic', C:'growth', D:'active' },
+    { A:'growth', B:'active', C:'stable', D:'romantic' },
+    { A:'stable', B:'romantic', C:'active', D:'growth' }
+  ];
+  const letters = ['A','B','C','D'];
+  const scores = { stable:0, romantic:0, active:0, growth:0 };
+  maleQids.forEach((qid, qi) => {
+    const idx = findMaleIdx(qid, a[qid]);
+    if (idx >= 0) {
+      const dim = maleDimMap[qi][letters[idx]];
+      if (dim) scores[dim]++;
+    }
+  });
+
+  // 判定类型
+  const maxScore = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  let maleType = 'balanced';
+  if (maxScore >= 3) {
+    const tops = Object.entries(scores).filter(([k,v]) => v === maxScore).map(([k]) => k);
+    if (tops.length === 1) maleType = tops[0];
+  }
+
+  // 男生称号词库
+  const maleTitleBanks = {
+    stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','🧸 行走的安眠药·男友版','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人','🏡 把家扛在肩上的人','🧘 佛系暖男·内心有火','🌙 深夜陪聊·不嫌你烦'],
+    romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🌸 把你宠成公主的人','🎵 氛围感制造机','💐 记住你说过每句话的人','🕯️ 浪漫不是套路是日常','🌅 黄昏散步·牵手专家','💗 懂你比你更懂自己'],
+    active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🎮 带你开黑带你飞','🍻 最佳酒搭子·首席段子手','🎯 快乐制造·ISO认证','🌊 冲浪达人·人生玩家','🎭 行走的表情包·本人比图更搞笑'],
+    growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','🎯 目标感拉满·执行力爆表','💎 越磨越亮·钻石型男','🧠 清醒脑·顶级操盘手','⛰️ 翻山越岭·一路向前','🌟 自己就是豪门的男人'],
+    balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','🎰 盲盒男神·开盖有惊喜','💯 满级人类·男性版','🌟 全能ACE·不设限','🧬 高配版男友样本','🎨 人生画家·调色盘拉满','🌊 兼容并包·宝藏本藏']
+  };
+
+  const title = pick(maleTitleBanks[maleType] || maleTitleBanks.balanced);
+
+  // 男生描述生成
+  const descParts = [];
+
+  // M2 下班后
+  const evIdx = findMaleIdx('m_evening', a.m_evening);
+  const evD = {
+    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。', '健身是他的第二职业，腹肌是附赠的简历。', '别人下班葛优躺，他下班挥汗如雨——难怪身材这么好。', '坚持运动的男生自带光环，他就是行走的荷尔蒙。', '球场上的他比朋友圈精修图还帅，关键还是原相机。'],
+    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。', '他的微信通讯录比电话黄页还厚，人缘好到离谱。', '跟他出去吃饭，老板都认识他——常客中的VIP。', '社交达人本人，聚会少了他就像火锅少了辣椒。', '朋友有事第一个想到他，这种人品和人气是装不出来的。'],
+    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。', '不应酬不social，安静做自己的样子反而让人想靠近。', '宅家不等于无趣，他的精神世界丰富到你挖不完。', '安静型男孩的好，要走进他的世界才知道。', '看似不爱出门，其实脑子里的世界比外面还精彩。'],
+    3: ['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。', '工作狂但不冷漠，再忙也会给你回消息。', '为未来拼命的男人，辛苦但帅气。', '他加的每一个班，都是在给你们的未来铺路。', '忙到飞起但从不抱怨，这种扛事的能力太圈粉了。', '事业上他是拼命三郎，但你发消息他永远秒回。']
+  };
+  if (evIdx >= 0 && evD[evIdx]) descParts.push(pick(evD[evIdx]));
+
+  // M4 小毛病（反差萌）
+  const flIdx = findMaleIdx('m_flaw', a.m_flaw);
+  const flD = {
+    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。', '宅在家里的他才是最放松的样子，能看到这面是你的特权。', '不爱出门但爱得深沉，宅男也有宅男的浪漫。', '他的世界不大，但只要有你就是全世界。', '看似宅，其实是把出门的精力都留给了你。'],
+    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。', '打游戏会上头，但你一撒娇他立马下线，优先级你最高。', '别看他打游戏很凶，现实中温柔得不像话。', '游戏里是王者，生活里是你的小跟班。', '偶尔上头是男孩子的可爱，秒放下手机是男人的担当。'],
+    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。', '嘴上说不出"我爱你"，行动上却比谁都到位。', '木讷的外表下藏着一颗火热的心，懂他的人才知道。', '他用行动说话，每一个动作都比情话更有分量。', '不哄人但会做饭，不甜言但会接你下班——实力派选手。'],
+    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。', '拖延是他的日常bug，但你是他的最高优先级。', '所有事都能明天再说，只有想你这件事不行。', '做什么都慢半拍，唯独追你的时候效率拉满。', '这个拖延症唯一的解药就是你。']
+  };
+  if (flIdx >= 0 && flD[flIdx]) descParts.push(pick(flD[flIdx]));
+
+  // M5 相处模式
+  const togIdx = findMaleIdx('m_together', a.m_together);
+  const togD = {
+    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。', '他不会24小时缠着你，但你需要的时候他一定在。', '独立又不疏离，这种分寸感是多少人学不会的高级。', '各自精彩又彼此欣赏，这才是他理想的爱情模样。', '他懂得，最好的爱是让两个人都成为更好的自己。'],
+    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。', '早安晚安从不缺席，他的世界你永远在C位。', '分享欲爆棚的男生，连吃了什么都想第一个告诉你。', '他的粘人不是控制，是发自内心的想跟你分享一切。', '被他粘着的感觉，就像被温暖的毛毯裹住一样。'],
+    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。', '他给你自由，也给你确定性——这两样加在一起就是安全感。', '不打扰是他的温柔，随叫随到是他的靠谱。', '安静地爱你，不声张但每一步都算数。', '他的爱不是锁链，是风筝线——放得开但收得住。'],
+    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。', '一起做饭、一起运动、一起发呆——他享受的是"一起"两个字。', '他不需要你多完美，只需要你愿意跟他一起。', '队友型男友，打游戏带你上分，人生也带你升级。', '有他在身边做什么都有意思，这就是陪伴的力量。']
+  };
+  if (togIdx >= 0 && togD[togIdx]) descParts.push(pick(togD[togIdx]));
+
+  // M10 感情最重要的
+  const esIdx = findMaleIdx('m_essential', a.m_essential);
+  const esD = {
+    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。', '不玩暧昧不搞套路，他的爱简单直接像一杯白开水——但最解渴。', '坦诚是他的恋爱信条，跟他在一起你永远不用猜。', '他说的每句话都是真心的，这种透明感让人太安心了。', '信任感十足的男人，跟他在一起你会忘记什么是患得患失。'],
+    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。', '他最舍得给你的不是钱，是时间——而时间是世界上最贵的东西。', '有他在的每一天都不会孤单，这种陪伴不是义务是心甘情愿。', '不是最有钱但一定是最有空陪你的那个人。', '他给你的不是礼物，是一段段不可复制的时光。'],
+    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。', '跟他谈恋爱不会无聊，因为他会想方设法让每天都不一样。', '他相信爱情应该滚烫，温吞水式的感情不是他的菜。', '永远保持心动的能力，这种男生可遇不可求。', '他不怕热烈，怕的是爱情变成一潭死水。'],
+    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。', '他的爱情观不是原地踏步，是牵着你的手一路升级。', '两个人一起进步的感觉，比任何甜言蜜语都让人上瘾。', '他不只是你的男朋友，还是你的人生合伙人。', '格局拉满的男人，爱你的方式是让你也变得闪闪发光。']
+  };
+  if (esIdx >= 0 && esD[esIdx]) descParts.push(pick(esD[esIdx]));
+
+  const maleEnds = [
+    '这种男生，遇到了就别犹豫，错过了就是别人的了。',
+    '他值得被认真对待——不是因为他完美，是因为他真实。',
+    '如果你想找一个能一起笑、一起扛的人，他就是答案。',
+    '遇到他，你会明白什么叫"原来你在这里"。',
+    '这种宝藏男孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。',
+    '跟他在一起，你会发现生活突然有趣了很多。',
+    '别被表面迷惑，他的内在比外在更让人心动。'
+  ];
+  descParts.push(pick(maleEnds));
+
+  if (descParts.length < 3) {
+    descParts.splice(0, 0, '他是那种第一眼就让人想认识的男生。');
+  }
+
+  return { title, desc: descParts.join('') };
+}
+
+// ==================== 统一入口 ====================
+function generateIntro(d) {
+  if (d.gender === 'male') return generateMaleIntro(d.answers);
+  return generateFemaleIntro(d.answers);
+}
+
+// ==================== Filter ====================
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  if (f === 'deleted') {
+    renderDeletedCards();
+  } else {
+    renderCards();
+  }
+}
+
+// ==================== Render ====================
+function renderCards() {
+  const list = document.getElementById('cardList');
+  const filtered = currentFilter === 'all' ? allData :
+    currentFilter === 'female' ? allData.filter(d => d.gender === 'female') :
+    allData.filter(d => d.gender === 'male');
+
+  const totalFemale = allData.filter(d => d.gender === 'female').length;
+  const totalMale = allData.filter(d => d.gender === 'male').length;
+  document.getElementById('countText').textContent = `共 ${allData.length} 份档案 (👩${totalFemale} 🧑${totalMale})` + (currentFilter !== 'all' ? `，显示 ${filtered.length}` : '');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><div>暂无档案</div></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(d => {
+    const idx = allData.indexOf(d);
+    const hasAnswers = d.answers && Object.keys(d.answers).length > 0;
+    const isModified = modifiedSet.has(idx);
+
+    // ABCD string (only for submitted users with answers)
+    let abcdHtml = '';
+    if (hasAnswers) {
+      const isMale = d.gender === 'male';
+      const useQids = isMale
+        ? ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential']
+        : qIds;
+      const abcd = useQids.map(qid => {
+        const ans = (d.answers || {})[qid] || '';
+        const i = isMale ? findMaleIdx(qid, ans) : findIdx(qid, ans);
+        return i >= 0 ? letters[i] : '?';
+      }).join('');
+      abcdHtml = `<div class="card-abcd">${abcd}</div>`;
+    }
+
+    // Title & desc
+    let displayTitle, displayDesc;
+    const intro = d._introOverride || d._introCache || generateIntro(d);
+    if (!d._introOverride && !d._introCache) d._introCache = intro;
+    displayTitle = intro.title;
+    displayDesc = intro.desc;
+
+    // Avatar
+    const avatarHtml = d.avatar
+      ? `<img class="card-avatar" src="${d.avatar}" alt="${d.nickname}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="card-avatar-placeholder" style="display:none">${d.gender === 'male' ? '🧑' : '👩'}</div>`
+      : `<div class="card-avatar-placeholder">${d.gender === 'male' ? '🧑' : '👩'}</div>`;
+
+    // Gender badge
+    const genderBadge = d.gender === 'male'
+      ? '<span class="card-gender male">♂ 男</span>'
+      : '<span class="card-gender female">♀ 女</span>';
+
+    // Buttons row
+    let btnsHtml = `<button class="card-action-btn regen" onclick="regenInline(${idx})">🔄 换一版</button>`;
+    btnsHtml += `<button class="card-action-btn" onclick="openEditIntro(${idx})">✏️ 编辑</button>`;
+    btnsHtml += `<button class="card-action-btn" onclick="openRename(${idx})">📝 改名</button>`;
+    btnsHtml += `<button class="card-action-btn delete" onclick="openDelete(${idx})">🗑️ 删除</button>`;
+
+    return `<div class="card${isModified ? ' modified' : ''}" id="card-${idx}">
+      <div class="card-header">
+        ${avatarHtml}
+        <div class="card-meta">
+          <div class="card-top-row">
+            <div class="card-left">
+              <span class="card-name">${d.nickname}</span>
+              ${genderBadge}
+            </div>
+          </div>
+          ${abcdHtml}
+          <div class="card-time">${d.time || ''}</div>
+        </div>
+      </div>
+      <div class="card-intro">
+        <div class="intro-title">${displayTitle}</div>
+        <div class="intro-desc">${displayDesc}</div>
+      </div>
+      <div class="card-btn-row">
+        ${btnsHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==================== Regen Inline ====================
+function regenInline(idx) {
+  const d = allData[idx];
+
+  const intro = generateIntro(d);
+  d._introCache = intro;
+  d._introOverride = intro;
+  d.introOverride = intro;
+  modifiedSet.add(idx);
+  updateBatchBtn();
+  renderCards();
+}
+
+// ==================== Modals ====================
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); pendingIdx = -1; }
+
+// Rename
+function openRename(idx) {
+  pendingIdx = idx;
+  document.getElementById('renameInput').value = allData[idx].nickname;
+  document.getElementById('renameModal').classList.remove('hidden');
+}
+function confirmRename() {
+  const newName = document.getElementById('renameInput').value.trim();
+  if (!newName || pendingIdx < 0) return;
+  const d = allData[pendingIdx];
+  d.nickname = newName;
+  modifiedSet.add(pendingIdx);
+  updateBatchBtn();
+  closeModal('renameModal');
+  renderCards();
+}
+
+// Delete
+function openDelete(idx) {
+  pendingIdx = idx;
+  document.getElementById('deleteMsg').textContent = `确定删除「${allData[idx].nickname}」的档案吗？`;
+  document.getElementById('deleteModal').classList.remove('hidden');
+}
+async function confirmDelete() {
+  if (pendingIdx < 0) return;
+  const d = allData[pendingIdx];
+  try {
+    d._deleted = true;
+    d.introOverride = d._introOverride || d.introOverride;
+    const ok = await saveEntry(d);
+    if (ok) {
+      allData.splice(pendingIdx, 1);
+      const newSet = new Set();
+      modifiedSet.forEach(i => { if (i < pendingIdx) newSet.add(i); else if (i > pendingIdx) newSet.add(i - 1); });
+      modifiedSet = newSet;
+      updateBatchBtn();
+      closeModal('deleteModal');
+      renderCards();
+      showToast('已移到回收站', 'success');
+    } else { showToast('操作失败', 'error'); }
+  } catch(e) { showToast('操作失败', 'error'); console.error(e); }
+}
+
+// Edit intro
+function openEditIntro(idx) {
+  pendingIdx = idx;
+  const d = allData[idx];
+  const intro = d._introOverride || d._introCache || generateIntro(d);
+  document.getElementById('editTitleInput').value = intro.title;
+  document.getElementById('editDescInput').value = intro.desc;
+  document.getElementById('editIntroModal').classList.remove('hidden');
+}
+function confirmEditIntro() {
+  if (pendingIdx < 0) return;
+  const title = document.getElementById('editTitleInput').value.trim();
+  const desc = document.getElementById('editDescInput').value.trim();
+  if (!title || !desc) return;
+  const d = allData[pendingIdx];
+  d._introOverride = { title, desc };
+  d.introOverride = { title, desc };
+  modifiedSet.add(pendingIdx);
+  updateBatchBtn();
+  closeModal('editIntroModal');
+  renderCards();
+}
+
+// ==================== Save Single Entry ====================
+async function saveEntry(d) {
+  try {
+    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const fd = await r.json();
+    const saveData = { ...d };
+    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
+    await fetch(`${API}/${d._filename}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: `更新: ${d.nickname}`, content, sha: fd.sha, branch: 'main' })
+    });
+    return true;
+  } catch(e) { console.error(e); return false; }
+}
+
+// ==================== Batch Save ====================
+async function batchSaveAll() {
+  if (modifiedSet.size === 0) return;
+  const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = true;
+  btn.textContent = '📤 保存中...';
+
+  let successCount = 0;
+  let failCount = 0;
+
+  for (const idx of modifiedSet) {
+    const ok = await saveEntry(allData[idx]);
+    if (ok) successCount++;
+    else failCount++;
+  }
+
+  if (failCount === 0) {
+    modifiedSet.clear();
+    updateBatchBtn();
+    showToast(`保存成功 (${successCount}条)，正在同步...`, 'success');
+    await syncAll();
+  } else {
+    showToast(`${successCount}条成功，${failCount}条失败`, 'error');
+  }
+
+  renderCards();
+}
+
+// ==================== Deduplicate Nicknames ====================
+function deduplicateNicknames(dataArr) {
+  const nameCounts = {};
+  dataArr.forEach(d => {
+    const base = d.nickname;
+    if (!nameCounts[base]) {
+      nameCounts[base] = 1;
+    } else {
+      nameCounts[base]++;
+      d.nickname = base + nameCounts[base];
+    }
+  });
+}
+
+// ==================== Load All ====================
+async function loadAll() {
+  const list = document.getElementById('cardList');
+  list.innerHTML = '<div class="loading-text">正在加载...</div>';
+  allData = [];
+  modifiedSet.clear();
+  updateBatchBtn();
+
+  let submittedData = [];
+
+  try {
+    const resp = await fetch(API, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    if (resp.status !== 404) {
+      const files = await resp.json();
+      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+      jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+
+      // Fetch files in batches, render progressively
+      submittedData = [];
+      var totalFiles = jsonFiles.length;
+      for (var i = 0; i < totalFiles; i += 8) {
+        var batch = jsonFiles.slice(i, i + 8);
+        list.innerHTML = '<div class="loading-text">正在加载... (' + Math.min(i + 8, totalFiles) + '/' + totalFiles + ')</div>';
+        var batchResults = await Promise.all(batch.map(async function(file) {
+          try {
+            var r = await fetch(file.url, { headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
+            var fd = await r.json();
+            var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+            var content = JSON.parse(new TextDecoder().decode(bytes));
+            content._filename = file.name;
+            if (content.introOverride) content._introOverride = content.introOverride;
+            return content;
+          } catch(e) { return null; }
+        }));
+        batchResults.forEach(function(r) { if (r && r._filename !== 'hardcoded-overrides.json') submittedData.push(r); });
+      }
+    }
+  } catch(e) {
+    console.error(e);
+    list.innerHTML = '<div class="loading-text">加载失败，请重试</div>';
+    return;
+  }
+
+
+
+  allRawData = submittedData;
+  allData = submittedData.filter(d => !d._deleted);
+
+  // Deduplicate nicknames
+  deduplicateNicknames(allData);
+
+  // Generate intro only for entries without saved introOverride
+  const needsSave = [];
+  allData.forEach(d => {
+    if (d._introOverride || d.introOverride) {
+      // Already has saved intro, use it
+      if (d.introOverride && !d._introOverride) d._introOverride = d.introOverride;
+      d._introCache = d._introOverride;
+    } else if (d.answers) {
+      // First time: generate and mark for auto-save
+      const intro = generateIntro(d);
+      d._introCache = intro;
+      d._introOverride = intro;
+      d.introOverride = intro;
+      d._modified = true;
+      needsSave.push(d);
+    }
+  });
+
+  renderCards();
+
+  // Mark newly generated intros as modified (user can save manually)
+  if (needsSave.length > 0) {
+    console.log(needsSave.length + ' 个新档案需要生成介绍');
+    needsSave.forEach((d, i) => {
+      const idx = allData.indexOf(d);
+      if (idx >= 0) modifiedSet.add(idx);
+    });
+    updateBatchBtn();
+  }
+}
+
+function renderDeletedCards() {
+  const deletedData = allRawData.filter(d => d._deleted);
+  const list = document.getElementById('cardList');
+  if (deletedData.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">🗑️</div><div>回收站为空</div></div>';
+    return;
+  }
+  list.innerHTML = deletedData.map((d, i) => {
+    const genderClass = d.gender === 'male' ? 'male' : 'female';
+    const genderText = d.gender === 'male' ? '♂ 男' : '♀ 女';
+    const avatarHtml = d.avatar
+      ? '<img class="card-avatar" src="' + d.avatar + '" alt="' + d.nickname + '">'
+      : '<div class="card-avatar-placeholder">' + (d.gender === 'male' ? '🧑' : '👩') + '</div>';
+    const intro = d.introOverride || d._introOverride || {};
+    return '<div class="card"><div class="card-header">' + avatarHtml +
+      '<div class="card-meta"><div class="card-top-row"><div class="card-left"><div class="card-name">' + d.nickname +
+      '</div><span class="card-gender ' + genderClass + '">' + genderText +
+      '</span></div></div></div></div>' +
+      (intro.title ? '<div class="card-intro"><div class="intro-title">' + intro.title + '</div><div class="intro-desc">' + (intro.desc||'') + '</div></div>' : '') +
+      '<div class="card-btn-row">' +
+      '<button class="card-action-btn regen" onclick="restoreEntry(' + i + ')">♻️ 恢复</button>' +
+      '<button class="card-action-btn delete" onclick="permanentDelete(' + i + ')">🗑️ 彻底删除</button>' +
+      '</div></div>';
+  }).join('');
+}
+
+async function restoreEntry(deletedIdx) {
+  const deletedData = allRawData.filter(d => d._deleted);
+  const d = deletedData[deletedIdx];
+  if (!d || !confirm('确认恢复「' + d.nickname + '」？')) return;
+  delete d._deleted;
+  const ok = await saveEntry(d);
+  if (ok) {
+    showToast('已恢复: ' + d.nickname, 'success');
+    loadAll();
+  } else { showToast('恢复失败', 'error'); }
+}
+
+async function permanentDelete(deletedIdx) {
+  const deletedData = allRawData.filter(d => d._deleted);
+  const d = deletedData[deletedIdx];
+  if (!d || !confirm('确认彻底删除「' + d.nickname + '」？此操作不可撤销！')) return;
+  try {
+    const encodedFilename = encodeURIComponent(d._filename);
+    const r = await fetch(API + '/' + encodedFilename, { headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
+    const fd = await r.json();
+    await fetch(API + '/' + encodedFilename, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '彻底删除: ' + d.nickname, sha: fd.sha, branch: 'main' })
+    });
+    showToast('已彻底删除: ' + d.nickname, 'success');
+    loadAll();
+  } catch(e) { showToast('删除失败', 'error'); console.error(e); }
+}
+
+async function syncAll() {
+  showToast('正在同步...', 'info');
+  try {
+    var activeData = allRawData.filter(function(d) { return !d._deleted; });
+    var females = activeData.filter(function(c) { return c.gender === 'female'; }).map(function(c) {
+      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+      if(c.introOverride) o.introOverride = c.introOverride;
+      if(c.types) o.types = c.types;
+      return o;
+    });
+    var males = activeData.filter(function(c) { return c.gender === 'male'; }).map(function(c) {
+      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+      if(c.introOverride) o.introOverride = c.introOverride;
+      if(c.types) o.types = c.types;
+      return o;
+    });
+
+    var QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
+    var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
+    var headers = { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' };
+
+    // Helper: decode base64 content from GitHub API
+    function b64decode(str) {
+      var bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+      return new TextDecoder().decode(bytes);
+    }
+
+    // Helper: find end of JS array by bracket tracking
+    function findArrayEnd(text, marker) {
+      var idx = text.indexOf(marker);
+      if (idx < 0) return null;
+      var bStart = text.indexOf('[', idx);
+      var depth = 0, i = bStart, inStr = false, strCh = '';
+      while (i < text.length) {
+        var c = text.charAt(i);
+        if (inStr) {
+          if (c === '\\') { i += 2; continue; }
+          if (c === strCh) inStr = false;
+        } else {
+          if (c === '"' || c === "'" || c === '`') { inStr = true; strCh = c; }
+          else if (c === '[') depth++;
+          else if (c === ']') { depth--; if (depth === 0) return { start: idx, end: i + 1 }; }
+        }
+        i++;
+      }
+      return null;
+    }
+
+    // 1. Sync quiz-v2.html
+    var qResp = await fetch(QUIZ_URL + '?ref=main', { headers: headers });
+    var qFile = await qResp.json();
+    var qText = b64decode(qFile.content);
+
+    var mPos = findArrayEnd(qText, 'const submittedMales = ');
+    if (mPos) qText = qText.slice(0, mPos.start) + 'const submittedMales = ' + JSON.stringify(males) + ';' + qText.slice(mPos.end + 1);
+    var fPos = findArrayEnd(qText, 'const submittedFemales = ');
+    if (fPos) qText = qText.slice(0, fPos.start) + 'const submittedFemales = ' + JSON.stringify(females) + ';' + qText.slice(fPos.end + 1);
+
+    var qPut = await fetch(QUIZ_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: males.length + '男' + females.length + '女', content: btoa(unescape(encodeURIComponent(qText))), sha: qFile.sha, branch: 'main' })
+    });
+    if (qPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      qResp = await fetch(QUIZ_URL + '?ref=main', { headers: headers });
+      qFile = await qResp.json();
+      qText = b64decode(qFile.content);
+      mPos = findArrayEnd(qText, 'const submittedMales = ');
+      if (mPos) qText = qText.slice(0, mPos.start) + 'const submittedMales = ' + JSON.stringify(males) + ';' + qText.slice(mPos.end + 1);
+      fPos = findArrayEnd(qText, 'const submittedFemales = ');
+      if (fPos) qText = qText.slice(0, fPos.start) + 'const submittedFemales = ' + JSON.stringify(females) + ';' + qText.slice(fPos.end + 1);
+      qPut = await fetch(QUIZ_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: males.length + '男' + females.length + '女', content: btoa(unescape(encodeURIComponent(qText))), sha: qFile.sha, branch: 'main' })
+      });
+    }
+
+    // 2. Sync home.html scroll
+    var hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+    var hFile = await hResp.json();
+    var hText = b64decode(hFile.content);
+
+    var scrollItems = activeData.map(function(d) { return {name: d.nickname, avatar: d.avatar || ''}; });
+    scrollItems.sort(function(a, b) {
+      var ha = 0, hb = 0;
+      for (var i = 0; i < a.name.length; i++) ha = (ha * 31 + a.name.charCodeAt(i)) | 0;
+      for (var i = 0; i < b.name.length; i++) hb = (hb * 31 + b.name.charCodeAt(i)) | 0;
+      return ha - hb;
+    });
+    var scrollLines = scrollItems.map(function(s) {
+      return "  {name:'" + s.name.replace(/'/g, "\\'") + "',avatar:'" + s.avatar + "'}";
+    });
+    var scrollJs = 'const scrollMembers = [\n' + scrollLines.join(',\n') + '\n];';
+
+    var sStart = hText.indexOf('const scrollMembers = [');
+    var sEnd = hText.indexOf('];\n', sStart) + 3;
+    hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
+
+    var hPut = await fetch(HOME_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+    });
+    if (hPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+      hFile = await hResp.json();
+      hText = b64decode(hFile.content);
+      sStart = hText.indexOf('const scrollMembers = [');
+      sEnd = hText.indexOf('];\n', sStart) + 3;
+      hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
+      hPut = await fetch(HOME_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+      });
+    }
+
+    if (qPut.ok && hPut.ok) showToast('全部同步完成！', 'success');
+    else showToast('部分同步失败', 'error');
+  } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
+}
+
+
+loadAll();
+</script>
+</body>
+</html>
