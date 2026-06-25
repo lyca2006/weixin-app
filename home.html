@@ -45,18 +45,15 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 28px; text-align: center;
+  font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 36px; text-align: center;
 }
 
-.section { width: 100%; margin-bottom: 20px; }
-
-.section-title {
-  font-size: 14px; color: rgba(255,255,255,0.4); margin-bottom: 12px;
-  padding-left: 4px; font-weight: 600; letter-spacing: 1px;
+.buttons {
+  display: flex; flex-direction: column; gap: 16px; width: 100%;
 }
 
-.card-full {
-  width: 100%; padding: 20px; border-radius: 20px;
+.big-btn {
+  width: 100%; padding: 22px 20px; border-radius: 20px;
   border: 2px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.06);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -64,41 +61,16 @@ body {
   cursor: pointer; transition: all 0.3s; text-decoration: none; color: #fff;
   -webkit-tap-highlight-color: transparent;
 }
-.card-full:active { transform: scale(0.97); }
-.card-full:hover {
-  border-color: rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.1);
-}
-.card-full .card-icon { font-size: 32px; flex-shrink: 0; }
-.card-full .card-info { display: flex; flex-direction: column; gap: 4px; }
-.card-full .card-title { font-size: 16px; font-weight: 700; }
-.card-full .card-desc { font-size: 12px; color: rgba(255,255,255,0.45); }
-
-.cards {
-  display: flex; gap: 12px; width: 100%;
-}
-
-.card {
-  flex: 1; padding: 24px 12px; border-radius: 20px;
-  border: 2px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  cursor: pointer; transition: all 0.3s; text-decoration: none; color: #fff;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.card:active { transform: scale(0.96); }
-
-.card:hover {
+.big-btn:active { transform: scale(0.97); }
+.big-btn:hover {
   border-color: rgba(245,87,108,0.5);
   background: rgba(245,87,108,0.1);
   box-shadow: 0 8px 30px rgba(245,87,108,0.2);
 }
-
-.card-icon { font-size: 36px; }
-.card-title { font-size: 16px; font-weight: 700; }
-.card-desc { font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.6; }
+.big-btn .btn-icon { font-size: 36px; flex-shrink: 0; }
+.big-btn .btn-info { display: flex; flex-direction: column; gap: 4px; }
+.big-btn .btn-title { font-size: 18px; font-weight: 700; }
+.big-btn .btn-desc { font-size: 12px; color: rgba(255,255,255,0.45); }
 </style>
 </head>
 <body>
@@ -110,30 +82,28 @@ body {
   <div class="hero-title">天天向上一家人</div>
   <div class="hero-subtitle">找到与你灵魂匹配的人</div>
 
-  <div class="section">
-    <a class="card-full" href="submit.html">
-      <div class="card-icon">📝</div>
-      <div class="card-info">
-        <div class="card-title">填写资料</div>
-        <div class="card-desc">填写个人资料，让更多人了解你</div>
+  <div class="buttons">
+    <a class="big-btn" href="submit.html">
+      <div class="btn-icon">📝</div>
+      <div class="btn-info">
+        <div class="btn-title">填写资料</div>
+        <div class="btn-desc">新成员入口，填完直接匹配</div>
       </div>
     </a>
-  </div>
-
-  <div class="section">
-    <div class="section-title">💫 开始匹配</div>
-    <div class="cards">
-      <a class="card" href="quiz-v2.html?mode=female">
-        <div class="card-icon">🧑</div>
-        <div class="card-title">我是男生</div>
-        <div class="card-desc">开始匹配</div>
-      </a>
-      <a class="card" href="quiz-v2.html?mode=male">
-        <div class="card-icon">👩</div>
-        <div class="card-title">我是女生</div>
-        <div class="card-desc">开始匹配</div>
-      </a>
-    </div>
+    <a class="big-btn" href="quiz-v2.html?mode=female">
+      <div class="btn-icon">🧑</div>
+      <div class="btn-info">
+        <div class="btn-title">我是男生</div>
+        <div class="btn-desc">开始匹配，看看谁和你最搭</div>
+      </div>
+    </a>
+    <a class="big-btn" href="quiz-v2.html?mode=male">
+      <div class="btn-icon">👩</div>
+      <div class="btn-info">
+        <div class="btn-title">我是女生</div>
+        <div class="btn-desc">开始匹配，看看谁和你最搭</div>
+      </div>
+    </a>
   </div>
 </div>
 
