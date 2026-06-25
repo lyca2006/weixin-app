@@ -1986,13 +1986,15 @@ async function syncNewData() {
 createStars();
 preloadData();
 
-// URL参数自动进入匹配模式（从资料填写页跳转过来）
+// URL参数自动进入匹配模式（从首页或资料页跳转过来）
 const urlParams = new URLSearchParams(window.location.search);
 const autoMode = urlParams.get('mode');
 if (autoMode === 'male') {
   enterMaleMode();
 } else if (autoMode === 'female') {
   enterFemaleMode();
+} else {
+  window.location.replace('home.html');
 }
 </script>
 </body>
