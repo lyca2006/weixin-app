@@ -45,32 +45,66 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 36px; text-align: center;
+  font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 32px; text-align: center;
 }
 
-.buttons {
-  display: flex; flex-direction: column; gap: 16px; width: 100%;
+/* 分隔线标题 */
+.divider-title {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px; width: 100%;
+}
+.divider-title::before, .divider-title::after {
+  content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.12);
+}
+.divider-title span {
+  font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 600; white-space: nowrap;
 }
 
-.big-btn {
-  width: 100%; padding: 22px 20px; border-radius: 20px;
-  border: 2px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
+/* 填写资料卡 */
+.profile-card {
+  width: 100%; padding: 20px; border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  display: flex; align-items: center; gap: 16px;
-  cursor: pointer; transition: all 0.3s; text-decoration: none; color: #fff;
+  display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+}
+.profile-card .p-icon { font-size: 32px; flex-shrink: 0; }
+.profile-card .p-info { flex: 1; }
+.profile-card .p-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.profile-card .p-desc { font-size: 11px; color: rgba(255,255,255,0.4); }
+.profile-card .p-btn {
+  padding: 10px 18px; border-radius: 12px; border: none; flex-shrink: 0;
+  background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff;
+  font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none;
+  white-space: nowrap; transition: all 0.2s;
+}
+.profile-card .p-btn:active { transform: scale(0.95); }
+
+/* 匹配卡片 */
+.match-cards { display: flex; gap: 12px; width: 100%; }
+.match-card {
+  flex: 1; padding: 24px 16px; border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  text-decoration: none; color: #fff; transition: all 0.3s;
   -webkit-tap-highlight-color: transparent;
 }
-.big-btn:active { transform: scale(0.97); }
-.big-btn:hover {
-  border-color: rgba(245,87,108,0.5);
-  background: rgba(245,87,108,0.1);
-  box-shadow: 0 8px 30px rgba(245,87,108,0.2);
+.match-card:active { transform: scale(0.96); }
+.match-card:hover {
+  border-color: rgba(245,87,108,0.4);
+  background: rgba(245,87,108,0.08);
 }
-.big-btn .btn-icon { font-size: 36px; flex-shrink: 0; }
-.big-btn .btn-info { display: flex; flex-direction: column; gap: 4px; }
-.big-btn .btn-title { font-size: 18px; font-weight: 700; }
-.big-btn .btn-desc { font-size: 12px; color: rgba(255,255,255,0.45); }
+.match-card .m-icon { font-size: 36px; }
+.match-card .m-title { font-size: 16px; font-weight: 700; }
+.match-card .m-btn {
+  padding: 8px 20px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.2);
+  background: transparent; color: rgba(255,255,255,0.7);
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.match-card:hover .m-btn {
+  border-color: rgba(245,87,108,0.5); color: #fff;
+}
 </style>
 </head>
 <body>
@@ -82,27 +116,27 @@ body {
   <div class="hero-title">天天向上一家人</div>
   <div class="hero-subtitle">找到与你灵魂匹配的人</div>
 
-  <div class="buttons">
-    <a class="big-btn" href="submit.html">
-      <div class="btn-icon">📝</div>
-      <div class="btn-info">
-        <div class="btn-title">填写资料</div>
-        <div class="btn-desc">新成员入口，填完直接匹配</div>
-      </div>
+  <div class="divider-title"><span>填写资料</span></div>
+  <div class="profile-card">
+    <div class="p-icon">📝</div>
+    <div class="p-info">
+      <div class="p-title">填写你的资料</div>
+      <div class="p-desc">完善个人资料，让更多人了解你</div>
+    </div>
+    <a class="p-btn" href="submit.html">填写资料</a>
+  </div>
+
+  <div class="divider-title"><span>开始匹配</span></div>
+  <div class="match-cards">
+    <a class="match-card" href="quiz-v2.html?mode=female">
+      <div class="m-icon">🧑</div>
+      <div class="m-title">我是男生</div>
+      <div class="m-btn">开始匹配 →</div>
     </a>
-    <a class="big-btn" href="quiz-v2.html?mode=female">
-      <div class="btn-icon">🧑</div>
-      <div class="btn-info">
-        <div class="btn-title">我是男生</div>
-        <div class="btn-desc">开始匹配，看看谁和你最搭</div>
-      </div>
-    </a>
-    <a class="big-btn" href="quiz-v2.html?mode=male">
-      <div class="btn-icon">👩</div>
-      <div class="btn-info">
-        <div class="btn-title">我是女生</div>
-        <div class="btn-desc">开始匹配，看看谁和你最搭</div>
-      </div>
+    <a class="match-card" href="quiz-v2.html?mode=male">
+      <div class="m-icon">👩</div>
+      <div class="m-title">我是女生</div>
+      <div class="m-btn">开始匹配 →</div>
     </a>
   </div>
 </div>
