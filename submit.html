@@ -462,10 +462,7 @@ async function submitAll() {
     });
 
     if (resp.ok) {
-      document.getElementById('resultDesc').innerHTML = gender === 'male'
-        ? '你的专属档案已生成<br>等白菜君给你匹配最优质的女生吧～'
-        : '你的专属档案已生成<br>等白菜君给你匹配最优质的男生吧～';
-      showPage('resultPage');
+      console.log('资料提交成功');
     } else {
       alert('提交失败，请稍后重试');
     }
