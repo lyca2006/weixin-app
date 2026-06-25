@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案管理 v6</title>
+<title>群友档案管理 v7</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -264,10 +264,10 @@ function updateBatchBtn() {
   const btn = document.getElementById('batchSaveBtn');
   if (modifiedSet.size > 0) {
     btn.disabled = false;
-    btn.textContent = `📤 一键更新到库里 (${modifiedSet.size})`;
+    btn.textContent = `📤 一键更新 (${modifiedSet.size})`;
   } else {
     btn.disabled = true;
-    btn.textContent = '📤 一键更新到库里';
+    btn.textContent = '📤 一键更新';
   }
 }
 
@@ -991,23 +991,17 @@ async function loadAll() {
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
       jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-      // Fetch files in batches of 5 to avoid API throttling
-      const results = [];
-      for (let batch = 0; batch < jsonFiles.length; batch += 5) {
-        const chunk = jsonFiles.slice(batch, batch + 5);
-        const batchResults = await Promise.all(chunk.map(async (file) => {
-          try {
-            const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
-            const fd = await r.json();
-            var rawBytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
-            const content = JSON.parse(new TextDecoder().decode(rawBytes));
-            content._filename = file.name;
-            if (content.introOverride) content._introOverride = content.introOverride;
-            return content;
-          } catch(e) { console.error(e); return null; }
-        }));
-        results.push(...batchResults);
-      }
+      // Fetch all files via download_url (fast, no auth needed)
+      const results = await Promise.all(jsonFiles.map(async (file) => {
+        try {
+          const r = await fetch(file.download_url);
+          if (!r.ok) return null;
+          const content = await r.json();
+          content._filename = file.name;
+          if (content.introOverride) content._introOverride = content.introOverride;
+          return content;
+        } catch(e) { return null; }
+      }));
 
       submittedData = results.filter(c => c !== null && c._filename !== 'hardcoded-overrides.json');
     }
