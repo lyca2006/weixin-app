@@ -31,50 +31,71 @@ body {
 .page.active { display: block; }
 
 /* 开始页 */
-.start-page { text-align: center; padding-top: 3vh; }
-.start-icon { font-size: 36px; margin-bottom: 8px; animation: float 3s ease-in-out infinite; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+.start-page { text-align: center; padding-top: 4vh; }
 .start-title {
-  font-size: 22px; font-weight: 700; margin-bottom: 6px;
+  font-size: 24px; font-weight: 800; margin-bottom: 10px;
   background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.start-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 16px; }
+.start-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-bottom: 28px; }
+
+/* 分区标签 */
+.section-label {
+  font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.section-label::before, .section-label::after {
+  content: ''; flex: 1; max-width: 60px; height: 1px; background: rgba(255,255,255,0.12);
+}
 
 /* 性别选择 */
-.gender-section { display: flex; gap: 12px; justify-content: center; margin-bottom: 14px; }
+.gender-section { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
 .gender-btn {
-  width: 120px; height: 56px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15);
+  flex: 1; max-width: 160px; height: 52px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15);
   background: rgba(255,255,255,0.06); display: flex; flex-direction: row;
-  align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: all 0.2s;
+  align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 .gender-btn:active { transform: scale(0.95); }
 .gender-btn.selected { border-color: #f5576c; background: rgba(245,87,108,0.15); box-shadow: 0 4px 20px rgba(245,87,108,0.3); }
-.gender-btn .icon { font-size: 24px; }
-.gender-btn .label { font-size: 14px; font-weight: 600; }
+.gender-btn .icon { font-size: 22px; }
+.gender-btn .label { font-size: 15px; font-weight: 600; }
+
+/* 表单区域 */
+.form-group { margin-bottom: 20px; }
+.form-label { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 10px; text-align: center; }
+
+/* 头像上传 */
+.avatar-area {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.avatar-box {
+  width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.06);
+  border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; transition: all 0.2s;
+}
+.avatar-box:hover { border-color: rgba(245,87,108,0.5); }
+.avatar-placeholder { text-align: center; color: rgba(255,255,255,0.3); font-size: 11px; line-height: 1.4; }
 
 /* 昵称输入 */
-.name-section { margin-bottom: 12px; }
-.name-label { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 6px; text-align: center; }
 .name-input {
-  width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.06);
+  width: 100%; max-width: 200px; padding: 10px 16px; background: rgba(255,255,255,0.06);
   border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
   color: #fff; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s;
+  display: block; margin: 0 auto;
 }
 .name-input:focus { border-color: rgba(245,87,108,0.6); }
 .name-input::placeholder { color: rgba(255,255,255,0.3); }
 
 .start-btn {
-  display: inline-block; padding: 12px 40px;
-  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 24px;
-  color: #fff; font-size: 17px; font-weight: 600; cursor: pointer;
+  display: inline-block; padding: 14px 48px; margin-top: 8px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 28px;
+  color: #fff; font-size: 17px; font-weight: 700; cursor: pointer;
   box-shadow: 0 6px 24px rgba(245,87,108,0.4); -webkit-tap-highlight-color: transparent;
   transition: all 0.2s; letter-spacing: 1px;
 }
 .start-btn:active { transform: scale(0.95); }
 .start-btn:disabled { opacity: 0.4; pointer-events: none; }
-.start-note { margin-top: 16px; font-size: 12px; color: rgba(255,255,255,0.3); }
 .error-hint { color: #f5576c; font-size: 13px; margin-top: 8px; min-height: 20px; text-align: center; }
 
 /* 题目页 */
@@ -184,10 +205,10 @@ body {
   <!-- 开始页 -->
   <div class="page active" id="startPage">
     <div class="start-page">
-      <div class="start-icon">📋</div>
       <div class="start-title">填写资料，开始接客</div>
-      <div class="start-subtitle">回答10个小问题<br>帮你生成专属人物卡</div>
+      <div class="start-subtitle">回答10个小问题<br>帮你生成专属人物档卡</div>
 
+      <div class="section-label">选择你的阵营</div>
       <div class="gender-section">
         <div class="gender-btn" onclick="selectGender('male', this)">
           <div class="icon">🧑</div>
@@ -199,19 +220,19 @@ body {
         </div>
       </div>
 
-      <div class="name-section">
-        <div class="name-label">你的群昵称</div>
-        <input class="name-input" id="inputName" type="text" placeholder="群昵称" maxlength="10" style="max-width:140px">
-      </div>
-
-      <div class="name-section">
-        <div class="name-label">上传你的微信头像</div>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-          <div id="avatarPreview" onclick="document.getElementById('fileInput').click()" style="width:70px;height:70px;border-radius:12px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;transition:all 0.2s">
-            <div id="avatarPlaceholder" style="text-align:center;color:rgba(255,255,255,0.3);font-size:11px;line-height:1.4"><span style="font-size:22px;display:block">📷</span>点击上传</div>
+      <div class="form-group">
+        <div class="form-label">你的群头像</div>
+        <div class="avatar-area">
+          <div class="avatar-box" id="avatarPreview" onclick="document.getElementById('fileInput').click()">
+            <div class="avatar-placeholder" id="avatarPlaceholder"><span style="font-size:24px;display:block">📷</span>点击上传</div>
           </div>
           <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)" style="display:none">
         </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">你的群昵称</div>
+        <input class="name-input" id="inputName" type="text" placeholder="输入昵称" maxlength="10">
       </div>
 
       <button class="start-btn" onclick="startQuiz()">开始填写 →</button>
