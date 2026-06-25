@@ -222,6 +222,147 @@ let modifiedSet = new Set(); // track indices of modified cards
 const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
 const TOKEN = TK.join('');
 const API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+const AVATAR_BASE = 'https://lyca2006.github.io/weixin-app/';
+
+// ==================== Hardcoded Male Members ====================
+const hardcodedMales = [
+  {
+    nickname: '陈总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/chenzhong.png',
+    title: '🏆 已上岸·传说中的前群友',
+    desc: '曾经站在金字塔顶端的男人，如今站在了退群按钮的顶端。来过、帅过、跑过。留下一个传说，带走了所有的回忆。细总说，你班衰女，一点也不给力。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '细总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xizhong.png',
+    title: '👑 万人迷·灵魂社交家',
+    desc: '他就是那种走到哪里都能成为核心的人。不是因为他最张扬，而是因为他最真诚。记得住每个人的喜好，操心着每个人的感受，把一群陌生人变成了家人。这样的男人，值得被好好珍惜。',
+    types: ['active', 'romantic'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '医生',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/yisheng.png',
+    title: '💪 白衣男神·行走的荷尔蒙',
+    desc: '白天救死扶伤，晚上健身房挥汗如雨。又帅又有正经职业还年轻？这种配置在现实中居然真的存在。最过分的是性格还阳光开朗，笑起来能把人心都融化。姐妹们，不心动是不可能的，这辈子都不可能的。',
+    types: ['growth', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '锋锋',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/fengfeng.png',
+    title: '🎯 暖男天花板·情商之王',
+    desc: '全场最会说话的人，但不是油嘴滑舌那种——他是真的关心你才说得那么到位。吵架他能把你逗笑，尴尬他能帮你解围，受伤他默默陪着你。最重要的是，认定了就是一辈子。这样的男人，请直接锁死。',
+    types: ['romantic', 'stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '小林哥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xiaolinge.png',
+    title: '🌊 定海神针·全场安全感',
+    desc: '不管多大的风浪，他往那一站，你就觉得没事了。不偏不倚、不急不躁，像个大哥哥一样罩着所有人。跟他在一起，你不用演、不用装，做自己就好。因为他看人从来不带滤镜，但他对你的好从来不打折。',
+    types: ['stable', 'growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '张天赋',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/zhangtiancai.png',
+    title: '✨ 宝藏男孩·灵魂有趣到发光',
+    desc: '帅是真的帅，有趣更是真的有趣。别人讲半天讲不明白的事，他一句话戳到你心里。而且这个男人超爱小朋友——想象一下他带娃的样子，心都化了。大大方方不扭捏，说话直接但不伤人，这种有趣的灵魂真的可遇不可求。',
+    types: ['romantic', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '大象',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/daxiang.png',
+    title: '🎉 快乐制造机·全场MVP',
+    desc: '他就是那种不管去哪都自带BGM的人。识食物者为俊杰——他不仅会吃、会挑，还能带你解锁隐藏美食地图。到哪里都是焦点，各种局他来组织你就负责开心就好。跟他在一起，生活永远不会无聊，每天都是美食综艺现场。',
+    types: ['active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: 'KING',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/king.png',
+    title: '🏛️ 铁饭碗暖男·宠妻狂魔预定',
+    desc: '别人追求刺激，他追求的是给你一个稳稳的家。国企工作雷打不动，收入可观从不乱花。认准了一个人就全心全意，细心到连你自己都没注意的事他都记在心里。这种男人不会给你轰轰烈烈，但他给你的是踏踏实实的一辈子。',
+    types: ['stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '陈生',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/chensheng.png',
+    title: '🎩 金融型男·潮流先锋',
+    desc: '在汇丰上班的帅哥，穿搭品味在线得不像话。能把西装穿出T台感，也能把休闲穿出高级感。工作体面稳定，审美在线，长得还帅——这种集帅气与稳定于一身的男人，就是现实版的偶像剧男主。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '小肥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xiaofei.png',
+    title: '🎙️ 氛围之王·被耽误的脱口秀大师',
+    desc: '这个男人是老天爷追着赏饭吃的喜剧天才。别人绞尽脑汁讲笑话，他随便一句话就能让全场笑到肚子疼。最难得的是——他的幽默不是表演，是骨子里的真实和通透。看似大大咧咧，其实内心比谁都清醒，看人看事一针见血。跟他在一起不需要任何伪装，因为他会让你知道：做真实的自己，才是最有魅力的。这种男人，一旦认真起来，反差感直接拉满，谁扛得住？',
+    types: ['active', 'romantic'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '股神',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/gushen.png',
+    title: '📈 财神转世·理财界的天选之人',
+    desc: '别人炒股是韭菜，他炒股是镰刀。当你还在研究K线的时候，他已经在数涨停板了。有赢无输不是传说，在他身上是日常操作。跟他在一起，你不一定会变成股神，但你一定不用担心钱的事。这就是嫁给财富自由的感觉。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '梁总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/liangzhong.png',
+    title: '🌍 隐世富豪·行走的世界地图',
+    desc: '真正有钱的人从来不炫，梁总就是那种你跟他聊了三个月才发现他居然这么有实力的人。足迹遍布全球，吃过见过的世界比你刷过的短视频还精彩。但他最厉害的不是钱，是那双看人极准的眼睛——他说靠谱的人，从没看走眼过。性格好到离谱，朋友多到手机通讯录要翻三页。跟他在一起，你收获的不只是诗和远方，还有一个真正懂生活的灵魂旅伴。',
+    types: ['growth', 'stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: 'TMC',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/tmc.png',
+    title: '🔥 全能男神·行走的荷尔蒙',
+    desc: '有钱还帅就够过分了，偏偏还爱健身爱看书——灵魂和肉体双重暴击。白天翻几页书充实灵魂，晚上化身夜场王者魅力全开。这种又痞又帅、又野又有内涵的男人，是所有女生嘴上说"不要"但心里疯狂尖叫的类型。异性缘好？不好才奇怪。',
+    types: ['active', 'growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '锐哥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/ruige.png',
+    title: '🔱 荒野男神·行走的安全感堡垒',
+    desc: '这个男人是从户外杂志里走出来的吧？消防员的正义感和安全感，配上一身扛得起帐篷也扛得起你的肌肉，光站在那里就让人觉得天塌了都不怕。周末带你露营看星星、桨板划湖面，晚上还能给你做一桌热腾腾的饭菜。能喝酒能聊天，上山下海全都行。这种又野又暖、又硬又会照顾人的男人，简直就是言情小说照进现实。',
+    types: ['stable', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '钟总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/zhongzhong.png',
+    title: '🎬 电影脸男主·沉稳系天花板',
+    desc: '有些男人的魅力不是说出来的，是往那一站你就感觉到的。干净利落的穿搭，阳光俊朗的长相，沉稳老成的气质——这三样凑在一起，就是钟总。他不需要刻意表现什么，一开口说话那种从容和笃定，就让人觉得这个男人靠得住。不浮夸、不张扬，但每一句话都有分量。这种自带电影男主滤镜的男人，现实中真的太稀缺了。',
+    types: ['stable', 'growth'],
+    _isHardcoded: true
+  }
+];
+
 // ==================== Female Option Texts (for ABCD mapping) ====================
 const femaleOptionTexts = {
   style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
@@ -729,6 +870,7 @@ function generateMaleIntro(a) {
 
 // ==================== 统一入口 ====================
 function generateIntro(d) {
+  if (d._isHardcoded) return { title: d.title || '', desc: d.desc || '' };
   if (d.gender === 'male') return generateMaleIntro(d.answers);
   return generateFemaleIntro(d.answers);
 }
@@ -759,7 +901,8 @@ function renderCards() {
 
   list.innerHTML = filtered.map(d => {
     const idx = allData.indexOf(d);
-      const hasAnswers = d.answers && Object.keys(d.answers).length > 0;
+    const isHardcoded = !!d._isHardcoded;
+    const hasAnswers = d.answers && Object.keys(d.answers).length > 0;
     const isModified = modifiedSet.has(idx);
 
     // ABCD string (only for submitted users with answers)
@@ -833,7 +976,12 @@ function renderCards() {
 // ==================== Regen Inline ====================
 function regenInline(idx) {
   const d = allData[idx];
-
+  if (d._isHardcoded) {
+    // Hardcoded males don't have answers, so just regenerate is not meaningful
+    // But we allow it to shuffle between original title/desc
+    showToast('男生档案暂不支持重新生成', 'info');
+    return;
+  }
   const intro = generateIntro(d);
   d._introCache = intro;
   d._introOverride = intro;
@@ -872,7 +1020,16 @@ function openDelete(idx) {
 async function confirmDelete() {
   if (pendingIdx < 0) return;
   const d = allData[pendingIdx];
-
+  if (d._isHardcoded) {
+    const deleted = JSON.parse(localStorage.getItem('deletedHardcoded') || '[]');
+    deleted.push(d.nickname);
+    localStorage.setItem('deletedHardcoded', JSON.stringify(deleted));
+    allData.splice(pendingIdx, 1);
+    closeModal('deleteModal');
+    renderCards();
+    showToast('删除成功', 'success');
+    return;
+  }
   try {
     const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
@@ -898,7 +1055,12 @@ async function confirmDelete() {
 function openEditIntro(idx) {
   pendingIdx = idx;
   const d = allData[idx];
-  const intro = d._introOverride || d._introCache || generateIntro(d);
+  let intro;
+  if (d._isHardcoded) {
+    intro = d._introOverride || { title: d.title, desc: d.desc };
+  } else {
+    intro = d._introOverride || d._introCache || generateIntro(d);
+  }
   document.getElementById('editTitleInput').value = intro.title;
   document.getElementById('editDescInput').value = intro.desc;
   document.getElementById('editIntroModal').classList.remove('hidden');
@@ -919,11 +1081,12 @@ function confirmEditIntro() {
 
 // ==================== Save Single Entry ====================
 async function saveEntry(d) {
+  if (d._isHardcoded) return; // Don't save hardcoded males
   try {
     const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
     const saveData = { ...d };
-    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride;
+    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride; delete saveData._isHardcoded;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
     await fetch(`${API}/${d._filename}`, {
       method: 'PUT',
@@ -944,8 +1107,47 @@ async function batchSaveAll() {
   let successCount = 0;
   let failCount = 0;
 
+  // 收集所有被修改的硬编码男生的override
+  const hardcodedOverrides = {};
   for (const idx of modifiedSet) {
-    const ok = await saveEntry(allData[idx]);
+    const d = allData[idx];
+    if (d._isHardcoded && d._introOverride) {
+      hardcodedOverrides[d.nickname] = { title: d._introOverride.title, desc: d._introOverride.desc };
+    }
+  }
+
+  // 如果有硬编码男生改动，先读取已有的overrides再合并保存
+  if (Object.keys(hardcodedOverrides).length > 0) {
+    try {
+      const overrideFile = 'hardcoded-overrides.json';
+      let existingSha = null;
+      let existingData = {};
+      const checkResp = await fetch(`${API}/${overrideFile}`, {
+        headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (checkResp.ok) {
+        const fd = await checkResp.json();
+        existingSha = fd.sha;
+        try { existingData = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, ''))))); } catch(e) {}
+      }
+      const merged = { ...existingData, ...hardcodedOverrides };
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(merged, null, 2))));
+      const body = { message: '更新硬编码男生介绍', content, branch: 'main' };
+      if (existingSha) body.sha = existingSha;
+      const putResp = await fetch(`${API}/${overrideFile}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify(body)
+      });
+      if (putResp.ok) successCount++;
+      else failCount++;
+    } catch(e) { console.error(e); failCount++; }
+  }
+
+  for (const idx of modifiedSet) {
+    const d = allData[idx];
+    if (d._isHardcoded) continue; // 已在上面处理
+    const ok = await saveEntry(d);
     if (ok) successCount++;
     else failCount++;
   }
@@ -1012,9 +1214,28 @@ async function loadAll() {
     return;
   }
 
+  // 读取硬编码男生的override并应用
+  let hardcodedOverrides = {};
+  try {
+    const ovResp = await fetch(`${API}/hardcoded-overrides.json`, {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (ovResp.ok) {
+      const fd = await ovResp.json();
+      hardcodedOverrides = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+    }
+  } catch(e) {}
 
+  // Combine: submitted data first, then hardcoded males
+  // Deep clone hardcoded males so we don't mutate the original
+  const deletedHardcoded = new Set(JSON.parse(localStorage.getItem('deletedHardcoded') || '[]'));
+  const males = hardcodedMales.filter(m => !deletedHardcoded.has(m.nickname)).map(m => {
+    const ov = hardcodedOverrides[m.nickname];
+    if (ov) return { ...m, _introOverride: ov, _introCache: ov };
+    return { ...m };
+  });
 
-  allData = [...submittedData];
+  allData = [...submittedData, ...males];
 
   // Deduplicate nicknames
   deduplicateNicknames(allData);
@@ -1022,6 +1243,7 @@ async function loadAll() {
   // Generate intro only for entries without saved introOverride
   const needsSave = [];
   allData.forEach(d => {
+    if (d._isHardcoded) return;
     if (d._introOverride || d.introOverride) {
       // Already has saved intro, use it
       if (d.introOverride && !d._introOverride) d._introOverride = d.introOverride;
