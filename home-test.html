@@ -201,10 +201,13 @@ function buildScroll(members) {
   const track = document.getElementById('scrollTrack');
   const html = members.map(m => `<div class="scroll-item"><img src="${m.avatar}" alt="${m.name}"><span>${m.name}</span></div>`).join('');
   track.innerHTML = html + html;
+  const itemWidth = 64;
+  const totalWidth = members.length * itemWidth;
+  track.style.animationDuration = Math.max(members.length * 1.5, 20) + 's';
 }
 buildScroll(scrollMembers);
 
-// 后台拉取提交的人的头像，合并进滚动条
+// 后台拉取提交的人的头像，追加进滚动条（不重建）
 (async function() {
   try {
     const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
@@ -222,8 +225,13 @@ buildScroll(scrollMembers);
       } catch(e) { return null; }
     }));
     const submitted = results.filter(c => c && c.avatar && c.nickname);
-    const all = [...scrollMembers, ...submitted.map(s => ({ name: s.nickname, avatar: s.avatar }))];
-    buildScroll(all);
+    if (submitted.length > 0) {
+      const all = [...scrollMembers, ...submitted.map(s => ({ name: s.nickname, avatar: s.avatar }))];
+      const track = document.getElementById('scrollTrack');
+      track.style.animation = 'none';
+      track.offsetHeight;
+      buildScroll(all);
+    }
   } catch(e) {}
 })();
 </script>
