@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>填写资料，开始接客</title>
+<script>
+if (!new URLSearchParams(window.location.search).has('from')) {
+  window.location.replace('home-test.html');
+}
+</script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+}
+
+.stars { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
+.star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle ease-in-out infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+.container { position: relative; z-index: 1; max-width: 420px; margin: 0 auto; padding: 20px 16px 40px; min-height: 100vh; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* 开始页 */
+.start-page { text-align: center; padding-top: 4vh; }
+.start-title {
+  font-size: 24px; font-weight: 800; margin-bottom: 10px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.start-subtitle { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-bottom: 28px; }
+
+/* 分区标签 */
+.section-label {
+  font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 12px; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.section-label::before, .section-label::after {
+  content: ''; flex: 1; max-width: 60px; height: 1px; background: rgba(255,255,255,0.12);
+}
+
+/* 性别选择 */
+.gender-section { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+.gender-btn {
+  flex: 1; max-width: 160px; height: 52px; border-radius: 14px; border: 2px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); display: flex; flex-direction: row;
+  align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.gender-btn:active { transform: scale(0.95); }
+.gender-btn.selected { border-color: #f5576c; background: rgba(245,87,108,0.15); box-shadow: 0 4px 20px rgba(245,87,108,0.3); }
+.gender-btn .icon { font-size: 22px; }
+.gender-btn .label { font-size: 15px; font-weight: 600; }
+
+/* 表单区域 */
+.form-group { margin-bottom: 20px; }
+.form-label { font-size: 13px; color: rgba(255,255,255,0.55); margin-bottom: 10px; text-align: center; }
+
+/* 头像上传 */
+.avatar-area {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.avatar-box {
+  width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.06);
+  border: 2px dashed rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; overflow: hidden; transition: all 0.2s;
+}
+.avatar-box:hover { border-color: rgba(245,87,108,0.5); }
+.avatar-placeholder { text-align: center; color: rgba(255,255,255,0.3); font-size: 11px; line-height: 1.4; }
+
+/* 昵称输入 */
+.name-input {
+  width: 100%; max-width: 200px; padding: 10px 16px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
+  color: #fff; font-size: 16px; text-align: center; outline: none; transition: border-color 0.2s;
+  display: block; margin: 0 auto;
+}
+.name-input:focus { border-color: rgba(245,87,108,0.6); }
+.name-input::placeholder { color: rgba(255,255,255,0.3); }
+
+.start-btn {
+  display: inline-block; padding: 14px 48px; margin-top: 8px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 28px;
+  color: #fff; font-size: 17px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 24px rgba(245,87,108,0.4); -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s; letter-spacing: 1px;
+}
+.start-btn:active { transform: scale(0.95); }
+.start-btn:disabled { opacity: 0.4; pointer-events: none; }
+.error-hint { color: #f5576c; font-size: 13px; margin-top: 8px; min-height: 20px; text-align: center; }
+
+/* 题目页 */
+.quiz-page { padding-top: 20px; }
+.progress-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-bottom: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #f093fb, #f5576c); border-radius: 2px; transition: width 0.4s ease; }
+.progress-text { text-align: right; font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 24px; }
+
+.question-card {
+  background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px; padding: 28px 22px; border: 1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in { 0% { opacity: 0; transform: translateX(40px); } 100% { opacity: 1; transform: translateX(0); } }
+
+.q-num { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
+.q-text { font-size: 19px; font-weight: 600; line-height: 1.5; margin-bottom: 24px; }
+
+.options { display: flex; flex-direction: column; gap: 10px; }
+.opt-btn {
+  display: flex; align-items: center; padding: 14px 16px;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px; color: #fff; font-size: 15px; cursor: pointer;
+  transition: all 0.2s; -webkit-tap-highlight-color: transparent; text-align: left; line-height: 1.4;
+}
+.opt-btn:active { transform: scale(0.97); }
+.opt-btn.selected { background: rgba(245,87,108,0.2); border-color: #f5576c; }
+.opt-letter {
+  width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; margin-right: 12px; flex-shrink: 0; transition: all 0.2s;
+}
+.opt-btn.selected .opt-letter { background: #f5576c; }
+
+/* 自填输入 */
+.custom-input-wrap { margin-top: 10px; display: flex; gap: 8px; }
+.custom-input {
+  flex: 1; padding: 12px 14px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 10px;
+  color: #fff; font-size: 14px; outline: none;
+}
+.custom-input:focus { border-color: rgba(245,87,108,0.6); }
+.custom-input::placeholder { color: rgba(255,255,255,0.3); }
+.custom-submit {
+  padding: 12px 18px; background: linear-gradient(135deg, #f093fb, #f5576c);
+  border: none; border-radius: 10px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+}
+
+/* 打分题 */
+.score-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+}
+.score-btn {
+  padding: 14px 0; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px; color: #fff; font-size: 18px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; text-align: center; -webkit-tap-highlight-color: transparent;
+}
+.score-btn:active { transform: scale(0.92); }
+.score-btn.selected { background: rgba(245,87,108,0.25); border-color: #f5576c; }
+
+/* 自由输入题 */
+.free-input {
+  width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px;
+  color: #fff; font-size: 15px; outline: none; resize: none; height: 90px;
+  font-family: inherit; line-height: 1.6;
+}
+.free-input:focus { border-color: rgba(245,87,108,0.6); }
+.free-input::placeholder { color: rgba(255,255,255,0.3); }
+.free-submit {
+  margin-top: 12px; width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #f093fb, #f5576c); border: none; border-radius: 12px;
+  color: #fff; font-size: 16px; font-weight: 600; cursor: pointer;
+}
+
+/* 结果页 */
+.result-page { text-align: center; padding-top: 15vh; }
+.result-icon { font-size: 72px; margin-bottom: 16px; }
+.result-title {
+  font-size: 24px; font-weight: 700; margin-bottom: 10px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.result-desc { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.8; }
+.match-btn {
+  margin-top: 28px; padding: 16px 36px; border-radius: 28px; border: none;
+  background: linear-gradient(135deg, #f093fb, #f5576c); color: #fff;
+  font-size: 17px; font-weight: 700; cursor: pointer; letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(245,87,108,0.4); transition: all 0.2s;
+  animation: float 3s ease-in-out infinite;
+}
+.match-btn:active { transform: scale(0.95); }
+
+/* Loading */
+.loading { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 999; }
+.loading.hidden { display: none; }
+.loading-spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.2); border-top-color: #f5576c; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="loading hidden" id="loading"><div class="loading-spinner"></div></div>
+
+<div class="container">
+  <!-- 开始页 -->
+  <div class="page active" id="startPage">
+    <div class="start-page">
+      <div class="start-title">填写资料，开始接客</div>
+      <div class="start-subtitle">回答10个小问题<br>帮你生成专属人物档卡</div>
+
+      <div class="section-label">选择你的性别</div>
+      <div class="gender-section">
+        <div class="gender-btn" onclick="selectGender('male', this)">
+          <div class="icon">🧑</div>
+          <div class="label">我是男生</div>
+        </div>
+        <div class="gender-btn" onclick="selectGender('female', this)">
+          <div class="icon">👩</div>
+          <div class="label">我是女生</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">你的群头像</div>
+        <div class="avatar-area">
+          <div class="avatar-box" id="avatarPreview" onclick="document.getElementById('fileInput').click()">
+            <div class="avatar-placeholder" id="avatarPlaceholder"><span style="font-size:24px;display:block">📷</span>点击上传</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" onchange="handleImage(this)" style="display:none">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">你的群昵称</div>
+        <input class="name-input" id="inputName" type="text" placeholder="输入昵称" maxlength="10">
+      </div>
+
+      <button class="start-btn" onclick="startQuiz()">开始填写 →</button>
+      <div class="error-hint" id="startError"></div>
+    </div>
+  </div>
+
+  <!-- 题目页 -->
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-text" id="progressText"></div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <!-- 匹配引导页 -->
+  <div class="page" id="matchPage">
+    <div class="result-page">
+      <div class="result-icon">💘</div>
+      <div class="result-title">资料填写完成！</div>
+      <div class="result-desc">你的档案正在后台提交中...</div>
+      <button class="match-btn" onclick="goMatch()">看看本群谁和你最匹配</button>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-icon">🎉</div>
+      <div class="result-title">提交成功！</div>
+      <div class="result-desc" id="resultDesc">你的专属档案已生成</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let gender = '';
+let nickname = '';
+let currentQ = 0;
+let answers = {};
+let avatarBase64 = null;
+
+function handleImage(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const minDim = Math.min(img.width, img.height);
+      const sx = (img.width - minDim) / 2;
+      const sy = (img.height - minDim) / 2;
+      ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+      avatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      const preview = document.getElementById('avatarPreview');
+      preview.innerHTML = `<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`;
+      preview.style.borderStyle = 'solid';
+      preview.style.borderColor = 'rgba(245,87,108,0.5)';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+const femaleQuestions = [
+  { id: 'style', q: '翻遍衣柜，你穿上后最自信的那件衣服，通常是什么风格？', type: 'choice', options: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'] },
+  { id: 'date_detail', q: '如果周末有约会，你希望见到对方时，他最吸引你的第一眼细节是？', type: 'choice', options: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'] },
+  { id: 'recharge', q: '忙碌了一周，周五晚上你最渴望的"充电"方式是？', type: 'choice', options: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'] },
+  { id: 'conflict', q: '看到社交媒体上有人发了非常偏激的引战言论，你的第一反应是？', type: 'choice', options: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'] },
+  { id: 'heartbeat', q: '以下哪种"被照顾"的瞬间最让你心动？', type: 'choice', options: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'] },
+  { id: 'hidden_trait', q: '在一段关系中，你觉得自己最大的"隐形优点"是？', type: 'choice', options: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'] },
+  { id: 'sleep', q: '关于"睡觉"这件事，你的常态是？', type: 'choice', options: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'] },
+  { id: 'dealbreaker', q: '假如你们开始共用洗手间，你最受不了他的行为是？', type: 'choice', options: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'] },
+  { id: 'money', q: '如果意外得到一笔数额不小的闲钱，你更倾向于怎么花？', type: 'choice', options: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'] },
+  { id: 'ideal_animal', q: '如果用一个动物来形容你理想中的"另一半"，你希望他是？', type: 'choice', options: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅'] }
+];
+
+const maleQuestions = [
+  { id: 'm_weekend', q: '周末早上醒来，你通常是什么状态？', type: 'choice', options: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'] },
+  { id: 'm_evening', q: '下班后的晚上，你大多在做什么？', type: 'choice', options: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'] },
+  { id: 'm_food', q: '你平时点外卖的频率是？', type: 'choice', options: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'] },
+  { id: 'm_flaw', q: '你身上最明显的一个"小毛病"是什么？', type: 'choice', options: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'] },
+  { id: 'm_together', q: '你更喜欢什么样的相处模式？', type: 'choice', options: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'] },
+  { id: 'm_stage', q: '你觉得自己现阶段的人生状态是？', type: 'choice', options: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'] },
+  { id: 'm_weakness', q: '以下哪种女生最让你招架不住？', type: 'choice', options: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'] },
+  { id: 'm_parents', q: '你对"见家长"这件事的真实感受是？', type: 'choice', options: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'] },
+  { id: 'm_social', q: '你的朋友圈是什么样的？', type: 'choice', options: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'] },
+  { id: 'm_essential', q: '你觉得一段好的感情，最不能缺什么？', type: 'choice', options: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向'] }
+];
+
+let activeQuestions = [];
+
+function createStars() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 50; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.animationDuration = (1+Math.random()*3)+'s';
+    s.style.animationDelay = (Math.random()*3)+'s';
+    c.appendChild(s);
+  }
+}
+
+function selectGender(g, el) {
+  gender = g;
+  document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz() {
+  nickname = document.getElementById('inputName').value.trim();
+  const err = document.getElementById('startError');
+  if (!gender) { err.textContent = '请选择性别'; return; }
+  if (!nickname) { err.textContent = '请填写群昵称'; return; }
+  if (!avatarBase64) { err.textContent = '请上传微信头像'; return; }
+  err.textContent = '';
+  currentQ = 0;
+  answers = {};
+  activeQuestions = (gender === 'male') ? maleQuestions : femaleQuestions;
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = activeQuestions[currentQ];
+  const pct = (currentQ / activeQuestions.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${currentQ+1} / ${activeQuestions.length}`;
+
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'card-in 0.4s ease';
+
+  let body = '';
+  const letters = ['A','B','C','D','E'];
+
+  if (q.type === 'choice' || q.type === 'choice_or_custom') {
+    body = `<div class="options">
+      ${q.options.map((o,i) => {
+        const safeO = o.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        return `<div class="opt-btn" onclick="pickOption('${q.id}','${safeO}',this)">
+        <div class="opt-letter">${letters[i]}</div><div>${o}</div>
+      </div>`;
+      }).join('')}
+    </div>`;
+    if (q.type === 'choice_or_custom') {
+      body += `<div class="custom-input-wrap">
+        <input class="custom-input" id="customInput" placeholder="${q.customPlaceholder || '自己填写...'}">
+        <button class="custom-submit" onclick="pickCustom('${q.id}')">确定</button>
+      </div>`;
+    }
+  } else if (q.type === 'score') {
+    body = `<div class="score-grid">
+      ${[1,2,3,4,5,6,7,8,9,10].map(n =>
+        `<div class="score-btn" onclick="pickScore('${q.id}',${n},this)">${n}</div>`
+      ).join('')}
+    </div>`;
+  } else if (q.type === 'free') {
+    body = `<textarea class="free-input" id="freeInput" placeholder="${q.placeholder || ''}"></textarea>
+      <button class="free-submit" onclick="pickFree('${q.id}')">下一题 →</button>`;
+  }
+
+  card.innerHTML = `
+    <div class="q-num">第 ${currentQ+1} 题</div>
+    <div class="q-text">${q.q}</div>
+    ${q.hint ? `<div style="font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:16px;font-style:italic">${q.hint}</div>` : ''}
+    ${body}
+  `;
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ < activeQuestions.length) {
+    renderQuestion();
+  } else {
+    showPage('matchPage');
+    submitAll();
+  }
+}
+
+function goMatch() {
+  const mode = gender === 'male' ? 'female' : 'male';
+  window.location.href = 'quiz-v2-test.html?mode=' + mode;
+}
+
+function pickOption(id, val, el) {
+  answers[id] = val;
+  el.classList.add('selected');
+  el.parentElement.querySelectorAll('.opt-btn').forEach(b => b.style.pointerEvents = 'none');
+  setTimeout(nextQuestion, 400);
+}
+
+function pickCustom(id) {
+  const v = document.getElementById('customInput').value.trim();
+  if (!v) return;
+  answers[id] = v;
+  setTimeout(nextQuestion, 200);
+}
+
+function pickScore(id, n, el) {
+  answers[id] = n;
+  el.classList.add('selected');
+  el.parentElement.querySelectorAll('.score-btn').forEach(b => b.style.pointerEvents = 'none');
+  setTimeout(nextQuestion, 400);
+}
+
+function pickFree(id) {
+  const v = document.getElementById('freeInput').value.trim();
+  if (!v) return;
+  answers[id] = v;
+  setTimeout(nextQuestion, 200);
+}
+
+
+// ==================== 介绍生成函数 ====================
+const femaleOptionTexts = {
+  style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
+  date_detail: ['🧼 干净清爽的指甲和淡淡的洗衣粉味', '⌚ 衣服上精致的袖扣或手表', '😁 笑起来露出的虎牙或酒窝', '💪 肌肉线条撑起T恤的轮廓'],
+  recharge: ['🏠 一个人宅家刷剧/打游戏，谁也别烦我', '🍻 约两三好友去清吧喝一杯，吐槽八卦', '🏋️ 去健身房暴汗或者做瑜伽拉伸', '🧹 收拾房间，把东西摆得整整齐齐'],
+  conflict: ['😐 划走，懒得浪费时间', '😶 心里不爽，但忍住了不评论', '👀 必须点开评论区看看别人怎么骂他', '🚫 直接拉黑那个博主'],
+  heartbeat: ['🛡️ 过马路时他下意识把你护在没车的那一侧', '📝 他记得你随口说想吃的店，悄悄订了位', '💼 你搞砸了事情，他说"没关系，我来解决"', '🎵 他给你分享了一首很冷门但你超爱的歌'],
+  hidden_trait: ['🕊️ 即使吵架，我也从不说伤人的话', '🏡 我能把家里布置得很温馨，做饭好吃', '👂 我善于倾听，朋友都爱找我聊心事', '✨ 好奇心重，总能带对方尝试新鲜事物'],
+  sleep: ['🌅 规律作息，11点前必须睡', '🌙 报复性熬夜，不到1点没有困意', '🧸 必须抱着玩偶/被子的一角才能睡着', '🔇 睡眠极浅，有点光和声音就醒'],
+  dealbreaker: ['🦷 牙膏从中间挤', '🧴 剃须泡沫弄得到处都是不收拾', '🚿 洗澡要半个小时以上', '🧼 完全不护肤，一块香皂洗全身'],
+  money: ['💰 存起来或稳健理财', '🎓 报个一直想学的技能班或长途旅行', '👜 买个一直舍不得买的奢侈品', '🎁 给家人买礼物或捐掉一部分'],
+  ideal_animal: ['🦁 狮子——领袖/霸道', '🐕 金毛犬——温暖/忠诚', '🐺 狼——神秘/野性', '🐱 猫——高冷/独立/优雅']
+};
+
+// ==================== 男生选项文本（全局） ====================
+const maleOptionTexts = {
+  m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
+  m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
+  m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
+  m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
+  m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
+  m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
+  m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
+  m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
+  m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
+  m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
+};
+
+const maleDimMap = [
+  {A:'stable',B:'active',C:'stable',D:null},
+  {A:'active',B:'active',C:'stable',D:'growth'},
+  {A:'active',B:'stable',C:'growth',D:null},
+  {A:'stable',B:'active',C:'romantic',D:null},
+  {A:'growth',B:'romantic',C:'stable',D:'active'},
+  {A:'growth',B:'stable',C:'active',D:'romantic'},
+  {A:'growth',B:'active',C:'stable',D:'romantic'},
+  {A:'stable',B:'romantic',C:'growth',D:'active'},
+  {A:'growth',B:'active',C:'stable',D:'romantic'},
+  {A:'stable',B:'romantic',C:'active',D:'growth'}
+];
+
+const maleQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
+
+function findMaleIdx(qid, val) {
+  const opts = maleOptionTexts[qid];
+  if (!opts || !val) return -1;
+  return opts.findIndex(o => val === o || val.includes(o.slice(2)) || o.includes(val));
+}
+
+// ==================== 男生介绍文案生成 ====================
+function generateMaleIntro(answers) {
+  if (!answers) return { title: '👤 神秘男士·待解锁', desc: '一个等待被发现的宝藏男孩。' };
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const letters = ['A','B','C','D'];
+  const scores = { stable:0, romantic:0, active:0, growth:0 };
+  maleQids.forEach((qid, qi) => {
+    const idx = findMaleIdx(qid, answers[qid]);
+    if (idx >= 0) {
+      const dim = maleDimMap[qi][letters[idx]];
+      if (dim) scores[dim]++;
+    }
+  });
+
+  const maxS = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  let mType = 'balanced';
+  if (maxS >= 3) {
+    const tops = Object.entries(scores).filter(([k,v]) => v === maxS).map(([k]) => k);
+    if (tops.length === 1) mType = tops[0];
+  }
+
+  const maleTitleBanks = {
+    stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','🧸 行走的安眠药·男友版','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人','🏡 把家扛在肩上的人','🧘 佛系暖男·内心有火','🌙 深夜陪聊·不嫌你烦'],
+    romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🌸 把你宠成公主的人','🎵 氛围感制造机','💐 记住你说过每句话的人','🕯️ 浪漫不是套路是日常','🌅 黄昏散步·牵手专家','💗 懂你比你更懂自己'],
+    active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🎮 带你开黑带你飞','🍻 最佳酒搭子·首席段子手','🎯 快乐制造·ISO认证','🌊 冲浪达人·人生玩家','🎭 行走的表情包·本人比图更搞笑'],
+    growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','🎯 目标感拉满·执行力爆表','💎 越磨越亮·钻石型男','🧠 清醒脑·顶级操盘手','⛰️ 翻山越岭·一路向前','🌟 自己就是豪门的男人'],
+    balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','🎰 盲盒男神·开盖有惊喜','💯 满级人类·男性版','🌟 全能ACE·不设限','🧬 高配版男友样本','🎨 人生画家·调色盘拉满','🌊 兼容并包·宝藏本藏']
+  };
+
+  const title = pick(maleTitleBanks[mType] || maleTitleBanks.balanced);
+
+  const descParts = [];
+  const evIdx = findMaleIdx('m_evening', answers.m_evening);
+  const evD = {
+    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。', '健身是他的第二职业，腹肌是附赠的简历。', '别人下班葛优躺，他下班挥汗如雨——难怪身材这么好。', '坚持运动的男生自带光环，他就是行走的荷尔蒙。', '球场上的他比朋友圈精修图还帅，关键还是原相机。', '每天雷打不动的运动时间，这种毅力用在哪里都不会差。', '流汗的样子最帅——这句话就是为他量身定做的。', '他的身材是时间和汗水堆出来的，没有捷径只有坚持。'],
+    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。', '他的微信通讯录比电话黄页还厚，人缘好到离谱。', '跟他出去吃饭，老板都认识他——常客中的VIP。', '社交达人本人，聚会少了他就像火锅少了辣椒。', '朋友有事第一个想到他，这种人品和人气是装不出来的。', '和他吃饭永远不冷场，话题一个接一个根本停不下来。', '他是那种能把一桌陌生人聊成朋友的神奇存在。', '社交圈广但不油腻，每段关系都是真心换来的。'],
+    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。', '不应酬不social，安静做自己的样子反而让人想靠近。', '宅家不等于无趣，他的精神世界丰富到你挖不完。', '安静型男孩的好，要走进他的世界才知道。', '看似不爱出门，其实脑子里的世界比外面还精彩。', '独处是他充电的方式，充完电的他光芒万丈。', '不喜欢无效社交，把时间留给真正重要的事和人。', '他的安静不是无聊，是一种让人安心的沉稳。'],
+    3: ['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。', '工作狂但不冷漠，再忙也会给你回消息。', '为未来拼命的男人，辛苦但帅气。', '他加的每一个班，都是在给你们的未来铺路。', '忙到飞起但从不抱怨，这种扛事的能力太圈粉了。', '事业上他是拼命三郎，但你发消息他永远秒回。', '加班到深夜还能给你点外卖的男人，忙碌中藏着温柔。', '他的日程表满满当当，但总能给你挤出专属时间。', '事业型男人的浪漫就是：我在为我们的未来努力。']
+  };
+  if (evIdx >= 0 && evD[evIdx]) descParts.push(pick(evD[evIdx]));
+
+  const flIdx = findMaleIdx('m_flaw', answers.m_flaw);
+  const flD = {
+    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。', '宅在家里的他才是最放松的样子，能看到这面是你的特权。', '不爱出门但爱得深沉，宅男也有宅男的浪漫。', '他的世界不大，但只要有你就是全世界。', '看似宅，其实是把出门的精力都留给了你。', '宅家打游戏的他突然说"走，带你出去玩"——反差暴击。', '他不是懒得出门，是觉得有你在家哪里都是风景。', '宅男的爱很安静，但浓度比谁都高。'],
+    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。', '打游戏会上头，但你一撒娇他立马下线，优先级你最高。', '别看他打游戏很凶，现实中温柔得不像话。', '游戏里是王者，生活里是你的小跟班。', '偶尔上头是男孩子的可爱，秒放下手机是男人的担当。', '他的游戏ID旁边，备注的是你的名字。', '打游戏时喊"别烦"，五分钟后主动来找你——口嫌体正直本人。', '队友喊他开团，你喊他吃饭——他选了吃饭。'],
+    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。', '嘴上说不出"我爱你"，行动上却比谁都到位。', '木讷的外表下藏着一颗火热的心，懂他的人才知道。', '他用行动说话，每一个动作都比情话更有分量。', '不哄人但会做饭，不甜言但会接你下班——实力派选手。', '嘴巴不甜但手脚勤快，默默做了很多你不知道的事。', '他说不出"我想你"，但你生病时他比你还急。', '直男审美直男嘴，但对你的好细腻到让人想哭。'],
+    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。', '拖延是他的日常bug，但你是他的最高优先级。', '所有事都能明天再说，只有想你这件事不行。', '做什么都慢半拍，唯独追你的时候效率拉满。', '这个拖延症唯一的解药就是你。', '他的行动力只在两件事上爆发：工作deadline和见你。', '拖延症重度患者，但你说的话他从不拖着不办。', '你可能是他人生中唯一治好拖延症的存在。']
+  };
+  if (flIdx >= 0 && flD[flIdx]) descParts.push(pick(flD[flIdx]));
+
+  const togIdx = findMaleIdx('m_together', answers.m_together);
+  const togD = {
+    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。', '他不会24小时缠着你，但你需要的时候他一定在。', '独立又不疏离，这种分寸感是多少人学不会的高级。', '各自精彩又彼此欣赏，这才是他理想的爱情模样。', '他懂得，最好的爱是让两个人都成为更好的自己。', '不会因为恋爱丢掉自己，也不会让你丢掉你自己。', '他理解的亲密关系是：我们在一起，但我们都是完整的个体。', '若即若离的分寸感他拿捏得刚刚好，不远不近最迷人。'],
+    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。', '早安晚安从不缺席，他的世界你永远在C位。', '分享欲爆棚的男生，连吃了什么都想第一个告诉你。', '他的粘人不是控制，是发自内心的想跟你分享一切。', '被他粘着的感觉，就像被温暖的毛毯裹住一样。', '他的朋友圈是你的专属相册，满屏都是你的痕迹。', '一天不联系他就开始胡思乱想——这种在乎虽然幼稚但真实。', '黏人是真的黏，但你要走他也会给你空间——会撒娇的男人最可怕。'],
+    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。', '他给你自由，也给你确定性——这两样加在一起就是安全感。', '不打扰是他的温柔，随叫随到是他的靠谱。', '安静地爱你，不声张但每一步都算数。', '他的爱不是锁链，是风筝线——放得开但收得住。', '不天天说想你，但每次见面都让你觉得被珍惜。', '他给的安全感不是通过黏着你，而是让你知道他一直在。', '静水流深型的爱情，不轰轰烈烈但细水长流。'],
+    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。', '一起做饭、一起运动、一起发呆——他享受的是"一起"两个字。', '他不需要你多完美，只需要你愿意跟他一起。', '队友型男友，打游戏带你上分，人生也带你升级。', '有他在身边做什么都有意思，这就是陪伴的力量。', '他的快乐很简单：不管做什么，身边有你就够了。', '比起对面坐着吃烛光晚餐，他更喜欢跟你肩并肩做同一件事。', '他把恋爱过成了最佳拍档模式，默契值越来越高。']
+  };
+  if (togIdx >= 0 && togD[togIdx]) descParts.push(pick(togD[togIdx]));
+
+  const esIdx = findMaleIdx('m_essential', answers.m_essential);
+  const esD = {
+    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。', '不玩暧昧不搞套路，他的爱简单直接像一杯白开水——但最解渴。', '坦诚是他的恋爱信条，跟他在一起你永远不用猜。', '他说的每句话都是真心的，这种透明感让人太安心了。', '信任感十足的男人，跟他在一起你会忘记什么是患得患失。', '他相信感情最重要的不是心跳，是彼此交付的信任。', '在他的世界里没有灰色地带，喜欢就是喜欢，认定就是认定。', '跟他在一起最大的舒适感是：你永远不用揣测他在想什么。'],
+    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。', '他最舍得给你的不是钱，是时间——而时间是世界上最贵的东西。', '有他在的每一天都不会孤单，这种陪伴不是义务是心甘情愿。', '不是最有钱但一定是最有空陪你的那个人。', '他给你的不是礼物，是一段段不可复制的时光。', '他觉得最好的爱情不是轰轰烈烈，是日复一日地在你身边。', '在他看来，能一起浪费的时间都是浪漫。', '陪你看日落、陪你逛超市、陪你发呆——他享受的是"陪你"两个字。'],
+    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。', '跟他谈恋爱不会无聊，因为他会想方设法让每天都不一样。', '他相信爱情应该滚烫，温吞水式的感情不是他的菜。', '永远保持心动的能力，这种男生可遇不可求。', '他不怕热烈，怕的是爱情变成一潭死水。', '每个纪念日都不重样的惊喜，他把仪式感刻进了DNA。', '他觉得爱情需要经营，所以每天都在制造新的心动瞬间。', '跟他在一起，恋爱的保鲜期是永远——因为他一直在努力。'],
+    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。', '他的爱情观不是原地踏步，是牵着你的手一路升级。', '两个人一起进步的感觉，比任何甜言蜜语都让人上瘾。', '他不只是你的男朋友，还是你的人生合伙人。', '格局拉满的男人，爱你的方式是让你也变得闪闪发光。', '他的爱带着方向感，跟他在一起你能看到未来的样子。', '不是只会说"我养你"，而是"我带你一起变强"。', '两个人的目标在同一个方向，这是比心动更高级的浪漫。']
+  };
+  if (esIdx >= 0 && esD[esIdx]) descParts.push(pick(esD[esIdx]));
+
+  const maleEnds = [
+    '这种男生，遇到了就别犹豫，错过了就是别人的了。',
+    '他值得被认真对待——不是因为他完美，是因为他真实。',
+    '如果你想找一个能一起笑、一起扛的人，他就是答案。',
+    '遇到他，你会明白什么叫"原来你在这里"。',
+    '这种宝藏男孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。',
+    '跟他在一起，你会发现生活突然有趣了很多。',
+    '别被表面迷惑，他的内在比外在更让人心动。',
+    '他不完美，但他很真——而真，才是最难得的品质。',
+    '认识他是运气，留住他靠眼光——姐妹加油。',
+    '总结：宝藏男孩本人，限量发售，先到先得。',
+    '如果你还在等一个人让你觉得"就是他了"，现在可以停了。',
+    '这种男生不主动认识，天理难容。',
+    '姐妹，心动就行动，好男人的保质期是"别人下手之前"。',
+    '他是那种让你想变得更好的人——光这一点就够了。'
+  ];
+  descParts.push(pick(maleEnds));
+
+  if (descParts.length < 3) {
+    descParts.splice(0, 0, '他是那种第一眼就让人想认识的男生。');
+  }
+
+  const typeArr = [];
+  if (maxS >= 3) {
+    Object.entries(scores).filter(([k,v]) => v === maxS).forEach(([k]) => typeArr.push(k));
+  }
+  if (typeArr.length === 0) typeArr.push('stable','romantic','active','growth');
+
+  return { title, desc: descParts.join(''), types: typeArr };
+}
+
+// ==================== 女生介绍文案生成 ====================
+function generateFemaleIntro(femaleAnswers) {
+  if (!femaleAnswers) return { title: '💖 神秘女孩·宝藏待发掘', desc: '一个等待被发现的宝藏。' };
+
+  // Helper functions
+  function findIdx(qid, ans) {
+    const opts = femaleOptionTexts[qid];
+    if (!opts || !ans) return -1;
+    return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
+  }
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  const sIdx = findIdx('style', femaleAnswers.style);
+  const tIdx = findIdx('hidden_trait', femaleAnswers.hidden_trait);
+  const rIdx = findIdx('recharge', femaleAnswers.recharge);
+  const hIdx = findIdx('heartbeat', femaleAnswers.heartbeat);
+  const slIdx = findIdx('sleep', femaleAnswers.sleep);
+  const mIdx = findIdx('money', femaleAnswers.money);
+
+  // ===== Title Generation =====
+
+  // Step 1: Calculate female type from dimension scoring
+  const dimMap = {
+    style:        ['growth','stable','romantic','active'],
+    date_detail:  ['stable','growth','active','romantic'],
+    recharge:     ['stable','active','growth','stable'],
+    conflict:     ['stable','romantic','active','growth'],
+    heartbeat:    ['stable','romantic','growth','romantic'],
+    hidden_trait: ['romantic','stable','stable','active'],
+    sleep:        ['stable','active','romantic','growth'],
+    dealbreaker:  ['growth','stable','active','romantic'],
+    money:        ['stable','growth','active','stable'],
+    ideal_animal: ['growth','stable','romantic','active']
+  };
+
+  const scores = { stable: 0, romantic: 0, active: 0, growth: 0 };
+  for (const qid of Object.keys(dimMap)) {
+    const idx = findIdx(qid, femaleAnswers[qid]);
+    if (idx >= 0 && idx < 4) {
+      scores[dimMap[qid][idx]]++;
+    }
+  }
+
+  let femaleType = 'balanced';
+  let maxScore = 0;
+  let tieCount = 0;
+  for (const t of ['stable','romantic','active','growth']) {
+    if (scores[t] > maxScore) {
+      maxScore = scores[t];
+      femaleType = t;
+      tieCount = 1;
+    } else if (scores[t] === maxScore) {
+      tieCount++;
+    }
+  }
+  if (maxScore < 3 || tieCount > 1) femaleType = 'balanced';
+
+  // Step 2: Check easter eggs (highest priority)
+  const easterEggs = [
+    { qid: 'recharge', idx: 3, title: '🧹 收纳界的女菩萨' },
+    { qid: 'hidden_trait', idx: 1, title: '🍳 米其林·家庭版唯一主厨' },
+    { qid: 'sleep', idx: 2, title: '🧸 永远少女·可爱豁免权' },
+    { qid: 'conflict', idx: 3, title: '⚔️ 边界感女王·不好惹' },
+    { qid: 'money', idx: 1, title: '🎒 灵魂自由·流浪诗人' },
+    { qid: 'heartbeat', idx: 0, title: '🛡️ 被守护体质·公主本人' },
+    { qid: 'ideal_animal', idx: 0, title: '🦁 狮子座·驯兽师预备役' },
+    { qid: 'recharge', idx: 1, title: '🗣️ 社交女王·人间真实' },
+    { qid: 'dealbreaker', idx: 0, title: '📐 秩序神教·教主本人' },
+    { qid: 'date_detail', idx: 0, title: '✨ 细节鉴赏家·品味顶流' },
+    { qid: 'style', idx: 0, title: '👔 大女主·衣柜即战袍' },
+    { qid: 'style', idx: 1, title: '🌾 森林系·仙女不过季' },
+    { qid: 'ideal_animal', idx: 1, title: '🐕 金毛饲养员·招募中' },
+    { qid: 'ideal_animal', idx: 2, title: '🐺 狼系驯服者' },
+    { qid: 'ideal_animal', idx: 3, title: '🐱 猫系收割机' },
+    { qid: 'heartbeat', idx: 3, title: '🎧 网易云·深度共鸣者' },
+    { qid: 'hidden_trait', idx: 3, title: '🔍 有趣灵魂·超标了' }
+  ];
+
+  const matchedEggs = easterEggs.filter(e => findIdx(e.qid, femaleAnswers[e.qid]) === e.idx);
+
+  // Step 3: Main type title word banks (15 each)
+  const titleBanks = {
+    stable: ['🌙 人间清醒·睡眠冠军','🏡 氛围感居家大师','🧘 情绪稳定天花板','☕ 午后阳光型人类','📖 把日子过成诗的人','🧶 最想娶回家的第一名','🌧️ 雨天宅家体验官','🕯️ 安静但有力量','🛋️ 沙发哲学家','☁️ 行走的安眠药','🏮 把生活过成慢综艺的人','🧩 稳定型人格天花板','🌊 定海神针·温柔版','🍵 治愈系·白开水型女神','🏠 宅家界的金牌策划师'],
+    romantic: ['🎬 偶像剧女主角本尊','💌 细节控·显微镜女孩','🌸 氛围感永动机','🎭 情绪价值供应商','✨ 把日子过成电影的人','🕯️ 暗夜里的发光体','💐 仪式感十级学者','🎵 氛围组组长','🌅 黄昏浪漫捕捉者','🫧 行走的少女心贩卖机','🎀 人间温柔·永久代言人','🌙 月光收集爱好者','🎠 情绪调色师','💕 心动信号发射塔','🌸 浪漫本身·无需定义'],
+    active: ['🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🦋 社交蝴蝶·全场MVP','🧃 多巴胺分泌代言人','🎪 生活综艺总导演','🚀 永远少年·青春永驻','🎭 行走的表情包制造机','🌊 快乐冲浪·首席体验官','🎮 人生玩家·满级号','🫶 能量充电宝·蹭蹭涨','🌋 行走的快乐火山','🎪 自带BGM出场的女人','🏃‍♀️ 永远在路上的冒险家','🎯 快乐制造·ISO认证','☀️ 走到哪亮到哪的小太阳'],
+    growth: ['🏆 大女主剧本持有人','📈 人生绩优股·潜力无限','🌍 见过世面的当代女性','🧠 清醒脑·顶级玩家','👑 女王行为·日常操作','🎯 目标感天花板','📚 行走的百科全书·美女版','🚀 事业脑·恋爱也不耽误','💼 都市丽人·终极形态','🌟 自己就是豪门预备役','🧗‍♀️ 向上攀爬·永不停歇','🎓 人生优秀毕业生','💎 钻石型人格·越磨越亮','⛰️ 翻山越岭·风景这边独好','🏅 自我卷王·荣耀王者'],
+    balanced: ['🎭 百变女王·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·挖不完','🌈 行走的彩虹·哪面都精彩','🎰 盲盒级女神·开盖有惊喜','🧬 高配版人类样本','🎭 一人千面·面面俱到','🌟 多边形战士·美丽不限定','🧙‍♀️ 魔法师·切换自如','🎨 人生画家·调色盘拉满','💯 满级人类·请勿模仿','🧘‍♀️ 通透型选手·万物皆可接','🧶 多重宇宙·最佳女主角','🌊 兼容并包·海纳百川','🌟 全能ACE·无限可能']
+  };
+
+  // Title decision: easter egg (random from matches) > type bank
+  let title;
+  if (matchedEggs.length > 0) {
+    title = pick(matchedEggs).title;
+  } else {
+    title = pick(titleBanks[femaleType]);
+  }
+
+  // ===== Description Building Blocks =====
+
+  // Q1 style
+  const sD = {
+    0: [
+      '一袭利落西装走进来的时候，全场的空气都安静了三秒。',
+      '她穿西装的样子，帅到让男生都自愧不如。',
+      '衬衫扣到第二颗的随性感，是精心设计过的高级。',
+      '干练到骨子里，走路带风的样子让人移不开眼。',
+      '职场穿搭教科书，衬衫配西裤就是她的战袍。',
+      '她的衣柜里一半是西装，另一半是更贵的西装。',
+      '穿上西装就自带CEO气场，气质这东西真的藏不住。',
+      '别人穿西装是上班，她穿西装是上秀场——行走的大片现场。',
+      '利落的穿搭风格像她的性格一样干脆，绝不拖泥带水。'
+    ],
+    1: [
+      '棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。',
+      '她站在那里就自带一片草地和微风，治愈系本人无疑。',
+      '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。',
+      '不追潮流不赶时髦，她的风格就是让人舒服到想拥抱。',
+      '素色长裙搭帆布包，不费力的好看才是真本事。',
+      '她的穿搭像白噪音，安安静静却让人离不开。',
+      '走在路上像一阵刚好的风，温柔到让整条街都慢了下来。',
+      '衣柜里全是大地色系，但穿在她身上就是高级定制的感觉。',
+      '松松垮垮的棉麻衫穿出了岁月静好的味道，这才叫真实力。'
+    ],
+    2: [
+      '精致得像杂志封面走下来的人，每次出场都是视觉盛宴。',
+      '一条连衣裙穿出了整条街最好看的风景线。',
+      '她的穿搭从来不费力，但每次出场都让人移不开眼。',
+      '女人味拿捏得恰到好处，时尚感浑然天成。',
+      '高跟鞋踩出的节奏感，像给整条街配了BGM。',
+      '修身的剪裁勾勒出好比例，精致是她刻在骨子里的基因。',
+      '她的衣品好到闺蜜都想抄作业，但抄了也穿不出那个味道。',
+      '连衣裙搭配恰到好处的配饰，每个细节都在说"我值得"。',
+      '走进餐厅自带聚光灯效果，不是她高调，是好看藏不住。'
+    ],
+    3: [
+      '限量球鞋踩出六亲不认的步伐，酷到骨子里。',
+      '潮牌上身自带街拍效果，走路带风。',
+      '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。',
+      '球鞋配卫衣的运动风，撞衫都能赢的那种酷。',
+      '她的鞋柜能开一个小型球鞋博物馆，每双都有故事。',
+      '潮到骨子里的人，连买菜都像在拍街头大片。',
+      '卫衣oversize风配棒球帽，又酷又飒还有点可爱。',
+      '别人穿潮牌是跟风，她穿潮牌是本风——酷是天赋。',
+      '运动风穿搭让她看起来永远十八岁，青春感爆棚。'
+    ]
+  };
+
+  // Q3 recharge
+  const rD = {
+    0: [
+      '骨子里是个享受独处的人，安静的时候最有魅力。',
+      '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。',
+      '别打扰她的独处时光，那是她给自己充电的仪式感。',
+      'I人浓度拉满，但安静的她反而最让人着迷。',
+      '一个人追剧追到笑出声的样子，可爱到犯规。',
+      '宅家是她的超能力，一部好剧一杯奶茶就是完美周末。',
+      '独处时的她最松弛，不用取悦任何人，那才是最真实的模样。',
+      '不是不爱社交，只是更享受一个人的安静——高质量独处选手。',
+      '她把宅家活成了一种高级生活方式，谁说独处不浪漫？'
+    ],
+    1: [
+      '三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。',
+      '朋友圈子不大但个个真心，她是那种值得深交的人。',
+      '社交场上的氛围担当，她往那一坐，气氛就热了。',
+      '微醺的她最可爱，话多到停不下来但每句都真心。',
+      '跟她喝酒不需要理由，有她在的地方就有笑声。',
+      '她是那种能让陌生人五分钟内打开话匣子的人，天赋级社牛。',
+      '清吧里聊到半夜是常事，跟她在一起时间过得特别快。',
+      '朋友有事第一个找她，因为她既能听你倒苦水又能逗你笑。',
+      '她的朋友圈不大但含金量极高，每一个都是走心的关系。'
+    ],
+    2: [
+      '健身房里挥汗如雨的样子，自律得让人佩服。',
+      '别看她精致，运动起来的狠劲能让你刮目相看。',
+      '自律到可怕，身材管理是她对自己的温柔暴击。',
+      '练完瑜伽浑身发光的样子，比化妆还好看。',
+      '晨跑五公里面不改色，这份自律让多少人望尘莫及。',
+      '她的马甲线不是P出来的，是一拳一拳打出来的。',
+      '健身对她来说不是坚持，是享受——热爱才是最好的自律。',
+      '运动后素颜发光的她，比精修图还好看十倍。',
+      '撸铁的时候超飒，撸完铁喝蛋白粉的样子又有点可爱反差。'
+    ],
+    3: [
+      '收拾完房间才觉得世界重新有了秩序，强迫症但可爱。',
+      '连调料瓶都要按大小排列的人，细节控本人。',
+      '整理收纳是她的解压方式，活成了秩序感的代名词。',
+      '她的房间永远一尘不染，看一眼就觉得治愈。',
+      '衣柜按颜色分区、调料按使用频率排列——这种极致让人佩服。',
+      '收纳整理是她的冥想，别人刷手机减压，她叠衣服减压。',
+      '走进她的房间你会怀疑人生：这真的是有人住的吗？太整洁了。',
+      '强迫症是有的，但被她整理过的空间真的让人心情变好。',
+      '她把混乱变成秩序的能力，简直是生活里的超能力。'
+    ]
+  };
+
+  // Q5 heartbeat
+  const hD = {
+    0: [
+      '她要的安全感很简单——过马路时被护在身边就够了。',
+      '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。',
+      '不要什么惊天大礼，一个默默挡住人群的动作就够她心动好久。',
+      '安全感是她的第一需求，你稳稳地在就够了。',
+      '她不需要你多浪漫，但需要你在下雨天记得给她带伞。',
+      '小动作比大阵仗更打动她——替她拉开椅子的瞬间就够了。',
+      '爱情在她眼里不是烟花，是每天出门前帮她整理衣领的手。',
+      '她的心动很简单，你把她挡在靠墙那一侧就赢了大半。',
+      '不需要感天动地的告白，日常里无声的保护才是她的致命弱点。'
+    ],
+    1: [
+      '随口说的一句话被人默默记住，这种浪漫最戳她。',
+      '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。',
+      '她的爱情密码不是鲜花钻石，是"你上次说想吃的那家我订好了"。',
+      '被重视的感觉，是她认定一个人最大的理由。',
+      '她最吃的一套是：你随口一提，他默默做到——这比任何情话都高级。',
+      '走心不走形式，记住她无意间的一句话就是最好的浪漫。',
+      '她判断一个人靠不靠谱的标准很简单：他有没有在听她说话。',
+      '对她来说，细节才是检验真心的试金石——记住她的口味比送钻石更有用。',
+      '不是要求高，只是觉得"你记得"比"你有钱"浪漫一万倍。'
+    ],
+    2: [
+      '她需要的不是花言巧语，是关键时刻那句"我来搞定"。',
+      '最让她心动的男人，是能在她脆弱时稳稳接住她的人。',
+      '不需要你完美，但需要你在她搞砸的时候说一句"有我在"。',
+      '能被兜底的感觉，比100朵玫瑰都浪漫。',
+      '她最欣赏的男人味，是在她慌了的时候一句淡定的"交给我"。',
+      '比起甜言蜜语，她更信那个在她出事时第一个赶到的人。',
+      '她不需要王子，需要的是能替她扛事的战友。',
+      '关键时刻能站出来的男人，比天天说我爱你的靠谱一百倍。',
+      '她心目中的浪漫不是烛光晚餐，是出事时他说"别怕，有我"。'
+    ],
+    3: [
+      '一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。',
+      '跟她谈恋爱，灵魂契合比什么都重要。',
+      '聊音乐聊电影聊三观，灵魂对上了什么都对了。',
+      '她不要你有多帅多有钱，聊得来比什么都重要。',
+      '能在深夜一起听歌一起沉默的人，才是她的灵魂伴侣。',
+      '精神世界丰富到溢出的人，需要一个同频的灵魂来接住。',
+      '跟她约会不聊八卦聊宇宙，不谈物质谈灵魂——这种深度上瘾。',
+      '她最迷恋的不是外表，是你推荐的那首歌正好唱出了她的心声。',
+      '三观合拍是底线，精神共鸣是加分项——她全都要。'
+    ]
+  };
+
+  // Q6 hidden_trait
+  const tD = {
+    0: [
+      '最难得的是，哪怕吵到天翻地覆也不会口出恶言——这种温柔是刻在骨子里的教养。',
+      '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。',
+      '情商高到离谱，就算生气也让人觉得她好可爱。',
+      '再怎么吵，她的嘴也不会变成武器——这份克制让人心疼。',
+      '生气归生气，该说的说完，不该说的一个字都不多——这种边界感太高级了。',
+      '她的温柔不是软弱，是即便愤怒也选择不伤人的清醒。',
+      '和她吵架你会发现，她气的是事情本身，从不攻击你这个人。',
+      '控制情绪是本能，不说伤人的话是选择——她两样都做到了。',
+      '吵完架她可能会哭，但绝不会说出让你后悔的话。'
+    ],
+    1: [
+      '走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。',
+      '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。',
+      '家被她收拾得像样板间，但有温度的那种。饿了？她早就开始煮了。',
+      '能把出租屋住出豪宅感的女生，持家能力值直接拉满。',
+      '她的拿手菜能让你瞬间忘掉所有外卖APP——回家吃饭才是终极浪漫。',
+      '厨房里的她有种奇特的魅力，围裙一系就是全场最美的风景。',
+      '她把家布置得温馨到让你出差都想提前回来。',
+      '做饭是她表达爱的方式，每道菜里都藏着小心思。',
+      '别人的厨房是摆设，她的厨房是主战场——菜端上桌你就知道了。'
+    ],
+    2: [
+      '她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。',
+      '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。',
+      '共情力爆表，她听你说话的时候，全世界好像都安静了。',
+      '你可以跟她聊任何事，她不评判不打断，只是认真地听。',
+      '她的存在就像一杯温水，不烫不凉刚刚好，让人放下所有防备。',
+      '朋友们的树洞，谁有烦心事第一个想到的就是她。',
+      '她最厉害的地方是让你觉得被理解——不是附和，是真的懂。',
+      '善于倾听的人往往也最敏感，她能捕捉到你不想说出口的情绪。',
+      '有她在的聚会不会有人被冷落，因为她总能注意到角落里安静的人。'
+    ],
+    3: [
+      '跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。',
+      '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。',
+      '她像一本翻不完的书，每次以为了解她了，又会被新技能惊到。',
+      '跟她约会永远不用你安排，她的脑子里全是新鲜点子。',
+      '她的兴趣爱好清单比菜单还长，无聊两个字从不存在于她的字典。',
+      '上个月学冲浪这个月学陶艺，跟她在一起像拆盲盒一样充满惊喜。',
+      '她的好奇心让她成为最有趣的约会对象，永远有新故事讲给你听。',
+      '生活在她手里永远不会变成一潭死水——她总有办法搞出新花样。',
+      '跟她在一起最大的副作用是你也会变得有趣起来，好奇心是会传染的。'
+    ]
+  };
+
+  // Q7 sleep
+  const slD = {
+    0: [
+      '十一点准时关灯的自律，是她对生活的温柔仪式感。',
+      '规律作息，早睡早起，自律的她连睡觉都这么优秀。',
+      '熬夜？不存在的。她的生物钟比闹钟还准。',
+      '健康生活的代言人，皮肤好不是天生的，是早睡换来的。',
+      '十点半洗完澡十一点关灯，这种规律感让她整个人都在发光。',
+      '早睡早起的她精力永远在线，跟她在一起你也会被带着变自律。',
+      '她的作息表比上班打卡还准时，这份自律让熬夜党自愧不如。',
+      '好皮肤好气色好精神——全是早睡的功劳，她用行动证明了一切。',
+      '不熬夜是她给自己定的铁律，身体是最诚实的——她的状态就是最好的证明。'
+    ],
+    1: [
+      '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
+      '夜越深她越精神，凌晨两点的朋友圈才是她的主场。',
+      '白天是社畜，凌晨才是真正的自己——手机越刷越清醒。',
+      '夜猫子体质，半夜给你发消息是她表达想你的方式。',
+      '她的夜晚从12点才真正开始，灵感和想法都藏在深夜里。',
+      '熬夜冠军但从不认输，顶着黑眼圈依然精神饱满是她的天赋。',
+      '凌晨一点是她的黄金时间，思考人生、追剧、吃夜宵全在这时候。',
+      '她说要早睡你别信，刷着刷着又凌晨了——但这份随性也是一种可爱。',
+      '深夜的她最有灵魂，白天是乖乖上班的打工人，夜里才是真正的自己。'
+    ],
+    2: [
+      '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
+      '表面是独立女性，睡觉抱着小熊的样子软萌到犯规。',
+      '别看她白天多酷，晚上不抱着被角就睡不着——反差萌天花板。',
+      '这个反差萌谁受得了？白天全场最飒，晚上抱着玩偶秒变小朋友。',
+      '她的床上永远有一堆毛绒玩具，但只有那只旧兔子才是C位。',
+      '独立飒爽是她的A面，抱着小熊入睡是B面——两面都让人心动。',
+      '白天是能扛事的大人，夜里缩在被子里的样子像个需要被保护的小孩。',
+      '她的安全感来自那只被抱到掉毛的玩偶——这种童心太珍贵了。',
+      '看到她抱着玩偶睡着的样子，你会产生一种想要守护她的冲动。'
+    ],
+    3: [
+      '睡眠浅得像只小猫，需要一个能给她安全感的人。',
+      '敏感体质让她对世界的感知更细腻，也更需要被温柔以待。',
+      '轻度失眠选手，但这份敏感让她对细节的洞察力超乎常人。',
+      '睡不好的时候特别需要人陪，一个拥抱就是最好的安眠药。',
+      '她的敏感不是缺点，是感知力的馈赠——她能察觉到别人忽略的美好。',
+      '浅眠的人往往内心丰富，她的世界比你看到的精彩得多。',
+      '夜里翻来覆去的时候最需要一个温暖的怀抱，简单但有效。',
+      '对声音和光线敏感的她，需要一个能让她安心的人才能睡得踏实。',
+      '她的安全感阈值比较高，但一旦信任你，就能在你身边秒睡——这是最高级的表白。'
+    ]
+  };
+
+  // Q9 money
+  const mD = {
+    0: [
+      '看似随性，其实存折里的数字比你想象的多得多。',
+      '闷声发财型选手，理财知识比很多男生都强。',
+      '花钱精打细算不是抠，是她对未来有规划的证据。',
+      '该省省该花花，每一分钱都花在刀刃上的理性派。',
+      '别被她的低调骗了，人家的存款比你的年薪还多——闷声搞钱型。',
+      '她的账本比公司财报还清晰，每一笔开支都安排得明明白白。',
+      '稳健理财是她的副业，本金翻倍只是时间问题。',
+      '朋友都来找她要理财建议，她是圈子里的民间巴菲特。',
+      '能攒住钱的女生自带安全感光环——未来跟她在一起只会越过越好。'
+    ],
+    1: [
+      '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
+      '别人攒钱买包，她攒钱去旅行——见识就是她最好的奢侈品。',
+      '健身卡、读书会、小语种课——她把钱花在让自己增值的地方。',
+      '向上生长型，钱是拿来让自己变得更好的工具。',
+      '她的自我投资回报率比任何基金都高——学的每样东西都在给她加分。',
+      '花在自己身上的钱从不手软，但每一分都花得值——成长型消费观。',
+      '旅行、学习、体验新事物——她的钱花出了比奢侈品更高的价值。',
+      '她的简历和技能清单年年在更新，因为她舍得为自己的成长买单。',
+      '钱对她来说是工具不是目的，用来换取经历和能力才不算浪费。'
+    ],
+    2: [
+      '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
+      '她的消费观很简单：人生苦短，喜欢就买，值得就花。',
+      '舍得给自己花钱的女生，骨子里是真正爱自己的。',
+      '悦己至上，买到心仪的东西时眼睛会发光——那个笑容无价。',
+      '她不是乱花钱，是知道自己值得更好的——这种底气很迷人。',
+      '拆快递时的快乐是真实的，她把犒赏自己当成生活的小确幸。',
+      '她的衣柜和鞋柜就是她的勋章墙——每件都是对自己的奖励。',
+      '买东西从不纠结，喜欢就拿下——果断的女人连购物都帅。',
+      '她花钱的样子很快乐，而快乐的人运气都不会太差。'
+    ],
+    3: [
+      '赚了钱第一个想到的是家人，这种善良不是装出来的。',
+      '给妈妈买礼物时的认真劲儿，暖到让人想把全世界都给她。',
+      '她的善良是刻在DNA里的，利他精神让人忍不住想保护她。',
+      '挣钱是为了让身边的人过得更好——这份温柔太珍贵了。',
+      '她的购物车里一半是家人的东西——这种孝顺是骨子里带的。',
+      '发工资先给爸妈转红包的女生，值得被捧在手心里。',
+      '比起自己享受，她更开心的是看到家人和朋友因为她的礼物而笑。',
+      '朋友生日她比谁都上心，选礼物选到凌晨——用心到让人感动。',
+      '能把钱花在爱的人身上，说明她的爱不只是嘴上说说。'
+    ]
+  };
+
+  // Endings
+  const ends = [
+    '这种女生，遇到了就别犹豫，错过了就是别人的了。',
+    '她值得被认真对待——不是因为她完美，是因为她真实。',
+    '如果你想找一个能一起笑、一起扛的人，她就是最好的答案。',
+    '遇到她，你会明白什么叫"原来你在这里"。',
+    '这种宝藏女孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，她是越了解越让人心动的类型。',
+    '别被表面迷惑，她的内在比外在更让人上瘾。',
+    '跟她在一起，你会发现生活突然变得有趣了很多。',
+    '她不完美，但她很真——而真，才是最难得的奢侈品。',
+    '如果缘分是一道数学题，她就是那个唯一的正确答案。',
+    '兄弟，这种女生不主动追，天理难容。',
+    '别想太多了，心动就行动，她值得。',
+    '总结：宝藏本人，限量发售，先到先得。',
+    '如果你还在等一个人让你觉得"就是她了"，那现在可以停了。',
+    '她这种人，不是你的菜也得当你的菜——错过你会后悔的。',
+    '认识她是运气，留住她靠本事——加油吧兄弟。',
+    '有些人注定让你的生活从此不一样，她就是那种人。',
+    '最后一句忠告：赶紧的，这种女生的保质期是"别人下手之前"。',
+    '她是那种让你想变得更好的人——光这一点就够了。',
+    '如果你也觉得她不错，那就对了——全世界的眼光不会骗人。'
+  ];
+
+  // ===== Assemble Description =====
+  let parts = [];
+  if (sIdx >= 0 && sD[sIdx]) parts.push(pick(sD[sIdx]));
+  if (rIdx >= 0 && rD[rIdx]) parts.push(pick(rD[rIdx]));
+  if (hIdx >= 0 && hD[hIdx]) parts.push(pick(hD[hIdx]));
+  if (tIdx >= 0 && tD[tIdx]) parts.push(pick(tD[tIdx]));
+  if (slIdx >= 0 && slD[slIdx]) parts.push(pick(slD[slIdx]));
+  if (mIdx >= 0 && mD[mIdx]) parts.push(pick(mD[mIdx]));
+  parts.push(pick(ends));
+
+  if (parts.length < 4) {
+    parts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
+  }
+
+  return { title, desc: parts.join('') };
+}
+
+
+
+async function submitAll() {
+  document.getElementById('loading').classList.remove('hidden');
+
+  const profile = {
+    nickname: nickname,
+    gender: gender,
+    avatar: avatarBase64,
+    answers: answers,
+    time: new Date().toLocaleString('zh-CN')
+  };
+
+  const intro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
+  profile.introOverride = { title: intro.title, desc: intro.desc };
+
+  try {
+    const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+    const token = TK.join('');
+    const ts = Date.now();
+    const safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    const filename = `submissions/${gender}_${ts}_${safeName}.json`;
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
+
+    const resp = await fetch(`https://api.github.com/repos/lyca2006/weixin-app/contents/${filename}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json'
+      },
+      body: JSON.stringify({ message: `档案: ${nickname}`, content: content, branch: 'main' })
+    });
+
+    if (resp.ok) {
+      console.log('资料提交成功');
+    } else {
+      alert('提交失败，请稍后重试');
+    }
+  } catch(e) {
+    alert('网络错误，请检查网络后重试');
+    console.error(e);
+  }
+
+  document.getElementById('loading').classList.add('hidden');
+}
+
+createStars();
+</script>
+</body>
+</html>
