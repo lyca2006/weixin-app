@@ -222,6 +222,147 @@ let modifiedSet = new Set(); // track indices of modified cards
 const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
 const TOKEN = TK.join('');
 const API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+const AVATAR_BASE = 'https://lyca2006.github.io/weixin-app/';
+
+// ==================== Hardcoded Male Members ====================
+const hardcodedMales = [
+  {
+    nickname: '陈总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/chenzhong.png',
+    title: '🏆 已上岸·传说中的前群友',
+    desc: '曾经站在金字塔顶端的男人，如今站在了退群按钮的顶端。来过、帅过、跑过。留下一个传说，带走了所有的回忆。细总说，你班衰女，一点也不给力。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '细总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xizhong.png',
+    title: '👑 万人迷·灵魂社交家',
+    desc: '他就是那种走到哪里都能成为核心的人。不是因为他最张扬，而是因为他最真诚。记得住每个人的喜好，操心着每个人的感受，把一群陌生人变成了家人。这样的男人，值得被好好珍惜。',
+    types: ['active', 'romantic'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '医生',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/yisheng.png',
+    title: '💪 白衣男神·行走的荷尔蒙',
+    desc: '白天救死扶伤，晚上健身房挥汗如雨。又帅又有正经职业还年轻？这种配置在现实中居然真的存在。最过分的是性格还阳光开朗，笑起来能把人心都融化。姐妹们，不心动是不可能的，这辈子都不可能的。',
+    types: ['growth', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '锋锋',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/fengfeng.png',
+    title: '🎯 暖男天花板·情商之王',
+    desc: '全场最会说话的人，但不是油嘴滑舌那种——他是真的关心你才说得那么到位。吵架他能把你逗笑，尴尬他能帮你解围，受伤他默默陪着你。最重要的是，认定了就是一辈子。这样的男人，请直接锁死。',
+    types: ['romantic', 'stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '小林哥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xiaolinge.png',
+    title: '🌊 定海神针·全场安全感',
+    desc: '不管多大的风浪，他往那一站，你就觉得没事了。不偏不倚、不急不躁，像个大哥哥一样罩着所有人。跟他在一起，你不用演、不用装，做自己就好。因为他看人从来不带滤镜，但他对你的好从来不打折。',
+    types: ['stable', 'growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '张天赋',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/zhangtiancai.png',
+    title: '✨ 宝藏男孩·灵魂有趣到发光',
+    desc: '帅是真的帅，有趣更是真的有趣。别人讲半天讲不明白的事，他一句话戳到你心里。而且这个男人超爱小朋友——想象一下他带娃的样子，心都化了。大大方方不扭捏，说话直接但不伤人，这种有趣的灵魂真的可遇不可求。',
+    types: ['romantic', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '大象',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/daxiang.png',
+    title: '🎉 快乐制造机·全场MVP',
+    desc: '他就是那种不管去哪都自带BGM的人。识食物者为俊杰——他不仅会吃、会挑，还能带你解锁隐藏美食地图。到哪里都是焦点，各种局他来组织你就负责开心就好。跟他在一起，生活永远不会无聊，每天都是美食综艺现场。',
+    types: ['active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: 'KING',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/king.png',
+    title: '🏛️ 铁饭碗暖男·宠妻狂魔预定',
+    desc: '别人追求刺激，他追求的是给你一个稳稳的家。国企工作雷打不动，收入可观从不乱花。认准了一个人就全心全意，细心到连你自己都没注意的事他都记在心里。这种男人不会给你轰轰烈烈，但他给你的是踏踏实实的一辈子。',
+    types: ['stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '陈生',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/chensheng.png',
+    title: '🎩 金融型男·潮流先锋',
+    desc: '在汇丰上班的帅哥，穿搭品味在线得不像话。能把西装穿出T台感，也能把休闲穿出高级感。工作体面稳定，审美在线，长得还帅——这种集帅气与稳定于一身的男人，就是现实版的偶像剧男主。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '小肥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/xiaofei.png',
+    title: '🎙️ 氛围之王·被耽误的脱口秀大师',
+    desc: '这个男人是老天爷追着赏饭吃的喜剧天才。别人绞尽脑汁讲笑话，他随便一句话就能让全场笑到肚子疼。最难得的是——他的幽默不是表演，是骨子里的真实和通透。看似大大咧咧，其实内心比谁都清醒，看人看事一针见血。跟他在一起不需要任何伪装，因为他会让你知道：做真实的自己，才是最有魅力的。这种男人，一旦认真起来，反差感直接拉满，谁扛得住？',
+    types: ['active', 'romantic'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '股神',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/gushen.png',
+    title: '📈 财神转世·理财界的天选之人',
+    desc: '别人炒股是韭菜，他炒股是镰刀。当你还在研究K线的时候，他已经在数涨停板了。有赢无输不是传说，在他身上是日常操作。跟他在一起，你不一定会变成股神，但你一定不用担心钱的事。这就是嫁给财富自由的感觉。',
+    types: ['growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '梁总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/liangzhong.png',
+    title: '🌍 隐世富豪·行走的世界地图',
+    desc: '真正有钱的人从来不炫，梁总就是那种你跟他聊了三个月才发现他居然这么有实力的人。足迹遍布全球，吃过见过的世界比你刷过的短视频还精彩。但他最厉害的不是钱，是那双看人极准的眼睛——他说靠谱的人，从没看走眼过。性格好到离谱，朋友多到手机通讯录要翻三页。跟他在一起，你收获的不只是诗和远方，还有一个真正懂生活的灵魂旅伴。',
+    types: ['growth', 'stable'],
+    _isHardcoded: true
+  },
+  {
+    nickname: 'TMC',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/tmc.png',
+    title: '🔥 全能男神·行走的荷尔蒙',
+    desc: '有钱还帅就够过分了，偏偏还爱健身爱看书——灵魂和肉体双重暴击。白天翻几页书充实灵魂，晚上化身夜场王者魅力全开。这种又痞又帅、又野又有内涵的男人，是所有女生嘴上说"不要"但心里疯狂尖叫的类型。异性缘好？不好才奇怪。',
+    types: ['active', 'growth'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '锐哥',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/ruige.png',
+    title: '🔱 荒野男神·行走的安全感堡垒',
+    desc: '这个男人是从户外杂志里走出来的吧？消防员的正义感和安全感，配上一身扛得起帐篷也扛得起你的肌肉，光站在那里就让人觉得天塌了都不怕。周末带你露营看星星、桨板划湖面，晚上还能给你做一桌热腾腾的饭菜。能喝酒能聊天，上山下海全都行。这种又野又暖、又硬又会照顾人的男人，简直就是言情小说照进现实。',
+    types: ['stable', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '钟总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/zhongzhong.png',
+    title: '🎬 电影脸男主·沉稳系天花板',
+    desc: '有些男人的魅力不是说出来的，是往那一站你就感觉到的。干净利落的穿搭，阳光俊朗的长相，沉稳老成的气质——这三样凑在一起，就是钟总。他不需要刻意表现什么，一开口说话那种从容和笃定，就让人觉得这个男人靠得住。不浮夸、不张扬，但每一句话都有分量。这种自带电影男主滤镜的男人，现实中真的太稀缺了。',
+    types: ['stable', 'growth'],
+    _isHardcoded: true
+  }
+];
+
 // ==================== Female Option Texts (for ABCD mapping) ====================
 const femaleOptionTexts = {
   style: ['👔 剪裁利落的西装或衬衫', '🌿 舒适的棉麻长裙或宽松T恤', '👗 显腰线的连衣裙或修身牛仔裤', '👟 限量款球鞋配潮牌卫衣'],
@@ -246,11 +387,6 @@ const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_tr
 const letters = ['A','B','C','D'];
 
 // ==================== Utility ====================
-function b64decode(str) {
-  const bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), c => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
 function findIdx(qid, ans) {
   const opts = femaleOptionTexts[qid];
   if (!opts || !ans) return -1;
@@ -375,44 +511,33 @@ function generateFemaleIntro(a) {
       '她穿西装的样子，帅到让男生都自愧不如。',
       '衬衫扣到第二颗的随性感，是精心设计过的高级。',
       '干练到骨子里，走路带风的样子让人移不开眼。',
-      '职场穿搭教科书，衬衫配西裤就是她的战袍。',
-      '她的衣柜里一半是西装，另一半是更贵的西装。',
-      '穿上西装就自带CEO气场，气质这东西真的藏不住。',
-      '别人穿西装是上班，她穿西装是上秀场——行走的大片现场。',
-      '利落的穿搭风格像她的性格一样干脆，绝不拖泥带水。'
+      '西装一上身，气场直接开到两米八，老板都得让三分。',
+      '职场上是狠角色，脱下西装又是小女生，反差感绝了。',
+      '全世界都在穿卫衣的时候，她穿西装杀出一条血路。'
     ],
     1: [
       '棉麻裙子轻轻飘动的样子，像是从宫崎骏动画里走出来的。',
       '她站在那里就自带一片草地和微风，治愈系本人无疑。',
       '舒服的穿搭让人忍不住想靠近，像阳光下晒过的棉被。',
       '不追潮流不赶时髦，她的风格就是让人舒服到想拥抱。',
-      '素色长裙搭帆布包，不费力的好看才是真本事。',
-      '她的穿搭像白噪音，安安静静却让人离不开。',
-      '走在路上像一阵刚好的风，温柔到让整条街都慢了下来。',
-      '衣柜里全是大地色系，但穿在她身上就是高级定制的感觉。',
-      '松松垮垮的棉麻衫穿出了岁月静好的味道，这才叫真实力。'
+      '穿搭理念就一个字：舒服。但偏偏这份随性，高级到不行。',
+      '文艺女孩不装文艺，骨子里的清新感是装不出来的。',
+      '看到她的穿搭就想问：姐，你的生活是不是也这么岁月静好？'
     ],
     2: [
-      '精致得像杂志封面走下来的人，每次出场都是视觉盛宴。',
+      '精致到骨子里，出门五分钟，打扮两小时——但效果值了。',
       '一条连衣裙穿出了整条街最好看的风景线。',
       '她的穿搭从来不费力，但每次出场都让人移不开眼。',
       '女人味拿捏得恰到好处，时尚感浑然天成。',
-      '高跟鞋踩出的节奏感，像给整条街配了BGM。',
-      '修身的剪裁勾勒出好比例，精致是她刻在骨子里的基因。',
-      '她的衣品好到闺蜜都想抄作业，但抄了也穿不出那个味道。',
-      '连衣裙搭配恰到好处的配饰，每个细节都在说"我值得"。',
-      '走进餐厅自带聚光灯效果，不是她高调，是好看藏不住。'
+      '会打扮的女生很多，但穿出高级感的没几个——她算一个。',
+      '她不需要大牌加持，随便一身搭配就是行走的种草机。',
+      '精致但不刻意，美得像不经意间的一个回眸。'
     ],
     3: [
       '限量球鞋踩出六亲不认的步伐，酷到骨子里。',
       '潮牌上身自带街拍效果，走路带风。',
       '别人跟潮流，她引领潮流——鞋柜里的限量款比你的衣柜还精彩。',
-      '球鞋配卫衣的运动风，撞衫都能赢的那种酷。',
-      '她的鞋柜能开一个小型球鞋博物馆，每双都有故事。',
-      '潮到骨子里的人，连买菜都像在拍街头大片。',
-      '卫衣oversize风配棒球帽，又酷又飒还有点可爱。',
-      '别人穿潮牌是跟风，她穿潮牌是本风——酷是天赋。',
-      '运动风穿搭让她看起来永远十八岁，青春感爆棚。'
+      '球鞋配卫衣的运动风，撞衫都能赢的那种酷。'
     ]
   };
 
@@ -423,44 +548,32 @@ function generateFemaleIntro(a) {
       '她最迷人的时刻，是窝在沙发上安安静静做自己的样子。',
       '别打扰她的独处时光，那是她给自己充电的仪式感。',
       'I人浓度拉满，但安静的她反而最让人着迷。',
-      '一个人追剧追到笑出声的样子，可爱到犯规。',
-      '宅家是她的超能力，一部好剧一杯奶茶就是完美周末。',
-      '独处时的她最松弛，不用取悦任何人，那才是最真实的模样。',
-      '不是不爱社交，只是更享受一个人的安静——高质量独处选手。',
-      '她把宅家活成了一种高级生活方式，谁说独处不浪漫？'
+      '一个人的周末比约会还精彩，因为她最懂取悦自己。',
+      '社恐不是缺点，是她的保护色——了解她的人才知道她有多有趣。'
     ],
     1: [
       '三杯下肚话匣子打开，八卦讲得比脱口秀还精彩。',
       '朋友圈子不大但个个真心，她是那种值得深交的人。',
       '社交场上的氛围担当，她往那一坐，气氛就热了。',
       '微醺的她最可爱，话多到停不下来但每句都真心。',
-      '跟她喝酒不需要理由，有她在的地方就有笑声。',
-      '她是那种能让陌生人五分钟内打开话匣子的人，天赋级社牛。',
-      '清吧里聊到半夜是常事，跟她在一起时间过得特别快。',
-      '朋友有事第一个找她，因为她既能听你倒苦水又能逗你笑。',
-      '她的朋友圈不大但含金量极高，每一个都是走心的关系。'
+      '有她在的聚会从来不冷场，段子一个接一个停不下来。',
+      '朋友约她永远秒回，行动力比嘴上答应还快。'
     ],
     2: [
       '健身房里挥汗如雨的样子，自律得让人佩服。',
       '别看她精致，运动起来的狠劲能让你刮目相看。',
       '自律到可怕，身材管理是她对自己的温柔暴击。',
       '练完瑜伽浑身发光的样子，比化妆还好看。',
-      '晨跑五公里面不改色，这份自律让多少人望尘莫及。',
-      '她的马甲线不是P出来的，是一拳一拳打出来的。',
-      '健身对她来说不是坚持，是享受——热爱才是最好的自律。',
-      '运动后素颜发光的她，比精修图还好看十倍。',
-      '撸铁的时候超飒，撸完铁喝蛋白粉的样子又有点可爱反差。'
+      '跑步撸铁样样来，这份自律让多少男生自愧不如。',
+      '她的好身材不是天生的，是汗水换来的——这份狠劲太迷人。'
     ],
     3: [
       '收拾完房间才觉得世界重新有了秩序，强迫症但可爱。',
       '连调料瓶都要按大小排列的人，细节控本人。',
       '整理收纳是她的解压方式，活成了秩序感的代名词。',
       '她的房间永远一尘不染，看一眼就觉得治愈。',
-      '衣柜按颜色分区、调料按使用频率排列——这种极致让人佩服。',
-      '收纳整理是她的冥想，别人刷手机减压，她叠衣服减压。',
-      '走进她的房间你会怀疑人生：这真的是有人住的吗？太整洁了。',
-      '强迫症是有的，但被她整理过的空间真的让人心情变好。',
-      '她把混乱变成秩序的能力，简直是生活里的超能力。'
+      '乱成一团的柜子在她手里，十分钟变成杂志大片现场。',
+      '收纳是她的超能力，整齐是她的安全感来源。'
     ]
   };
 
@@ -471,44 +584,32 @@ function generateFemaleIntro(a) {
       '对她来说，爱不是惊天动地，是那些不经意间的小心翼翼。',
       '不要什么惊天大礼，一个默默挡住人群的动作就够她心动好久。',
       '安全感是她的第一需求，你稳稳地在就够了。',
-      '她不需要你多浪漫，但需要你在下雨天记得给她带伞。',
-      '小动作比大阵仗更打动她——替她拉开椅子的瞬间就够了。',
-      '爱情在她眼里不是烟花，是每天出门前帮她整理衣领的手。',
-      '她的心动很简单，你把她挡在靠墙那一侧就赢了大半。',
-      '不需要感天动地的告白，日常里无声的保护才是她的致命弱点。'
+      '她不贪心，你挡在她前面的那个背影，就是全世界。',
+      '小动作比大惊喜更让她心动，这种女孩懂的人才配拥有。'
     ],
     1: [
       '随口说的一句话被人默默记住，这种浪漫最戳她。',
       '别跟她玩套路，真心记住她说过的话，比什么礼物都管用。',
       '她的爱情密码不是鲜花钻石，是"你上次说想吃的那家我订好了"。',
       '被重视的感觉，是她认定一个人最大的理由。',
-      '她最吃的一套是：你随口一提，他默默做到——这比任何情话都高级。',
-      '走心不走形式，记住她无意间的一句话就是最好的浪漫。',
-      '她判断一个人靠不靠谱的标准很简单：他有没有在听她说话。',
-      '对她来说，细节才是检验真心的试金石——记住她的口味比送钻石更有用。',
-      '不是要求高，只是觉得"你记得"比"你有钱"浪漫一万倍。'
+      '记得住她的口味比记得住纪念日更加分，她要的是细节里的真心。',
+      '你以为她矫情？不，她只是在测试你有没有认真听她说话。'
     ],
     2: [
       '她需要的不是花言巧语，是关键时刻那句"我来搞定"。',
       '最让她心动的男人，是能在她脆弱时稳稳接住她的人。',
       '不需要你完美，但需要你在她搞砸的时候说一句"有我在"。',
       '能被兜底的感觉，比100朵玫瑰都浪漫。',
-      '她最欣赏的男人味，是在她慌了的时候一句淡定的"交给我"。',
-      '比起甜言蜜语，她更信那个在她出事时第一个赶到的人。',
-      '她不需要王子，需要的是能替她扛事的战友。',
-      '关键时刻能站出来的男人，比天天说我爱你的靠谱一百倍。',
-      '她心目中的浪漫不是烛光晚餐，是出事时他说"别怕，有我"。'
+      '她要的不是拯救者，是那个她倒下时伸出手的人。',
+      '靠谱比浪漫更打动她，行动力是她眼里最性感的特质。'
     ],
     3: [
       '一首冷门歌就能让她沦陷，精神共鸣才是她的爱情密码。',
       '跟她谈恋爱，灵魂契合比什么都重要。',
       '聊音乐聊电影聊三观，灵魂对上了什么都对了。',
       '她不要你有多帅多有钱，聊得来比什么都重要。',
-      '能在深夜一起听歌一起沉默的人，才是她的灵魂伴侣。',
-      '精神世界丰富到溢出的人，需要一个同频的灵魂来接住。',
-      '跟她约会不聊八卦聊宇宙，不谈物质谈灵魂——这种深度上瘾。',
-      '她最迷恋的不是外表，是你推荐的那首歌正好唱出了她的心声。',
-      '三观合拍是底线，精神共鸣是加分项——她全都要。'
+      '物质可以自己挣，但灵魂伴侣只能靠缘分遇到。',
+      '她的择偶标准就一条：跟你聊天永远聊不够。'
     ]
   };
 
@@ -519,44 +620,32 @@ function generateFemaleIntro(a) {
       '她吵架的方式是讲道理，不是扔炸弹——这种分寸感，是多少人求而不得的。',
       '情商高到离谱，就算生气也让人觉得她好可爱。',
       '再怎么吵，她的嘴也不会变成武器——这份克制让人心疼。',
-      '生气归生气，该说的说完，不该说的一个字都不多——这种边界感太高级了。',
-      '她的温柔不是软弱，是即便愤怒也选择不伤人的清醒。',
-      '和她吵架你会发现，她气的是事情本身，从不攻击你这个人。',
-      '控制情绪是本能，不说伤人的话是选择——她两样都做到了。',
-      '吵完架她可能会哭，但绝不会说出让你后悔的话。'
+      '跟她吵架你会发现——赢了觉得她委屈，输了觉得她讲理。怎么都是她赢。',
+      '有脾气但有分寸，有情绪但不伤人——这种人格魅力是天生的。'
     ],
     1: [
       '走进她布置的家，你会觉得全世界的温暖都被打包放在了这里。厨艺更是隐藏技能——胃和心一起被俘获。',
       '别看她外表飒，做起饭来的认真劲儿能把厨房变成米其林现场。',
       '家被她收拾得像样板间，但有温度的那种。饿了？她早就开始煮了。',
       '能把出租屋住出豪宅感的女生，持家能力值直接拉满。',
-      '她的拿手菜能让你瞬间忘掉所有外卖APP——回家吃饭才是终极浪漫。',
-      '厨房里的她有种奇特的魅力，围裙一系就是全场最美的风景。',
-      '她把家布置得温馨到让你出差都想提前回来。',
-      '做饭是她表达爱的方式，每道菜里都藏着小心思。',
-      '别人的厨房是摆设，她的厨房是主战场——菜端上桌你就知道了。'
+      '厨房就是她的秀场，三菜一汤端上桌的时候，你会想直接求婚。',
+      '同时拥有做饭天赋和审美天赋的女生，堪称现实版田螺姑娘。'
     ],
     2: [
       '她是朋友圈的定海神针，所有人的秘密都愿意跟她说。不是因为她话少，是因为她真的在听。',
       '跟她聊天有种被治愈的感觉，她能让你把憋了很久的话全说出来。',
       '共情力爆表，她听你说话的时候，全世界好像都安静了。',
       '你可以跟她聊任何事，她不评判不打断，只是认真地听。',
-      '她的存在就像一杯温水，不烫不凉刚刚好，让人放下所有防备。',
-      '朋友们的树洞，谁有烦心事第一个想到的就是她。',
-      '她最厉害的地方是让你觉得被理解——不是附和，是真的懂。',
-      '善于倾听的人往往也最敏感，她能捕捉到你不想说出口的情绪。',
-      '有她在的聚会不会有人被冷落，因为她总能注意到角落里安静的人。'
+      '她像一个人形树洞，你的烦恼进去，安慰出来。',
+      '不会说大道理，但她的一句"我懂"比任何开导都管用。'
     ],
     3: [
       '跟她在一起永远不会无聊——上周学了潜水，这周又在研究小众咖啡豆，下周可能拉你去沙漠徒步。',
       '好奇心是她最性感的特质，每天都在解锁新技能，跟她在一起的人也会变得更有趣。',
       '她像一本翻不完的书，每次以为了解她了，又会被新技能惊到。',
       '跟她约会永远不用你安排，她的脑子里全是新鲜点子。',
-      '她的兴趣爱好清单比菜单还长，无聊两个字从不存在于她的字典。',
-      '上个月学冲浪这个月学陶艺，跟她在一起像拆盲盒一样充满惊喜。',
-      '她的好奇心让她成为最有趣的约会对象，永远有新故事讲给你听。',
-      '生活在她手里永远不会变成一潭死水——她总有办法搞出新花样。',
-      '跟她在一起最大的副作用是你也会变得有趣起来，好奇心是会传染的。'
+      '无聊这个词不在她的字典里，她能把普通的一天过成探险。',
+      '跟她在一起，你的生活会多出一百种你没想过的可能性。'
     ]
   };
 
@@ -566,45 +655,25 @@ function generateFemaleIntro(a) {
       '十一点准时关灯的自律，是她对生活的温柔仪式感。',
       '规律作息，早睡早起，自律的她连睡觉都这么优秀。',
       '熬夜？不存在的。她的生物钟比闹钟还准。',
-      '健康生活的代言人，皮肤好不是天生的，是早睡换来的。',
-      '十点半洗完澡十一点关灯，这种规律感让她整个人都在发光。',
-      '早睡早起的她精力永远在线，跟她在一起你也会被带着变自律。',
-      '她的作息表比上班打卡还准时，这份自律让熬夜党自愧不如。',
-      '好皮肤好气色好精神——全是早睡的功劳，她用行动证明了一切。',
-      '不熬夜是她给自己定的铁律，身体是最诚实的——她的状态就是最好的证明。'
+      '健康生活的代言人，皮肤好不是天生的，是早睡换来的。'
     ],
     1: [
       '报复性熬夜是她的日常——凌晨的她才是最真实的灵魂。',
       '夜越深她越精神，凌晨两点的朋友圈才是她的主场。',
       '白天是社畜，凌晨才是真正的自己——手机越刷越清醒。',
-      '夜猫子体质，半夜给你发消息是她表达想你的方式。',
-      '她的夜晚从12点才真正开始，灵感和想法都藏在深夜里。',
-      '熬夜冠军但从不认输，顶着黑眼圈依然精神饱满是她的天赋。',
-      '凌晨一点是她的黄金时间，思考人生、追剧、吃夜宵全在这时候。',
-      '她说要早睡你别信，刷着刷着又凌晨了——但这份随性也是一种可爱。',
-      '深夜的她最有灵魂，白天是乖乖上班的打工人，夜里才是真正的自己。'
+      '夜猫子体质，半夜给你发消息是她表达想你的方式。'
     ],
     2: [
       '睡觉必须抱着玩偶的样子，反差萌直接拉满——白天多飒晚上就多可爱。',
       '表面是独立女性，睡觉抱着小熊的样子软萌到犯规。',
       '别看她白天多酷，晚上不抱着被角就睡不着——反差萌天花板。',
-      '这个反差萌谁受得了？白天全场最飒，晚上抱着玩偶秒变小朋友。',
-      '她的床上永远有一堆毛绒玩具，但只有那只旧兔子才是C位。',
-      '独立飒爽是她的A面，抱着小熊入睡是B面——两面都让人心动。',
-      '白天是能扛事的大人，夜里缩在被子里的样子像个需要被保护的小孩。',
-      '她的安全感来自那只被抱到掉毛的玩偶——这种童心太珍贵了。',
-      '看到她抱着玩偶睡着的样子，你会产生一种想要守护她的冲动。'
+      '这个反差萌谁受得了？白天全场最飒，晚上抱着玩偶秒变小朋友。'
     ],
     3: [
       '睡眠浅得像只小猫，需要一个能给她安全感的人。',
       '敏感体质让她对世界的感知更细腻，也更需要被温柔以待。',
       '轻度失眠选手，但这份敏感让她对细节的洞察力超乎常人。',
-      '睡不好的时候特别需要人陪，一个拥抱就是最好的安眠药。',
-      '她的敏感不是缺点，是感知力的馈赠——她能察觉到别人忽略的美好。',
-      '浅眠的人往往内心丰富，她的世界比你看到的精彩得多。',
-      '夜里翻来覆去的时候最需要一个温暖的怀抱，简单但有效。',
-      '对声音和光线敏感的她，需要一个能让她安心的人才能睡得踏实。',
-      '她的安全感阈值比较高，但一旦信任你，就能在你身边秒睡——这是最高级的表白。'
+      '睡不好的时候特别需要人陪，一个拥抱就是最好的安眠药。'
     ]
   };
 
@@ -614,45 +683,25 @@ function generateFemaleIntro(a) {
       '看似随性，其实存折里的数字比你想象的多得多。',
       '闷声发财型选手，理财知识比很多男生都强。',
       '花钱精打细算不是抠，是她对未来有规划的证据。',
-      '该省省该花花，每一分钱都花在刀刃上的理性派。',
-      '别被她的低调骗了，人家的存款比你的年薪还多——闷声搞钱型。',
-      '她的账本比公司财报还清晰，每一笔开支都安排得明明白白。',
-      '稳健理财是她的副业，本金翻倍只是时间问题。',
-      '朋友都来找她要理财建议，她是圈子里的民间巴菲特。',
-      '能攒住钱的女生自带安全感光环——未来跟她在一起只会越过越好。'
+      '该省省该花花，每一分钱都花在刀刃上的理性派。'
     ],
     1: [
       '比起存钱，她更愿意投资自己——技能树点满才是真正的安全感。',
       '别人攒钱买包，她攒钱去旅行——见识就是她最好的奢侈品。',
       '健身卡、读书会、小语种课——她把钱花在让自己增值的地方。',
-      '向上生长型，钱是拿来让自己变得更好的工具。',
-      '她的自我投资回报率比任何基金都高——学的每样东西都在给她加分。',
-      '花在自己身上的钱从不手软，但每一分都花得值——成长型消费观。',
-      '旅行、学习、体验新事物——她的钱花出了比奢侈品更高的价值。',
-      '她的简历和技能清单年年在更新，因为她舍得为自己的成长买单。',
-      '钱对她来说是工具不是目的，用来换取经历和能力才不算浪费。'
+      '向上生长型，钱是拿来让自己变得更好的工具。'
     ],
     2: [
       '偶尔也会犒赏自己一件奢侈品，毕竟对自己好的女生最迷人。',
       '她的消费观很简单：人生苦短，喜欢就买，值得就花。',
       '舍得给自己花钱的女生，骨子里是真正爱自己的。',
-      '悦己至上，买到心仪的东西时眼睛会发光——那个笑容无价。',
-      '她不是乱花钱，是知道自己值得更好的——这种底气很迷人。',
-      '拆快递时的快乐是真实的，她把犒赏自己当成生活的小确幸。',
-      '她的衣柜和鞋柜就是她的勋章墙——每件都是对自己的奖励。',
-      '买东西从不纠结，喜欢就拿下——果断的女人连购物都帅。',
-      '她花钱的样子很快乐，而快乐的人运气都不会太差。'
+      '悦己至上，买到心仪的东西时眼睛会发光——那个笑容无价。'
     ],
     3: [
       '赚了钱第一个想到的是家人，这种善良不是装出来的。',
       '给妈妈买礼物时的认真劲儿，暖到让人想把全世界都给她。',
       '她的善良是刻在DNA里的，利他精神让人忍不住想保护她。',
-      '挣钱是为了让身边的人过得更好——这份温柔太珍贵了。',
-      '她的购物车里一半是家人的东西——这种孝顺是骨子里带的。',
-      '发工资先给爸妈转红包的女生，值得被捧在手心里。',
-      '比起自己享受，她更开心的是看到家人和朋友因为她的礼物而笑。',
-      '朋友生日她比谁都上心，选礼物选到凌晨——用心到让人感动。',
-      '能把钱花在爱的人身上，说明她的爱不只是嘴上说说。'
+      '挣钱是为了让身边的人过得更好——这份温柔太珍贵了。'
     ]
   };
 
@@ -671,13 +720,7 @@ function generateFemaleIntro(a) {
     '兄弟，这种女生不主动追，天理难容。',
     '别想太多了，心动就行动，她值得。',
     '总结：宝藏本人，限量发售，先到先得。',
-    '如果你还在等一个人让你觉得"就是她了"，那现在可以停了。',
-    '她这种人，不是你的菜也得当你的菜——错过你会后悔的。',
-    '认识她是运气，留住她靠本事——加油吧兄弟。',
-    '有些人注定让你的生活从此不一样，她就是那种人。',
-    '最后一句忠告：赶紧的，这种女生的保质期是"别人下手之前"。',
-    '她是那种让你想变得更好的人——光这一点就够了。',
-    '如果你也觉得她不错，那就对了——全世界的眼光不会骗人。'
+    '如果你还在等一个人让你觉得"就是她了"，那现在可以停了。'
   ];
 
   // ===== Assemble Description =====
@@ -769,40 +812,40 @@ function generateMaleIntro(a) {
   // M2 下班后
   const evIdx = findMaleIdx('m_evening', a.m_evening);
   const evD = {
-    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。', '健身是他的第二职业，腹肌是附赠的简历。', '别人下班葛优躺，他下班挥汗如雨——难怪身材这么好。', '坚持运动的男生自带光环，他就是行走的荷尔蒙。', '球场上的他比朋友圈精修图还帅，关键还是原相机。', '每天雷打不动的运动时间，这种毅力用在哪里都不会差。', '流汗的样子最帅——这句话就是为他量身定做的。', '他的身材是时间和汗水堆出来的，没有捷径只有坚持。'],
-    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。', '他的微信通讯录比电话黄页还厚，人缘好到离谱。', '跟他出去吃饭，老板都认识他——常客中的VIP。', '社交达人本人，聚会少了他就像火锅少了辣椒。', '朋友有事第一个想到他，这种人品和人气是装不出来的。', '和他吃饭永远不冷场，话题一个接一个根本停不下来。', '他是那种能把一桌陌生人聊成朋友的神奇存在。', '社交圈广但不油腻，每段关系都是真心换来的。'],
-    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。', '不应酬不social，安静做自己的样子反而让人想靠近。', '宅家不等于无趣，他的精神世界丰富到你挖不完。', '安静型男孩的好，要走进他的世界才知道。', '看似不爱出门，其实脑子里的世界比外面还精彩。', '独处是他充电的方式，充完电的他光芒万丈。', '不喜欢无效社交，把时间留给真正重要的事和人。', '他的安静不是无聊，是一种让人安心的沉稳。'],
-    3: ['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。', '工作狂但不冷漠，再忙也会给你回消息。', '为未来拼命的男人，辛苦但帅气。', '他加的每一个班，都是在给你们的未来铺路。', '忙到飞起但从不抱怨，这种扛事的能力太圈粉了。', '事业上他是拼命三郎，但你发消息他永远秒回。', '加班到深夜还能给你点外卖的男人，忙碌中藏着温柔。', '他的日程表满满当当，但总能给你挤出专属时间。', '事业型男人的浪漫就是：我在为我们的未来努力。']
+    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。', '健身是他的第二职业，腹肌是附赠的简历。', '别人下班葛优躺，他下班挥汗如雨——难怪身材这么好。', '坚持运动的男生自带光环，他就是行走的荷尔蒙。', '球场上的他比朋友圈精修图还帅，关键还是原相机。'],
+    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。', '他的微信通讯录比电话黄页还厚，人缘好到离谱。', '跟他出去吃饭，老板都认识他——常客中的VIP。', '社交达人本人，聚会少了他就像火锅少了辣椒。', '朋友有事第一个想到他，这种人品和人气是装不出来的。'],
+    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。', '不应酬不social，安静做自己的样子反而让人想靠近。', '宅家不等于无趣，他的精神世界丰富到你挖不完。', '安静型男孩的好，要走进他的世界才知道。', '看似不爱出门，其实脑子里的世界比外面还精彩。'],
+    3: ['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。', '工作狂但不冷漠，再忙也会给你回消息。', '为未来拼命的男人，辛苦但帅气。', '他加的每一个班，都是在给你们的未来铺路。', '忙到飞起但从不抱怨，这种扛事的能力太圈粉了。', '事业上他是拼命三郎，但你发消息他永远秒回。']
   };
   if (evIdx >= 0 && evD[evIdx]) descParts.push(pick(evD[evIdx]));
 
   // M4 小毛病（反差萌）
   const flIdx = findMaleIdx('m_flaw', a.m_flaw);
   const flD = {
-    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。', '宅在家里的他才是最放松的样子，能看到这面是你的特权。', '不爱出门但爱得深沉，宅男也有宅男的浪漫。', '他的世界不大，但只要有你就是全世界。', '看似宅，其实是把出门的精力都留给了你。', '宅家打游戏的他突然说"走，带你出去玩"——反差暴击。', '他不是懒得出门，是觉得有你在家哪里都是风景。', '宅男的爱很安静，但浓度比谁都高。'],
-    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。', '打游戏会上头，但你一撒娇他立马下线，优先级你最高。', '别看他打游戏很凶，现实中温柔得不像话。', '游戏里是王者，生活里是你的小跟班。', '偶尔上头是男孩子的可爱，秒放下手机是男人的担当。', '他的游戏ID旁边，备注的是你的名字。', '打游戏时喊"别烦"，五分钟后主动来找你——口嫌体正直本人。', '队友喊他开团，你喊他吃饭——他选了吃饭。'],
-    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。', '嘴上说不出"我爱你"，行动上却比谁都到位。', '木讷的外表下藏着一颗火热的心，懂他的人才知道。', '他用行动说话，每一个动作都比情话更有分量。', '不哄人但会做饭，不甜言但会接你下班——实力派选手。', '嘴巴不甜但手脚勤快，默默做了很多你不知道的事。', '他说不出"我想你"，但你生病时他比你还急。', '直男审美直男嘴，但对你的好细腻到让人想哭。'],
-    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。', '拖延是他的日常bug，但你是他的最高优先级。', '所有事都能明天再说，只有想你这件事不行。', '做什么都慢半拍，唯独追你的时候效率拉满。', '这个拖延症唯一的解药就是你。', '他的行动力只在两件事上爆发：工作deadline和见你。', '拖延症重度患者，但你说的话他从不拖着不办。', '你可能是他人生中唯一治好拖延症的存在。']
+    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。', '宅在家里的他才是最放松的样子，能看到这面是你的特权。', '不爱出门但爱得深沉，宅男也有宅男的浪漫。', '他的世界不大，但只要有你就是全世界。', '看似宅，其实是把出门的精力都留给了你。'],
+    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。', '打游戏会上头，但你一撒娇他立马下线，优先级你最高。', '别看他打游戏很凶，现实中温柔得不像话。', '游戏里是王者，生活里是你的小跟班。', '偶尔上头是男孩子的可爱，秒放下手机是男人的担当。'],
+    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。', '嘴上说不出"我爱你"，行动上却比谁都到位。', '木讷的外表下藏着一颗火热的心，懂他的人才知道。', '他用行动说话，每一个动作都比情话更有分量。', '不哄人但会做饭，不甜言但会接你下班——实力派选手。'],
+    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。', '拖延是他的日常bug，但你是他的最高优先级。', '所有事都能明天再说，只有想你这件事不行。', '做什么都慢半拍，唯独追你的时候效率拉满。', '这个拖延症唯一的解药就是你。']
   };
   if (flIdx >= 0 && flD[flIdx]) descParts.push(pick(flD[flIdx]));
 
   // M5 相处模式
   const togIdx = findMaleIdx('m_together', a.m_together);
   const togD = {
-    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。', '他不会24小时缠着你，但你需要的时候他一定在。', '独立又不疏离，这种分寸感是多少人学不会的高级。', '各自精彩又彼此欣赏，这才是他理想的爱情模样。', '他懂得，最好的爱是让两个人都成为更好的自己。', '不会因为恋爱丢掉自己，也不会让你丢掉你自己。', '他理解的亲密关系是：我们在一起，但我们都是完整的个体。', '若即若离的分寸感他拿捏得刚刚好，不远不近最迷人。'],
-    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。', '早安晚安从不缺席，他的世界你永远在C位。', '分享欲爆棚的男生，连吃了什么都想第一个告诉你。', '他的粘人不是控制，是发自内心的想跟你分享一切。', '被他粘着的感觉，就像被温暖的毛毯裹住一样。', '他的朋友圈是你的专属相册，满屏都是你的痕迹。', '一天不联系他就开始胡思乱想——这种在乎虽然幼稚但真实。', '黏人是真的黏，但你要走他也会给你空间——会撒娇的男人最可怕。'],
-    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。', '他给你自由，也给你确定性——这两样加在一起就是安全感。', '不打扰是他的温柔，随叫随到是他的靠谱。', '安静地爱你，不声张但每一步都算数。', '他的爱不是锁链，是风筝线——放得开但收得住。', '不天天说想你，但每次见面都让你觉得被珍惜。', '他给的安全感不是通过黏着你，而是让你知道他一直在。', '静水流深型的爱情，不轰轰烈烈但细水长流。'],
-    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。', '一起做饭、一起运动、一起发呆——他享受的是"一起"两个字。', '他不需要你多完美，只需要你愿意跟他一起。', '队友型男友，打游戏带你上分，人生也带你升级。', '有他在身边做什么都有意思，这就是陪伴的力量。', '他的快乐很简单：不管做什么，身边有你就够了。', '比起对面坐着吃烛光晚餐，他更喜欢跟你肩并肩做同一件事。', '他把恋爱过成了最佳拍档模式，默契值越来越高。']
+    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。', '他不会24小时缠着你，但你需要的时候他一定在。', '独立又不疏离，这种分寸感是多少人学不会的高级。', '各自精彩又彼此欣赏，这才是他理想的爱情模样。', '他懂得，最好的爱是让两个人都成为更好的自己。'],
+    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。', '早安晚安从不缺席，他的世界你永远在C位。', '分享欲爆棚的男生，连吃了什么都想第一个告诉你。', '他的粘人不是控制，是发自内心的想跟你分享一切。', '被他粘着的感觉，就像被温暖的毛毯裹住一样。'],
+    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。', '他给你自由，也给你确定性——这两样加在一起就是安全感。', '不打扰是他的温柔，随叫随到是他的靠谱。', '安静地爱你，不声张但每一步都算数。', '他的爱不是锁链，是风筝线——放得开但收得住。'],
+    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。', '一起做饭、一起运动、一起发呆——他享受的是"一起"两个字。', '他不需要你多完美，只需要你愿意跟他一起。', '队友型男友，打游戏带你上分，人生也带你升级。', '有他在身边做什么都有意思，这就是陪伴的力量。']
   };
   if (togIdx >= 0 && togD[togIdx]) descParts.push(pick(togD[togIdx]));
 
   // M10 感情最重要的
   const esIdx = findMaleIdx('m_essential', a.m_essential);
   const esD = {
-    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。', '不玩暧昧不搞套路，他的爱简单直接像一杯白开水——但最解渴。', '坦诚是他的恋爱信条，跟他在一起你永远不用猜。', '他说的每句话都是真心的，这种透明感让人太安心了。', '信任感十足的男人，跟他在一起你会忘记什么是患得患失。', '他相信感情最重要的不是心跳，是彼此交付的信任。', '在他的世界里没有灰色地带，喜欢就是喜欢，认定就是认定。', '跟他在一起最大的舒适感是：你永远不用揣测他在想什么。'],
-    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。', '他最舍得给你的不是钱，是时间——而时间是世界上最贵的东西。', '有他在的每一天都不会孤单，这种陪伴不是义务是心甘情愿。', '不是最有钱但一定是最有空陪你的那个人。', '他给你的不是礼物，是一段段不可复制的时光。', '他觉得最好的爱情不是轰轰烈烈，是日复一日地在你身边。', '在他看来，能一起浪费的时间都是浪漫。', '陪你看日落、陪你逛超市、陪你发呆——他享受的是"陪你"两个字。'],
-    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。', '跟他谈恋爱不会无聊，因为他会想方设法让每天都不一样。', '他相信爱情应该滚烫，温吞水式的感情不是他的菜。', '永远保持心动的能力，这种男生可遇不可求。', '他不怕热烈，怕的是爱情变成一潭死水。', '每个纪念日都不重样的惊喜，他把仪式感刻进了DNA。', '他觉得爱情需要经营，所以每天都在制造新的心动瞬间。', '跟他在一起，恋爱的保鲜期是永远——因为他一直在努力。'],
-    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。', '他的爱情观不是原地踏步，是牵着你的手一路升级。', '两个人一起进步的感觉，比任何甜言蜜语都让人上瘾。', '他不只是你的男朋友，还是你的人生合伙人。', '格局拉满的男人，爱你的方式是让你也变得闪闪发光。', '他的爱带着方向感，跟他在一起你能看到未来的样子。', '不是只会说"我养你"，而是"我带你一起变强"。', '两个人的目标在同一个方向，这是比心动更高级的浪漫。']
+    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。', '不玩暧昧不搞套路，他的爱简单直接像一杯白开水——但最解渴。', '坦诚是他的恋爱信条，跟他在一起你永远不用猜。', '他说的每句话都是真心的，这种透明感让人太安心了。', '信任感十足的男人，跟他在一起你会忘记什么是患得患失。'],
+    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。', '他最舍得给你的不是钱，是时间——而时间是世界上最贵的东西。', '有他在的每一天都不会孤单，这种陪伴不是义务是心甘情愿。', '不是最有钱但一定是最有空陪你的那个人。', '他给你的不是礼物，是一段段不可复制的时光。'],
+    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。', '跟他谈恋爱不会无聊，因为他会想方设法让每天都不一样。', '他相信爱情应该滚烫，温吞水式的感情不是他的菜。', '永远保持心动的能力，这种男生可遇不可求。', '他不怕热烈，怕的是爱情变成一潭死水。'],
+    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。', '他的爱情观不是原地踏步，是牵着你的手一路升级。', '两个人一起进步的感觉，比任何甜言蜜语都让人上瘾。', '他不只是你的男朋友，还是你的人生合伙人。', '格局拉满的男人，爱你的方式是让你也变得闪闪发光。']
   };
   if (esIdx >= 0 && esD[esIdx]) descParts.push(pick(esD[esIdx]));
 
@@ -814,14 +857,7 @@ function generateMaleIntro(a) {
     '这种宝藏男孩，认识了就是赚到了。',
     '有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。',
     '跟他在一起，你会发现生活突然有趣了很多。',
-    '别被表面迷惑，他的内在比外在更让人心动。',
-    '他不完美，但他很真——而真，才是最难得的品质。',
-    '认识他是运气，留住他靠眼光——姐妹加油。',
-    '总结：宝藏男孩本人，限量发售，先到先得。',
-    '如果你还在等一个人让你觉得"就是他了"，现在可以停了。',
-    '这种男生不主动认识，天理难容。',
-    '姐妹，心动就行动，好男人的保质期是"别人下手之前"。',
-    '他是那种让你想变得更好的人——光这一点就够了。'
+    '别被表面迷惑，他的内在比外在更让人心动。'
   ];
   descParts.push(pick(maleEnds));
 
@@ -834,6 +870,7 @@ function generateMaleIntro(a) {
 
 // ==================== 统一入口 ====================
 function generateIntro(d) {
+  if (d._isHardcoded) return { title: d.title || '', desc: d.desc || '' };
   if (d.gender === 'male') return generateMaleIntro(d.answers);
   return generateFemaleIntro(d.answers);
 }
@@ -864,7 +901,8 @@ function renderCards() {
 
   list.innerHTML = filtered.map(d => {
     const idx = allData.indexOf(d);
-      const hasAnswers = d.answers && Object.keys(d.answers).length > 0;
+    const isHardcoded = !!d._isHardcoded;
+    const hasAnswers = d.answers && Object.keys(d.answers).length > 0;
     const isModified = modifiedSet.has(idx);
 
     // ABCD string (only for submitted users with answers)
@@ -884,7 +922,10 @@ function renderCards() {
 
     // Title & desc
     let displayTitle, displayDesc;
-     else {
+    if (isHardcoded) {
+      displayTitle = d._introOverride ? d._introOverride.title : d.title;
+      displayDesc = d._introOverride ? d._introOverride.desc : d.desc;
+    } else {
       const intro = d._introOverride || d._introCache || generateIntro(d);
       if (!d._introOverride && !d._introCache) d._introCache = intro;
       displayTitle = (d._introOverride || d._introCache || intro).title;
@@ -935,6 +976,12 @@ function renderCards() {
 // ==================== Regen Inline ====================
 function regenInline(idx) {
   const d = allData[idx];
+  if (d._isHardcoded) {
+    // Hardcoded males don't have answers, so just regenerate is not meaningful
+    // But we allow it to shuffle between original title/desc
+    showToast('男生档案暂不支持重新生成', 'info');
+    return;
+  }
   const intro = generateIntro(d);
   d._introCache = intro;
   d._introOverride = intro;
@@ -973,12 +1020,20 @@ function openDelete(idx) {
 async function confirmDelete() {
   if (pendingIdx < 0) return;
   const d = allData[pendingIdx];
-
+  if (d._isHardcoded) {
+    const deleted = JSON.parse(localStorage.getItem('deletedHardcoded') || '[]');
+    deleted.push(d.nickname);
+    localStorage.setItem('deletedHardcoded', JSON.stringify(deleted));
+    allData.splice(pendingIdx, 1);
+    closeModal('deleteModal');
+    renderCards();
+    showToast('删除成功', 'success');
+    return;
+  }
   try {
-    const encodedFilename = encodeURIComponent(d._filename);
-    const r = await fetch(`${API}/${encodedFilename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
-    await fetch(`${API}/${encodedFilename}`, {
+    await fetch(`${API}/${d._filename}`, {
       method: 'DELETE',
       headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: `删除: ${d.nickname}`, sha: fd.sha, branch: 'main' })
@@ -1000,7 +1055,12 @@ async function confirmDelete() {
 function openEditIntro(idx) {
   pendingIdx = idx;
   const d = allData[idx];
-  const intro = d._introOverride || d._introCache || generateIntro(d);
+  let intro;
+  if (d._isHardcoded) {
+    intro = d._introOverride || { title: d.title, desc: d.desc };
+  } else {
+    intro = d._introOverride || d._introCache || generateIntro(d);
+  }
   document.getElementById('editTitleInput').value = intro.title;
   document.getElementById('editDescInput').value = intro.desc;
   document.getElementById('editIntroModal').classList.remove('hidden');
@@ -1021,14 +1081,14 @@ function confirmEditIntro() {
 
 // ==================== Save Single Entry ====================
 async function saveEntry(d) {
+  if (d._isHardcoded) return; // Don't save hardcoded males
   try {
-    const encodedFilename = encodeURIComponent(d._filename);
-    const r = await fetch(`${API}/${encodedFilename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
     const saveData = { ...d };
-    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride;
+    delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride; delete saveData._isHardcoded;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
-    await fetch(`${API}/${encodedFilename}`, {
+    await fetch(`${API}/${d._filename}`, {
       method: 'PUT',
       headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: `更新: ${d.nickname}`, content, sha: fd.sha, branch: 'main' })
@@ -1051,6 +1111,9 @@ async function batchSaveAll() {
   const hardcodedOverrides = {};
   for (const idx of modifiedSet) {
     const d = allData[idx];
+    if (d._isHardcoded && d._introOverride) {
+      hardcodedOverrides[d.nickname] = { title: d._introOverride.title, desc: d._introOverride.desc };
+    }
   }
 
   // 如果有硬编码男生改动，先读取已有的overrides再合并保存
@@ -1083,6 +1146,7 @@ async function batchSaveAll() {
 
   for (const idx of modifiedSet) {
     const d = allData[idx];
+    if (d._isHardcoded) continue; // 已在上面处理
     const ok = await saveEntry(d);
     if (ok) successCount++;
     else failCount++;
@@ -1091,8 +1155,7 @@ async function batchSaveAll() {
   if (failCount === 0) {
     modifiedSet.clear();
     updateBatchBtn();
-    showToast(`保存成功 (${successCount}条)，正在同步硬编码...`, 'success');
-    await syncHardcoded(true);
+    showToast(`全部保存成功 (${successCount}条)`, 'success');
   } else {
     showToast(`${successCount}条成功，${failCount}条失败`, 'error');
   }
@@ -1136,7 +1199,7 @@ async function loadAll() {
         try {
           const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
           const fd = await r.json();
-          const content = JSON.parse(b64decode(fd.content));
+          const content = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
           content._filename = file.name;
           if (content.introOverride) content._introOverride = content.introOverride;
           return content;
@@ -1151,9 +1214,28 @@ async function loadAll() {
     return;
   }
 
+  // 读取硬编码男生的override并应用
+  let hardcodedOverrides = {};
+  try {
+    const ovResp = await fetch(`${API}/hardcoded-overrides.json`, {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (ovResp.ok) {
+      const fd = await ovResp.json();
+      hardcodedOverrides = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+    }
+  } catch(e) {}
 
+  // Combine: submitted data first, then hardcoded males
+  // Deep clone hardcoded males so we don't mutate the original
+  const deletedHardcoded = new Set(JSON.parse(localStorage.getItem('deletedHardcoded') || '[]'));
+  const males = hardcodedMales.filter(m => !deletedHardcoded.has(m.nickname)).map(m => {
+    const ov = hardcodedOverrides[m.nickname];
+    if (ov) return { ...m, _introOverride: ov, _introCache: ov };
+    return { ...m };
+  });
 
-  allData = [...submittedData];
+  allData = [...submittedData, ...males];
 
   // Deduplicate nicknames
   deduplicateNicknames(allData);
@@ -1161,7 +1243,8 @@ async function loadAll() {
   // Generate intro only for entries without saved introOverride
   const needsSave = [];
   allData.forEach(d => {
-      if (d._introOverride || d.introOverride) {
+    if (d._isHardcoded) return;
+    if (d._introOverride || d.introOverride) {
       // Already has saved intro, use it
       if (d.introOverride && !d._introOverride) d._introOverride = d.introOverride;
       d._introCache = d._introOverride;
@@ -1188,9 +1271,9 @@ async function loadAll() {
   }
 }
 
-async function syncHardcoded(skipConfirm) {
-  if (!skipConfirm && !confirm('将所有提交数据同步到测试页硬编码，确认？')) return;
-  showToast('正在同步硬编码...', 'info');
+async function syncHardcoded() {
+  if (!confirm('将所有提交数据同步到测试页硬编码，确认？')) return;
+  showToast('正在同步...', 'info');
 
   try {
     // 1. 读取 submissions/ 下所有 JSON
@@ -1202,7 +1285,7 @@ async function syncHardcoded(skipConfirm) {
       try {
         const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
         const fd = await r.json();
-        return JSON.parse(b64decode(fd.content));
+        return JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
       } catch(e) { return null; }
     }));
     const allSubmissions = results.filter(c => c !== null);
@@ -1218,45 +1301,39 @@ async function syncHardcoded(skipConfirm) {
       return o;
     });
 
-    // 2. 读取 quiz-v2.html 并替换，支持 SHA 冲突重试
-    const quizUrl = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
+    // 2. 读取 quiz-v2.html 的当前内容和 sha
+    const quizResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html?ref=main', {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    const quizFile = await quizResp.json();
+    const quizSha = quizFile.sha;
+    let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
+
+    // 3. 替换硬编码数组
     const femalesJson = JSON.stringify(females);
     const malesJson = JSON.stringify(males);
 
-    async function tryPut() {
-      const quizResp = await fetch(quizUrl + '?ref=main', {
-        headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-      });
-      const quizFile = await quizResp.json();
-      let quizContent = b64decode(quizFile.content);
+    quizContent = quizContent.replace(
+      /const submittedMales = \[.*?\];/s,
+      'const submittedMales = ' + malesJson + ';'
+    );
+    quizContent = quizContent.replace(
+      /const submittedFemales = \[.*?\];/s,
+      'const submittedFemales = ' + femalesJson + ';'
+    );
 
-      quizContent = quizContent.replace(
-        /const submittedMales = \[.*?\];/s,
-        'const submittedMales = ' + malesJson + ';'
-      );
-      quizContent = quizContent.replace(
-        /const submittedFemales = \[.*?\];/s,
-        'const submittedFemales = ' + femalesJson + ';'
-      );
-
-      const putResp = await fetch(quizUrl, {
-        method: 'PUT',
-        headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-        body: JSON.stringify({
-          message: '管理页同步硬编码: ' + males.length + '男 ' + females.length + '女',
-          content: btoa(unescape(encodeURIComponent(quizContent))),
-          sha: quizFile.sha,
-          branch: 'main'
-        })
-      });
-      return putResp;
-    }
-
-    let putResp = await tryPut();
-    if (putResp.status === 409) {
-      await new Promise(r => setTimeout(r, 1000));
-      putResp = await tryPut();
-    }
+    // 4. PUT 回 GitHub
+    const putBody = {
+      message: '管理页同步硬编码: ' + males.length + '男 ' + females.length + '女',
+      content: btoa(unescape(encodeURIComponent(quizContent))),
+      sha: quizSha,
+      branch: 'main'
+    };
+    const putResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html', {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(putBody)
+    });
 
     if (putResp.ok) {
       showToast(`同步成功！${males.length}个男生 + ${females.length}个女生已写入硬编码`, 'success');
