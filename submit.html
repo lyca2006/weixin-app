@@ -386,9 +386,12 @@ function renderQuestion() {
 
   if (q.type === 'choice' || q.type === 'choice_or_custom') {
     body = `<div class="options">
-      ${q.options.map((o,i) => `<div class="opt-btn" onclick="pickOption('${q.id}','${o.replace(/'/g,"\\'")}',this)">
+      ${q.options.map((o,i) => {
+        const safeO = o.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        return `<div class="opt-btn" onclick="pickOption('${q.id}','${safeO}',this)">
         <div class="opt-letter">${letters[i]}</div><div>${o}</div>
-      </div>`).join('')}
+      </div>`;
+      }).join('')}
     </div>`;
     if (q.type === 'choice_or_custom') {
       body += `<div class="custom-input-wrap">
