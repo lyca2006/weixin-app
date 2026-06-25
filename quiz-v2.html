@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>天天向上一家人</title>
 <script>
-if (!new URLSearchParams(window.location.search).get('mode')) {
-  window.location.replace('home.html');
-} else {
-  document.write('<style>#modePage{display:none!important}</style>');
-}
+(function(){
+  var mode = new URLSearchParams(window.location.search).get('mode');
+  if (!mode) {
+    window.location.replace('home.html');
+  }
+})();
 </script>
 <style>
+#modePage { display: none !important; }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 @keyframes gradient-shift {
