@@ -20,7 +20,7 @@ body {
 .title { font-size: 20px; font-weight: 700; }
 .count { font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 4px; }
 .header-btns { display: flex; gap: 8px; align-items: center; }
-.refresh-btn, .batch-save-btn {
+.refresh-btn, .batch-save-btn, .sync-btn {
   padding: 8px 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px; color: #fff; font-size: 13px; cursor: pointer; white-space: nowrap;
 }
@@ -30,6 +30,8 @@ body {
 }
 .batch-save-btn:active { transform: scale(0.96); }
 .batch-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.sync-btn { background: linear-gradient(135deg, #4facfe, #00f2fe); border: none; font-weight: 600; box-shadow: 0 2px 12px rgba(79,172,254,0.3); }
+.sync-btn:active { transform: scale(0.96); }
 
 .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; }
 .filter-btn {
@@ -155,6 +157,7 @@ body {
     </div>
     <div class="header-btns">
       <button class="batch-save-btn" id="batchSaveBtn" onclick="batchSaveAll()" disabled>📤 一键更新到库里</button>
+      <button class="sync-btn" onclick="syncHardcoded()">🔄 同步硬编码</button>
       <button class="refresh-btn" onclick="loadAll()">🔄 刷新</button>
     </div>
   </div>
@@ -1265,6 +1268,82 @@ async function loadAll() {
       try { await saveEntry(d); } catch(e) { console.error('auto-save failed', e); }
     }
     updateBatchBtn();
+  }
+}
+
+async function syncHardcoded() {
+  if (!confirm('将所有提交数据同步到测试页硬编码，确认？')) return;
+  showToast('正在同步...', 'info');
+
+  try {
+    // 1. 读取 submissions/ 下所有 JSON
+    const listResp = await fetch(API, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const files = await listResp.json();
+    const jsonFiles = files.filter(f => f.name.endsWith('.json') && f.name !== 'hardcoded-overrides.json');
+
+    const results = await Promise.all(jsonFiles.map(async (file) => {
+      try {
+        const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+        const fd = await r.json();
+        return JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+      } catch(e) { return null; }
+    }));
+    const allSubmissions = results.filter(c => c !== null);
+
+    const females = allSubmissions.filter(c => c.gender === 'female').map(c => {
+      const o = { nickname: c.nickname, gender: c.gender, avatar: c.avatar || '', answers: c.answers || {} };
+      if (c.introOverride) o.introOverride = c.introOverride;
+      return o;
+    });
+    const males = allSubmissions.filter(c => c.gender === 'male').map(c => {
+      const o = { nickname: c.nickname, gender: c.gender, avatar: c.avatar || '', answers: c.answers || {} };
+      if (c.introOverride) o.introOverride = c.introOverride;
+      return o;
+    });
+
+    // 2. 读取 quiz-v2.html 的当前内容和 sha
+    const quizResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html?ref=main', {
+      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    const quizFile = await quizResp.json();
+    const quizSha = quizFile.sha;
+    let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
+
+    // 3. 替换硬编码数组
+    const femalesJson = JSON.stringify(females);
+    const malesJson = JSON.stringify(males);
+
+    quizContent = quizContent.replace(
+      /const submittedMales = \[.*?\];/s,
+      'const submittedMales = ' + malesJson + ';'
+    );
+    quizContent = quizContent.replace(
+      /const submittedFemales = \[.*?\];/s,
+      'const submittedFemales = ' + femalesJson + ';'
+    );
+
+    // 4. PUT 回 GitHub
+    const putBody = {
+      message: '管理页同步硬编码: ' + males.length + '男 ' + females.length + '女',
+      content: btoa(unescape(encodeURIComponent(quizContent))),
+      sha: quizSha,
+      branch: 'main'
+    };
+    const putResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html', {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(putBody)
+    });
+
+    if (putResp.ok) {
+      showToast(`同步成功！${males.length}个男生 + ${females.length}个女生已写入硬编码`, 'success');
+    } else {
+      const err = await putResp.json();
+      showToast('同步失败: ' + (err.message || putResp.status), 'error');
+    }
+  } catch(e) {
+    console.error(e);
+    showToast('同步失败: ' + e.message, 'error');
   }
 }
 
