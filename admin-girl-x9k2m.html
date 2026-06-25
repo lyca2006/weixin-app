@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案管理 v5</title>
+<title>群友档案管理 v4</title><!-- r -->
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -1108,66 +1108,120 @@ async function permanentDelete(deletedIdx) {
 async function syncAll() {
   showToast('正在同步...', 'info');
   try {
-    const activeData = allRawData.filter(d => !d._deleted);
-    const females = activeData.filter(c => c.gender === 'female').map(c => {
-      const o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
-      if(c.introOverride)o.introOverride=c.introOverride;
-      if(c.types)o.types=c.types;
+    var activeData = allRawData.filter(function(d) { return !d._deleted; });
+    var females = activeData.filter(function(c) { return c.gender === 'female'; }).map(function(c) {
+      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+      if(c.introOverride) o.introOverride = c.introOverride;
+      if(c.types) o.types = c.types;
       return o;
     });
-    const males = activeData.filter(c => c.gender === 'male').map(c => {
-      const o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
-      if(c.introOverride)o.introOverride=c.introOverride;
-      if(c.types)o.types=c.types;
+    var males = activeData.filter(function(c) { return c.gender === 'male'; }).map(function(c) {
+      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+      if(c.introOverride) o.introOverride = c.introOverride;
+      if(c.types) o.types = c.types;
       return o;
     });
 
-    // Sync quiz-v2.html
-    const QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
-    const HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
+    var QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
+    var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
+    var headers = { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' };
 
-    async function patchFile(url, patchFn, msg) {
-      const resp = await fetch(url + '?ref=main', { headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
-      const file = await resp.json();
-      const bytes = Uint8Array.from(atob(file.content.replace(/\n/g, '')), c => c.charCodeAt(0));
-      let text = new TextDecoder().decode(bytes);
-      text = patchFn(text);
-      const pr = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-        body: JSON.stringify({ message: msg, content: btoa(unescape(encodeURIComponent(text))), sha: file.sha, branch: 'main' })
+    // Helper: decode base64 content from GitHub API
+    function b64decode(str) {
+      var bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+      return new TextDecoder().decode(bytes);
+    }
+
+    // Helper: find end of JS array by bracket tracking
+    function findArrayEnd(text, marker) {
+      var idx = text.indexOf(marker);
+      if (idx < 0) return null;
+      var bStart = text.indexOf('[', idx);
+      var depth = 0, i = bStart, inStr = false, strCh = '';
+      while (i < text.length) {
+        var c = text.charAt(i);
+        if (inStr) {
+          if (c === '\\') { i += 2; continue; }
+          if (c === strCh) inStr = false;
+        } else {
+          if (c === '"' || c === "'" || c === '`') { inStr = true; strCh = c; }
+          else if (c === '[') depth++;
+          else if (c === ']') { depth--; if (depth === 0) return { start: idx, end: i + 1 }; }
+        }
+        i++;
+      }
+      return null;
+    }
+
+    // 1. Sync quiz-v2.html
+    var qResp = await fetch(QUIZ_URL + '?ref=main', { headers: headers });
+    var qFile = await qResp.json();
+    var qText = b64decode(qFile.content);
+
+    var mPos = findArrayEnd(qText, 'const submittedMales = ');
+    if (mPos) qText = qText.slice(0, mPos.start) + 'const submittedMales = ' + JSON.stringify(males) + ';' + qText.slice(mPos.end + 1);
+    var fPos = findArrayEnd(qText, 'const submittedFemales = ');
+    if (fPos) qText = qText.slice(0, fPos.start) + 'const submittedFemales = ' + JSON.stringify(females) + ';' + qText.slice(fPos.end + 1);
+
+    var qPut = await fetch(QUIZ_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: males.length + '男' + females.length + '女', content: btoa(unescape(encodeURIComponent(qText))), sha: qFile.sha, branch: 'main' })
+    });
+    if (qPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      qResp = await fetch(QUIZ_URL + '?ref=main', { headers: headers });
+      qFile = await qResp.json();
+      qText = b64decode(qFile.content);
+      mPos = findArrayEnd(qText, 'const submittedMales = ');
+      if (mPos) qText = qText.slice(0, mPos.start) + 'const submittedMales = ' + JSON.stringify(males) + ';' + qText.slice(mPos.end + 1);
+      fPos = findArrayEnd(qText, 'const submittedFemales = ');
+      if (fPos) qText = qText.slice(0, fPos.start) + 'const submittedFemales = ' + JSON.stringify(females) + ';' + qText.slice(fPos.end + 1);
+      qPut = await fetch(QUIZ_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: males.length + '男' + females.length + '女', content: btoa(unescape(encodeURIComponent(qText))), sha: qFile.sha, branch: 'main' })
       });
-      if (pr.status === 409) { await new Promise(r => setTimeout(r, 1500)); return patchFile(url, patchFn, msg); }
-      return pr.ok;
     }
 
-    function replaceArray(text, marker, newJson) {
-      const idx = text.indexOf(marker);
-      if (idx < 0) return text;
-      const bStart = text.indexOf('[', idx);
-      let depth=0,inStr=false,strCh=null,i=bStart;
-      while(i<text.length){const c=text[i];if(inStr){if(c==='\\'){i+=2;continue;}if(c===strCh)inStr=false;}else{if(c===\'"\' ||c==="'" ||c==='`'){inStr=true;strCh=c;}else if(c==='[')depth++;else if(c===']'){depth--;if(depth===0)return text.slice(0,idx)+marker+newJson+';'+text.slice(i+2);}}i++;}
-      return text;
+    // 2. Sync home.html scroll
+    var hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+    var hFile = await hResp.json();
+    var hText = b64decode(hFile.content);
+
+    var scrollItems = activeData.map(function(d) { return {name: d.nickname, avatar: d.avatar || ''}; });
+    scrollItems.sort(function(a, b) {
+      var ha = 0, hb = 0;
+      for (var i = 0; i < a.name.length; i++) ha = (ha * 31 + a.name.charCodeAt(i)) | 0;
+      for (var i = 0; i < b.name.length; i++) hb = (hb * 31 + b.name.charCodeAt(i)) | 0;
+      return ha - hb;
+    });
+    var scrollLines = scrollItems.map(function(s) {
+      return "  {name:'" + s.name.replace(/'/g, "\\'") + "',avatar:'" + s.avatar + "'}";
+    });
+    var scrollJs = 'const scrollMembers = [\n' + scrollLines.join(',\n') + '\n];';
+
+    var sStart = hText.indexOf('const scrollMembers = [');
+    var sEnd = hText.indexOf('];\n', sStart) + 3;
+    hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
+
+    var hPut = await fetch(HOME_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+    });
+    if (hPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+      hFile = await hResp.json();
+      hText = b64decode(hFile.content);
+      sStart = hText.indexOf('const scrollMembers = [');
+      sEnd = hText.indexOf('];\n', sStart) + 3;
+      hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
+      hPut = await fetch(HOME_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+      });
     }
 
-    const quizOk = await patchFile(QUIZ_URL, function(text) {
-      text = replaceArray(text, 'const submittedMales = ', JSON.stringify(males));
-      text = replaceArray(text, 'const submittedFemales = ', JSON.stringify(females));
-      return text;
-    }, males.length + '男' + females.length + '女');
-
-    // Sync home.html scroll
-    const scrollItems = activeData.map(d => ({name:d.nickname,avatar:d.avatar||''}));
-    scrollItems.sort((a,b) => { const h=s=>[...s].reduce((a,c)=>a*31+c.charCodeAt(0)|0,0); return h(a.name)-h(b.name); });
-    const scrollJs = 'const scrollMembers = [\n' + scrollItems.map(s => "  {name:'" + s.name.replace(/'/g,"\\'") + "',avatar:'" + s.avatar + "'}").join(',\n') + '\n];';
-
-    const homeOk = await patchFile(HOME_URL, function(text) {
-      const s = text.indexOf('const scrollMembers = [');
-      const e = text.indexOf('];\n', s) + 3;
-      return text.slice(0,s) + scrollJs + text.slice(e);
-    }, '同步滚动条');
-
-    if (quizOk && homeOk) showToast('全部同步完成！', 'success');
+    if (qPut.ok && hPut.ok) showToast('全部同步完成！', 'success');
     else showToast('部分同步失败', 'error');
   } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
 }
