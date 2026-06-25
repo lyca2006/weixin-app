@@ -1861,19 +1861,53 @@ function generateFemaleIntro(femaleAnswers) {
 function saveImage() {
   if (!confirm('确认保存结果图片？')) return;
   const card = document.querySelector('.result-card');
+  const inner = document.getElementById('resultInner');
+
+  // 临时设置实色背景，html2canvas 不支持 backdrop-filter
+  const origCardBg = card.style.background;
+  const origCardBdf = card.style.backdropFilter;
+  const origCardWBdf = card.style.webkitBackdropFilter;
+  card.style.background = 'linear-gradient(135deg, #1e2140, #2a1f4e)';
+  card.style.backdropFilter = 'none';
+  card.style.webkitBackdropFilter = 'none';
+
+  // 确保文字颜色可见
+  inner.querySelectorAll('.result-label, .result-name, .result-title, .result-desc').forEach(el => {
+    el.dataset.origColor = el.style.color;
+    if (!el.style.color) el.style.color = '#fff';
+  });
+
   html2canvas(card, {
     backgroundColor: '#1a1a2e',
     scale: 2,
     useCORS: true,
     allowTaint: true
   }).then(canvas => {
-    const link = document.createElement('a');
-    link.download = '匹配结果.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    // 恢复样式
+    card.style.background = origCardBg;
+    card.style.backdropFilter = origCardBdf;
+    card.style.webkitBackdropFilter = origCardWBdf;
+    inner.querySelectorAll('.result-label, .result-name, .result-title, .result-desc').forEach(el => {
+      el.style.color = el.dataset.origColor || '';
+    });
+
+    // 微信内置浏览器用 blob 方式触发保存
+    canvas.toBlob(function(blob) {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.download = '匹配结果.png';
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, 'image/png');
   }).catch(e => {
+    card.style.background = origCardBg;
+    card.style.backdropFilter = origCardBdf;
+    card.style.webkitBackdropFilter = origCardWBdf;
     console.error(e);
-    alert('保存失败，请截图保存');
+    alert('保存失败，请长按截图保存');
   });
 }
 
