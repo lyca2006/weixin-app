@@ -1131,9 +1131,10 @@ async function confirmDelete() {
     return;
   }
   try {
-    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const encodedFilename = encodeURIComponent(d._filename);
+    const r = await fetch(`${API}/${encodedFilename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
-    await fetch(`${API}/${d._filename}`, {
+    await fetch(`${API}/${encodedFilename}`, {
       method: 'DELETE',
       headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: `删除: ${d.nickname}`, sha: fd.sha, branch: 'main' })
@@ -1183,12 +1184,13 @@ function confirmEditIntro() {
 async function saveEntry(d) {
   if (d._isHardcoded) return; // Don't save hardcoded males
   try {
-    const r = await fetch(`${API}/${d._filename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+    const encodedFilename = encodeURIComponent(d._filename);
+    const r = await fetch(`${API}/${encodedFilename}`, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     const fd = await r.json();
     const saveData = { ...d };
     delete saveData._filename; delete saveData._sha; delete saveData._introCache; delete saveData._introOverride; delete saveData._isHardcoded;
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
-    await fetch(`${API}/${d._filename}`, {
+    await fetch(`${API}/${encodedFilename}`, {
       method: 'PUT',
       headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: `更新: ${d.nickname}`, content, sha: fd.sha, branch: 'main' })
