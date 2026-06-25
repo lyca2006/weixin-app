@@ -1126,12 +1126,11 @@ async function loadAll() {
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
       jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-      // Parallel fetch all files
+      // Parallel fetch all files (使用 download_url 直接拉 JSON，无需鉴权，更快)
       const results = await Promise.all(jsonFiles.map(async (file) => {
         try {
-          const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
-          const fd = await r.json();
-          const content = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+          const r = await fetch(file.download_url);
+          const content = await r.json();
           content._filename = file.name;
           if (content.introOverride) content._introOverride = content.introOverride;
           return content;
@@ -1195,9 +1194,8 @@ async function syncHardcoded(skipConfirm) {
 
     const results = await Promise.all(jsonFiles.map(async (file) => {
       try {
-        const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
-        const fd = await r.json();
-        return JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+        const r = await fetch(file.download_url);
+        return await r.json();
       } catch(e) { return null; }
     }));
     const allSubmissions = results.filter(c => c !== null);
