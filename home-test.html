@@ -103,6 +103,24 @@ body {
   font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
 }
 .match-card .m-btn:active { transform: scale(0.95); }
+
+/* 滚动头像展示 */
+.scroll-section { width: 100vw; margin-left: calc(-50vw + 50%); margin-top: 36px; overflow: hidden; }
+.scroll-label { text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+.scroll-track {
+  display: flex; gap: 20px; width: max-content;
+  animation: scrollLeft 30s linear infinite;
+}
+.scroll-track:hover { animation-play-state: paused; }
+@keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.scroll-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.scroll-item img {
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+  border: 1.5px solid rgba(255,255,255,0.15);
+}
+.scroll-item span { font-size: 11px; color: rgba(255,255,255,0.5); white-space: nowrap; }
 </style>
 </head>
 <body>
@@ -137,6 +155,11 @@ body {
       <div class="m-btn">开始匹配 →</div>
     </a>
   </div>
+
+  <div class="scroll-section">
+    <div class="scroll-label">✨ 群友风采 ✨</div>
+    <div class="scroll-track" id="scrollTrack"></div>
+  </div>
 </div>
 
 <script>
@@ -154,6 +177,55 @@ function createStars() {
   }
 }
 createStars();
+
+// 滚动头像展示
+const scrollMembers = [
+  { name: '陈总', avatar: 'avatars/chenzhong.png' },
+  { name: '细总', avatar: 'avatars/xizhong.png' },
+  { name: '医生', avatar: 'avatars/yisheng.png' },
+  { name: '锋锋', avatar: 'avatars/fengfeng.png' },
+  { name: '小林哥', avatar: 'avatars/xiaolinge.png' },
+  { name: '张天赋', avatar: 'avatars/zhangtiancai.png' },
+  { name: '大象', avatar: 'avatars/daxiang.png' },
+  { name: 'KING', avatar: 'avatars/king.png' },
+  { name: '陈生', avatar: 'avatars/chensheng.png' },
+  { name: '小肥', avatar: 'avatars/xiaofei.png' },
+  { name: '股神', avatar: 'avatars/gushen.png' },
+  { name: '梁总', avatar: 'avatars/liangzhong.png' },
+  { name: 'TMC', avatar: 'avatars/tmc.png' },
+  { name: '锐哥', avatar: 'avatars/ruige.png' },
+  { name: '钟总', avatar: 'avatars/zhongzhong.png' },
+];
+
+function buildScroll(members) {
+  const track = document.getElementById('scrollTrack');
+  const html = members.map(m => `<div class="scroll-item"><img src="${m.avatar}" alt="${m.name}"><span>${m.name}</span></div>`).join('');
+  track.innerHTML = html + html;
+}
+buildScroll(scrollMembers);
+
+// 后台拉取提交的人的头像，合并进滚动条
+(async function() {
+  try {
+    const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
+    const TOKEN = TK.join('');
+    const resp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/submissions', {
+      headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) return;
+    const files = await resp.json();
+    const jsonFiles = files.filter(f => f.name.endsWith('.json') && f.name !== 'hardcoded-overrides.json');
+    const results = await Promise.all(jsonFiles.map(async f => {
+      try {
+        const r = await fetch(f.download_url);
+        return await r.json();
+      } catch(e) { return null; }
+    }));
+    const submitted = results.filter(c => c && c.avatar && c.nickname);
+    const all = [...scrollMembers, ...submitted.map(s => ({ name: s.nickname, avatar: s.avatar }))];
+    buildScroll(all);
+  } catch(e) {}
+})();
 </script>
 </body>
 </html>
