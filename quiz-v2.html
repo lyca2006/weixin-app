@@ -1202,6 +1202,142 @@ function scoreFemale(femaleAnswers) {
   return scores;
 }
 
+// ==================== 男生选项文本（全局） ====================
+const maleOptionTexts = {
+  m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
+  m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
+  m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
+  m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
+  m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
+  m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
+  m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
+  m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
+  m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
+  m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
+};
+
+const maleDimMap = [
+  {A:'stable',B:'active',C:'stable',D:null},
+  {A:'active',B:'active',C:'stable',D:'growth'},
+  {A:'active',B:'stable',C:'growth',D:null},
+  {A:'stable',B:'active',C:'romantic',D:null},
+  {A:'growth',B:'romantic',C:'stable',D:'active'},
+  {A:'growth',B:'stable',C:'active',D:'romantic'},
+  {A:'growth',B:'active',C:'stable',D:'romantic'},
+  {A:'stable',B:'romantic',C:'growth',D:'active'},
+  {A:'growth',B:'active',C:'stable',D:'romantic'},
+  {A:'stable',B:'romantic',C:'active',D:'growth'}
+];
+
+const maleQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
+
+function findMaleIdx(qid, val) {
+  const opts = maleOptionTexts[qid];
+  if (!opts || !val) return -1;
+  return opts.findIndex(o => val === o || val.includes(o.slice(2)) || o.includes(val));
+}
+
+// ==================== 男生介绍文案生成 ====================
+function generateMaleIntro(answers) {
+  if (!answers) return { title: '👤 神秘男士·待解锁', desc: '一个等待被发现的宝藏男孩。' };
+
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const letters = ['A','B','C','D'];
+  const scores = { stable:0, romantic:0, active:0, growth:0 };
+  maleQids.forEach((qid, qi) => {
+    const idx = findMaleIdx(qid, answers[qid]);
+    if (idx >= 0) {
+      const dim = maleDimMap[qi][letters[idx]];
+      if (dim) scores[dim]++;
+    }
+  });
+
+  const maxS = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
+  let mType = 'balanced';
+  if (maxS >= 3) {
+    const tops = Object.entries(scores).filter(([k,v]) => v === maxS).map(([k]) => k);
+    if (tops.length === 1) mType = tops[0];
+  }
+
+  const maleTitleBanks = {
+    stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','🧸 行走的安眠药·男友版','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人','🏡 把家扛在肩上的人','🧘 佛系暖男·内心有火','🌙 深夜陪聊·不嫌你烦'],
+    romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🌸 把你宠成公主的人','🎵 氛围感制造机','💐 记住你说过每句话的人','🕯️ 浪漫不是套路是日常','🌅 黄昏散步·牵手专家','💗 懂你比你更懂自己'],
+    active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🎮 带你开黑带你飞','🍻 最佳酒搭子·首席段子手','🎯 快乐制造·ISO认证','🌊 冲浪达人·人生玩家','🎭 行走的表情包·本人比图更搞笑'],
+    growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','🎯 目标感拉满·执行力爆表','💎 越磨越亮·钻石型男','🧠 清醒脑·顶级操盘手','⛰️ 翻山越岭·一路向前','🌟 自己就是豪门的男人'],
+    balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','🎰 盲盒男神·开盖有惊喜','💯 满级人类·男性版','🌟 全能ACE·不设限','🧬 高配版男友样本','🎨 人生画家·调色盘拉满','🌊 兼容并包·宝藏本藏']
+  };
+
+  const title = pick(maleTitleBanks[mType] || maleTitleBanks.balanced);
+
+  const descParts = [];
+  const evIdx = findMaleIdx('m_evening', answers.m_evening);
+  const evD = {
+    0: ['下了班直奔健身房，自律到让人佩服。', '工作再累也要去撸个铁，身材管理从不含糊。', '健身是他的第二职业，腹肌是附赠的简历。', '别人下班葛优躺，他下班挥汗如雨——难怪身材这么好。', '坚持运动的男生自带光环，他就是行走的荷尔蒙。', '球场上的他比朋友圈精修图还帅，关键还是原相机。', '每天雷打不动的运动时间，这种毅力用在哪里都不会差。', '流汗的样子最帅——这句话就是为他量身定做的。', '他的身材是时间和汗水堆出来的，没有捷径只有坚持。'],
+    1: ['下班后最爱约兄弟喝两杯，社交属性拉满。', '朋友遍天下，饭局上他永远是最受欢迎的那个。', '他的微信通讯录比电话黄页还厚，人缘好到离谱。', '跟他出去吃饭，老板都认识他——常客中的VIP。', '社交达人本人，聚会少了他就像火锅少了辣椒。', '朋友有事第一个想到他，这种人品和人气是装不出来的。', '和他吃饭永远不冷场，话题一个接一个根本停不下来。', '他是那种能把一桌陌生人聊成朋友的神奇存在。', '社交圈广但不油腻，每段关系都是真心换来的。'],
+    2: ['下班后安安静静看书打游戏，享受独处的男人最有魅力。', '一个人待着也完全不无聊，内心世界比外面精彩。', '不应酬不social，安静做自己的样子反而让人想靠近。', '宅家不等于无趣，他的精神世界丰富到你挖不完。', '安静型男孩的好，要走进他的世界才知道。', '看似不爱出门，其实脑子里的世界比外面还精彩。', '独处是他充电的方式，充完电的他光芒万丈。', '不喜欢无效社交，把时间留给真正重要的事和人。', '他的安静不是无聊，是一种让人安心的沉稳。'],
+    3: ['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。', '工作狂但不冷漠，再忙也会给你回消息。', '为未来拼命的男人，辛苦但帅气。', '他加的每一个班，都是在给你们的未来铺路。', '忙到飞起但从不抱怨，这种扛事的能力太圈粉了。', '事业上他是拼命三郎，但你发消息他永远秒回。', '加班到深夜还能给你点外卖的男人，忙碌中藏着温柔。', '他的日程表满满当当，但总能给你挤出专属时间。', '事业型男人的浪漫就是：我在为我们的未来努力。']
+  };
+  if (evIdx >= 0 && evD[evIdx]) descParts.push(pick(evD[evIdx]));
+
+  const flIdx = findMaleIdx('m_flaw', answers.m_flaw);
+  const flD = {
+    0: ['有点宅但不是不解风情，只是觉得家里有你就够了。', '宅归宅，一旦出门战斗力爆表。', '宅在家里的他才是最放松的样子，能看到这面是你的特权。', '不爱出门但爱得深沉，宅男也有宅男的浪漫。', '他的世界不大，但只要有你就是全世界。', '看似宅，其实是把出门的精力都留给了你。', '宅家打游戏的他突然说"走，带你出去玩"——反差暴击。', '他不是懒得出门，是觉得有你在家哪里都是风景。', '宅男的爱很安静，但浓度比谁都高。'],
+    1: ['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。', '游戏打得好说明手速快，哄你的消息也回得快。', '打游戏会上头，但你一撒娇他立马下线，优先级你最高。', '别看他打游戏很凶，现实中温柔得不像话。', '游戏里是王者，生活里是你的小跟班。', '偶尔上头是男孩子的可爱，秒放下手机是男人的担当。', '他的游戏ID旁边，备注的是你的名字。', '打游戏时喊"别烦"，五分钟后主动来找你——口嫌体正直本人。', '队友喊他开团，你喊他吃饭——他选了吃饭。'],
+    2: ['嘴笨是真的笨，但对你好也是真的好——行动派本派。', '不会说漂亮话，但他做的每件事都在说"我在乎你"。', '嘴上说不出"我爱你"，行动上却比谁都到位。', '木讷的外表下藏着一颗火热的心，懂他的人才知道。', '他用行动说话，每一个动作都比情话更有分量。', '不哄人但会做饭，不甜言但会接你下班——实力派选手。', '嘴巴不甜但手脚勤快，默默做了很多你不知道的事。', '他说不出"我想你"，但你生病时他比你还急。', '直男审美直男嘴，但对你的好细腻到让人想哭。'],
+    3: ['拖延症患者，但关于你的事从来不拖。', '什么都能拖，唯独见你这件事分秒必争。', '拖延是他的日常bug，但你是他的最高优先级。', '所有事都能明天再说，只有想你这件事不行。', '做什么都慢半拍，唯独追你的时候效率拉满。', '这个拖延症唯一的解药就是你。', '他的行动力只在两件事上爆发：工作deadline和见你。', '拖延症重度患者，但你说的话他从不拖着不办。', '你可能是他人生中唯一治好拖延症的存在。']
+  };
+  if (flIdx >= 0 && flD[flIdx]) descParts.push(pick(flD[flIdx]));
+
+  const togIdx = findMaleIdx('m_together', answers.m_together);
+  const togD = {
+    0: ['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。', '给你空间也给你依赖，进退自如的男人最迷人。', '他不会24小时缠着你，但你需要的时候他一定在。', '独立又不疏离，这种分寸感是多少人学不会的高级。', '各自精彩又彼此欣赏，这才是他理想的爱情模样。', '他懂得，最好的爱是让两个人都成为更好的自己。', '不会因为恋爱丢掉自己，也不会让你丢掉你自己。', '他理解的亲密关系是：我们在一起，但我们都是完整的个体。', '若即若离的分寸感他拿捏得刚刚好，不远不近最迷人。'],
+    1: ['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？', '每天分享日常的男生，是真的把你放在生活里了。', '早安晚安从不缺席，他的世界你永远在C位。', '分享欲爆棚的男生，连吃了什么都想第一个告诉你。', '他的粘人不是控制，是发自内心的想跟你分享一切。', '被他粘着的感觉，就像被温暖的毛毯裹住一样。', '他的朋友圈是你的专属相册，满屏都是你的痕迹。', '一天不联系他就开始胡思乱想——这种在乎虽然幼稚但真实。', '黏人是真的黏，但你要走他也会给你空间——会撒娇的男人最可怕。'],
+    2: ['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。', '不黏人但你需要的时候永远在，这才是真正的安全感。', '他给你自由，也给你确定性——这两样加在一起就是安全感。', '不打扰是他的温柔，随叫随到是他的靠谱。', '安静地爱你，不声张但每一步都算数。', '他的爱不是锁链，是风筝线——放得开但收得住。', '不天天说想你，但每次见面都让你觉得被珍惜。', '他给的安全感不是通过黏着你，而是让你知道他一直在。', '静水流深型的爱情，不轰轰烈烈但细水长流。'],
+    3: ['喜欢一起做事的感觉，哪怕各干各的也觉得踏实。', '并肩作战的感觉比黏在一起更让人心动。', '一起做饭、一起运动、一起发呆——他享受的是"一起"两个字。', '他不需要你多完美，只需要你愿意跟他一起。', '队友型男友，打游戏带你上分，人生也带你升级。', '有他在身边做什么都有意思，这就是陪伴的力量。', '他的快乐很简单：不管做什么，身边有你就够了。', '比起对面坐着吃烛光晚餐，他更喜欢跟你肩并肩做同一件事。', '他把恋爱过成了最佳拍档模式，默契值越来越高。']
+  };
+  if (togIdx >= 0 && togD[togIdx]) descParts.push(pick(togD[togIdx]));
+
+  const esIdx = findMaleIdx('m_essential', answers.m_essential);
+  const esD = {
+    0: ['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。', '他要的不多，就是一份干干净净的真心。', '不玩暧昧不搞套路，他的爱简单直接像一杯白开水——但最解渴。', '坦诚是他的恋爱信条，跟他在一起你永远不用猜。', '他说的每句话都是真心的，这种透明感让人太安心了。', '信任感十足的男人，跟他在一起你会忘记什么是患得患失。', '他相信感情最重要的不是心跳，是彼此交付的信任。', '在他的世界里没有灰色地带，喜欢就是喜欢，认定就是认定。', '跟他在一起最大的舒适感是：你永远不用揣测他在想什么。'],
+    1: ['觉得陪伴是最长情的告白，时间才是最贵的礼物。', '愿意把时间花在你身上的男人，比送什么都值钱。', '他最舍得给你的不是钱，是时间——而时间是世界上最贵的东西。', '有他在的每一天都不会孤单，这种陪伴不是义务是心甘情愿。', '不是最有钱但一定是最有空陪你的那个人。', '他给你的不是礼物，是一段段不可复制的时光。', '他觉得最好的爱情不是轰轰烈烈，是日复一日地在你身边。', '在他看来，能一起浪费的时间都是浪漫。', '陪你看日落、陪你逛超市、陪你发呆——他享受的是"陪你"两个字。'],
+    2: ['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。', '拒绝平淡，他要的爱情是每天都有新鲜感。', '跟他谈恋爱不会无聊，因为他会想方设法让每天都不一样。', '他相信爱情应该滚烫，温吞水式的感情不是他的菜。', '永远保持心动的能力，这种男生可遇不可求。', '他不怕热烈，怕的是爱情变成一潭死水。', '每个纪念日都不重样的惊喜，他把仪式感刻进了DNA。', '他觉得爱情需要经营，所以每天都在制造新的心动瞬间。', '跟他在一起，恋爱的保鲜期是永远——因为他一直在努力。'],
+    3: ['目标明确的人，谈恋爱也要一起往前走。', '跟他在一起你会变得更好——这是他给你最大的礼物。', '他的爱情观不是原地踏步，是牵着你的手一路升级。', '两个人一起进步的感觉，比任何甜言蜜语都让人上瘾。', '他不只是你的男朋友，还是你的人生合伙人。', '格局拉满的男人，爱你的方式是让你也变得闪闪发光。', '他的爱带着方向感，跟他在一起你能看到未来的样子。', '不是只会说"我养你"，而是"我带你一起变强"。', '两个人的目标在同一个方向，这是比心动更高级的浪漫。']
+  };
+  if (esIdx >= 0 && esD[esIdx]) descParts.push(pick(esD[esIdx]));
+
+  const maleEnds = [
+    '这种男生，遇到了就别犹豫，错过了就是别人的了。',
+    '他值得被认真对待——不是因为他完美，是因为他真实。',
+    '如果你想找一个能一起笑、一起扛的人，他就是答案。',
+    '遇到他，你会明白什么叫"原来你在这里"。',
+    '这种宝藏男孩，认识了就是赚到了。',
+    '有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。',
+    '跟他在一起，你会发现生活突然有趣了很多。',
+    '别被表面迷惑，他的内在比外在更让人心动。',
+    '他不完美，但他很真——而真，才是最难得的品质。',
+    '认识他是运气，留住他靠眼光——姐妹加油。',
+    '总结：宝藏男孩本人，限量发售，先到先得。',
+    '如果你还在等一个人让你觉得"就是他了"，现在可以停了。',
+    '这种男生不主动认识，天理难容。',
+    '姐妹，心动就行动，好男人的保质期是"别人下手之前"。',
+    '他是那种让你想变得更好的人——光这一点就够了。'
+  ];
+  descParts.push(pick(maleEnds));
+
+  if (descParts.length < 3) {
+    descParts.splice(0, 0, '他是那种第一眼就让人想认识的男生。');
+  }
+
+  const typeArr = [];
+  if (maxS >= 3) {
+    Object.entries(scores).filter(([k,v]) => v === maxS).forEach(([k]) => typeArr.push(k));
+  }
+  if (typeArr.length === 0) typeArr.push('stable','romantic','active','growth');
+
+  return { title, desc: descParts.join(''), types: typeArr };
+}
+
 // ==================== GitHub API ====================
 async function fetchFemales() {
   const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
@@ -1258,92 +1394,25 @@ async function fetchSubmittedMales() {
 
     const males = contents.filter(c => c && c.gender === 'male');
 
-    // 给每个新男生计算维度和类型，生成介绍
-    const maleOptionTexts = {
-      m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
-      m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
-      m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
-      m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
-      m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
-      m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
-      m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
-      m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
-      m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
-      m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
-    };
-    const maleDimMap = [
-      {A:'stable',B:'active',C:'stable',D:null},
-      {A:'active',B:'active',C:'stable',D:'growth'},
-      {A:'active',B:'stable',C:'growth',D:null},
-      {A:'stable',B:'active',C:'romantic',D:null},
-      {A:'growth',B:'romantic',C:'stable',D:'active'},
-      {A:'growth',B:'stable',C:'active',D:'romantic'},
-      {A:'growth',B:'active',C:'stable',D:'romantic'},
-      {A:'stable',B:'romantic',C:'growth',D:'active'},
-      {A:'growth',B:'active',C:'stable',D:'romantic'},
-      {A:'stable',B:'romantic',C:'active',D:'growth'}
-    ];
-    const mQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
-    const letters = ['A','B','C','D'];
-
-    const maleTitleBanks = {
-      stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人'],
-      romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🎵 氛围感制造机','💐 记住你说过每句话的人'],
-      active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🍻 最佳酒搭子·首席段子手'],
-      growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','💎 越磨越亮·钻石型男'],
-      balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','💯 满级人类·男性版','🌟 全能ACE·不设限']
-    };
-
     return males.map(m => {
-      const a = m.answers || {};
-      const scores = { stable:0, romantic:0, active:0, growth:0 };
-      mQids.forEach((qid, qi) => {
-        const opts = maleOptionTexts[qid];
-        const ansText = a[qid] || '';
-        const aIdx = opts ? opts.findIndex(o => ansText === o || ansText.includes(o.slice(2)) || o.includes(ansText)) : -1;
-        if (aIdx >= 0) {
-          const dim = maleDimMap[qi][letters[aIdx]];
-          if (dim) scores[dim]++;
-        }
-      });
-
-      const maxS = Math.max(scores.stable, scores.romantic, scores.active, scores.growth);
-      let mType = 'balanced';
-      const typeArr = [];
-      if (maxS >= 3) {
-        const tops = Object.entries(scores).filter(([k,v]) => v === maxS).map(([k]) => k);
-        if (tops.length === 1) mType = tops[0];
-        tops.forEach(t => typeArr.push(t));
+      if (m.introOverride) {
+        const intro = generateMaleIntro(m.answers);
+        return {
+          name: m.nickname,
+          avatar: m.avatar || '',
+          title: m.introOverride.title,
+          desc: m.introOverride.desc,
+          types: intro.types,
+          _isSubmitted: true
+        };
       }
-      if (typeArr.length === 0) typeArr.push('stable','romantic','active','growth');
-
-      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-      const titleBank = maleTitleBanks[mType] || maleTitleBanks.balanced;
-
-      // 生成描述
-      const descParts = [];
-      const fmi = (qid) => { const opts = maleOptionTexts[qid]; const v = a[qid]||''; return opts ? opts.findIndex(o => v===o||v.includes(o.slice(2))||o.includes(v)) : -1; };
-
-      const evD = { 0:['下了班直奔健身房，自律到让人佩服。'],1:['下班后最爱约兄弟喝两杯，社交属性拉满。'],2:['下班后安安静静看书打游戏，享受独处的男人最有魅力。'],3:['事业心爆棚，加班是日常，但忙归忙，心里有你的位置。'] };
-      const flD = { 0:['有点宅但不是不解风情，只是觉得家里有你就够了。'],1:['偶尔打游戏上头是真的，但被你叫一声就秒放下手机也是真的。'],2:['嘴笨是真的笨，但对你好也是真的好——行动派本派。'],3:['拖延症患者，但关于你的事从来不拖。'] };
-      const togD = { 0:['理想的相处是各忙各的但随时能腻在一起——成年人最高级的浪漫。'],1:['恨不得24小时粘着你，这种黏人但不讨厌的男生谁不爱？'],2:['尊重独立空间但心里装着你，这种分寸感是教不会的天赋。'],3:['喜欢一起做事的感觉，并肩作战比黏在一起更让人心动。'] };
-      const esD = { 0:['在他心里，信任和坦诚是底线——认定你就绝不藏着掖着。'],1:['觉得陪伴是最长情的告白，时间才是最贵的礼物。'],2:['骨子里是个浪漫的人，觉得爱情就应该有火花和心跳。'],3:['目标明确的人，谈恋爱也要一起往前走。'] };
-
-      let ei = fmi('m_evening'); if(ei>=0&&evD[ei]) descParts.push(pick(evD[ei]));
-      ei = fmi('m_flaw'); if(ei>=0&&flD[ei]) descParts.push(pick(flD[ei]));
-      ei = fmi('m_together'); if(ei>=0&&togD[ei]) descParts.push(pick(togD[ei]));
-      ei = fmi('m_essential'); if(ei>=0&&esD[ei]) descParts.push(pick(esD[ei]));
-
-      const maleEnds = ['这种男生，遇到了就别犹豫，错过了就是别人的了。','他值得被认真对待——不是因为他完美，是因为他真实。','遇到他，你会明白什么叫"原来你在这里"。','这种宝藏男孩，认识了就是赚到了。','有些人是惊艳一瞬间，他是越了解越让人上瘾的类型。'];
-      descParts.push(pick(maleEnds));
-      if (descParts.length < 3) descParts.splice(0,0,'他是那种第一眼就让人想认识的男生。');
-
+      const intro = generateMaleIntro(m.answers);
       return {
         name: m.nickname,
         avatar: m.avatar || '',
-        title: m.introOverride ? m.introOverride.title : pick(titleBank),
-        desc: m.introOverride ? m.introOverride.desc : descParts.join(''),
-        types: typeArr,
+        title: intro.title,
+        desc: intro.desc,
+        types: intro.types,
         _isSubmitted: true
       };
     });
@@ -1826,59 +1895,18 @@ let cachedNewMales = null;
 function preloadData() {
   // 使用硬编码数据，不再调API
   cachedFemales = submittedFemales;
-  
-  // 给新男生计算类型
-  const maleOptTexts = {
-    m_weekend: ['😴 赖床刷会儿手机，慢慢醒来', '🏃 早起健身或跑步，出一身汗', '🧹 先收拾房间，把一切归位', '🎲 看心情，完全没规律'],
-    m_evening: ['💪 健身房或者打球', '🍻 和朋友吃饭喝酒', '📖 看书、打游戏、刷剧', '💼 加班，工作还没忙完'],
-    m_food: ['📱 几乎天天点，不太会做饭', '🍳 偶尔点，自己会做几道菜', '🥗 基本不点，自己做健康', '🤷 看情况，有钱就点没钱就凑合'],
-    m_flaw: ['🏠 有点宅，不太爱出门', '🎮 偶尔打游戏会上头', '😶 不太会哄人，嘴笨', '⏰ 拖延症，啥事都拖到最后'],
-    m_together: ['🔄 各忙各的，但有空就腻在一起', '💕 天天粘着，分享一切日常', '🧘 有独立空间，但心里有对方', '🤝 一起做同一件事，哪怕各干各的'],
-    m_stage: ['📈 事业上升期，有点忙', '☺️ 稳定了，想好好谈个恋爱', '🔍 还在摸索，不太确定方向', '🌤️ 享受当下，走一步看一步'],
-    m_weakness: ['👔 独立有主见的御姐型', '🎀 活泼可爱会撒娇的甜妹型', '🌸 温柔安静很体贴的治愈型', '📚 文艺浪漫有才华的才女型'],
-    m_parents: ['🤷 顺其自然，该见就见', '😰 有点紧张，但会硬着头皮上', '⏳ 想等感情完全稳定了再见', '🤝 希望她能陪我一起面对'],
-    m_social: ['🔇 很少发，几个月一条', '📸 经常发，记录日常生活', '🔁 只转发，不写自己的事', '🔒 分组可见，不同人不同内容'],
-    m_essential: ['🤝 信任和坦诚', '⏰ 陪伴和时间', '🔥 激情和新鲜感', '🎯 共同的目标和方向']
-  };
-  const maleDMap = [
-    {A:'stable',B:'active',C:'stable',D:null},
-    {A:'active',B:'active',C:'stable',D:'growth'},
-    {A:'active',B:'stable',C:'growth',D:null},
-    {A:'stable',B:'active',C:'romantic',D:null},
-    {A:'growth',B:'romantic',C:'stable',D:'active'},
-    {A:'growth',B:'stable',C:'active',D:'romantic'},
-    {A:'growth',B:'active',C:'stable',D:'romantic'},
-    {A:'stable',B:'romantic',C:'growth',D:'active'},
-    {A:'growth',B:'active',C:'stable',D:'romantic'},
-    {A:'stable',B:'romantic',C:'active',D:'growth'}
-  ];
-  const mQids = ['m_weekend','m_evening','m_food','m_flaw','m_together','m_stage','m_weakness','m_parents','m_social','m_essential'];
-  const ltrs = ['A','B','C','D'];
-  const mTitleBanks = {
-    stable: ['🏠 居家好男人·行走的暖宝宝','🛡️ 定海神针·靠谱本谱','⚓ 人间安全感代言人','☁️ 情绪稳定·永不翻车','🏔️ 沉稳如山·温柔如水','🔒 认定了就不放手的男人'],
-    romantic: ['🌹 仪式感满分·细节狂魔','💌 人间理想型·温柔本柔','🎬 偶像剧男主照进现实','✨ 情话十级学者','🎵 氛围感制造机','💐 记住你说过每句话的人'],
-    active: ['⚡ 行走的多巴胺·快乐永动机','🎉 朋友圈气氛组组长','☀️ 人间小太阳·永不没电','🎪 生活综艺总导演','🏃 永远少年·热血不减','🍻 最佳酒搭子·首席段子手'],
-    growth: ['🚀 行走的绩优股·潜力无限','📈 上进心天花板·事业型男神','💼 都市精英·恋爱也不耽误','🏆 大男主剧本持有人','🌍 带你看更大世界的人','💎 越磨越亮·钻石型男'],
-    balanced: ['🎭 百变型男·无限可能','🧩 六边形战士·全能选手','🎪 人间宝藏·越挖越多','🌈 行走的彩虹·哪面都帅','💯 满级人类·男性版','🌟 全能ACE·不设限']
-  };
-  const pk = arr => arr[Math.floor(Math.random() * arr.length)];
 
+  // 给新男生用统一的 generateMaleIntro 生成介绍
   cachedNewMales = submittedMales.map(m => {
-    const a = m.answers || {};
-    const scores = {stable:0,romantic:0,active:0,growth:0};
-    mQids.forEach((qid,qi) => {
-      const opts = maleOptTexts[qid];
-      const ans = a[qid]||'';
-      const ai = opts ? opts.findIndex(o=>ans===o||ans.includes(o.slice(2))||o.includes(ans)) : -1;
-      if(ai>=0){const dim=maleDMap[qi][ltrs[ai]];if(dim)scores[dim]++;}
-    });
-    const maxS=Math.max(scores.stable,scores.romantic,scores.active,scores.growth);
-    let mType='balanced'; const typeArr=[];
-    if(maxS>=3){const tops=Object.entries(scores).filter(([k,v])=>v===maxS).map(([k])=>k);if(tops.length===1)mType=tops[0];tops.forEach(t=>typeArr.push(t));}
-    if(typeArr.length===0)typeArr.push('stable','romantic','active','growth');
-    const title = m.introOverride ? m.introOverride.title : pk(mTitleBanks[mType]||mTitleBanks.balanced);
-    const desc = m.introOverride ? m.introOverride.desc : '他是那种让人想深入了解的男生。';
-    return {name:m.nickname, avatar:m.avatar||'', title, desc, types:typeArr, _isSubmitted:true};
+    const intro = generateMaleIntro(m.answers);
+    return {
+      name: m.nickname,
+      avatar: m.avatar || '',
+      title: m.introOverride ? m.introOverride.title : intro.title,
+      desc: m.introOverride ? m.introOverride.desc : intro.desc,
+      types: intro.types,
+      _isSubmitted: true
+    };
   });
 
   console.log('硬编码数据加载完成: ' + cachedFemales.length + '个女生, ' + cachedNewMales.length + '个新男生');
