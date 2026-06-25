@@ -1403,39 +1403,45 @@ async function syncHardcoded() {
       return o;
     });
 
-    // 2. 读取 quiz-v2.html 的当前内容和 sha
-    const quizResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html?ref=main', {
-      headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    const quizFile = await quizResp.json();
-    const quizSha = quizFile.sha;
-    let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
-
-    // 3. 替换硬编码数组
+    // 2. 读取 quiz-v2.html 并替换，支持 SHA 冲突重试
+    const quizUrl = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
     const femalesJson = JSON.stringify(females);
     const malesJson = JSON.stringify(males);
 
-    quizContent = quizContent.replace(
-      /const submittedMales = \[.*?\];/s,
-      'const submittedMales = ' + malesJson + ';'
-    );
-    quizContent = quizContent.replace(
-      /const submittedFemales = \[.*?\];/s,
-      'const submittedFemales = ' + femalesJson + ';'
-    );
+    async function tryPut() {
+      const quizResp = await fetch(quizUrl + '?ref=main', {
+        headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+      });
+      const quizFile = await quizResp.json();
+      let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
 
-    // 4. PUT 回 GitHub
-    const putBody = {
-      message: '管理页同步硬编码: ' + males.length + '男 ' + females.length + '女',
-      content: btoa(unescape(encodeURIComponent(quizContent))),
-      sha: quizSha,
-      branch: 'main'
-    };
-    const putResp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html', {
-      method: 'PUT',
-      headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify(putBody)
-    });
+      quizContent = quizContent.replace(
+        /const submittedMales = \[.*?\];/s,
+        'const submittedMales = ' + malesJson + ';'
+      );
+      quizContent = quizContent.replace(
+        /const submittedFemales = \[.*?\];/s,
+        'const submittedFemales = ' + femalesJson + ';'
+      );
+
+      const putResp = await fetch(quizUrl, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${TOKEN}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({
+          message: '管理页同步硬编码: ' + males.length + '男 ' + females.length + '女',
+          content: btoa(unescape(encodeURIComponent(quizContent))),
+          sha: quizFile.sha,
+          branch: 'main'
+        })
+      });
+      return putResp;
+    }
+
+    let putResp = await tryPut();
+    if (putResp.status === 409) {
+      await new Promise(r => setTimeout(r, 1000));
+      putResp = await tryPut();
+    }
 
     if (putResp.ok) {
       showToast(`同步成功！${males.length}个男生 + ${females.length}个女生已写入硬编码`, 'success');
