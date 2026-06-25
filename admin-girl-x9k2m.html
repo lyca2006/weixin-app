@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案管理 v7</title>
+<title>群友档案管理 v9</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -991,19 +991,25 @@ async function loadAll() {
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
       jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-      // Fetch all files via download_url (fast, no auth needed)
-      const results = await Promise.all(jsonFiles.map(async (file) => {
-        try {
-          const r = await fetch(file.download_url);
-          if (!r.ok) return null;
-          const content = await r.json();
-          content._filename = file.name;
-          if (content.introOverride) content._introOverride = content.introOverride;
-          return content;
-        } catch(e) { return null; }
-      }));
-
-      submittedData = results.filter(c => c !== null && c._filename !== 'hardcoded-overrides.json');
+      // Fetch files in batches, render progressively
+      submittedData = [];
+      var totalFiles = jsonFiles.length;
+      for (var i = 0; i < totalFiles; i += 8) {
+        var batch = jsonFiles.slice(i, i + 8);
+        list.innerHTML = '<div class="loading-text">正在加载... (' + Math.min(i + 8, totalFiles) + '/' + totalFiles + ')</div>';
+        var batchResults = await Promise.all(batch.map(async function(file) {
+          try {
+            var r = await fetch(file.url, { headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' } });
+            var fd = await r.json();
+            var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+            var content = JSON.parse(new TextDecoder().decode(bytes));
+            content._filename = file.name;
+            if (content.introOverride) content._introOverride = content.introOverride;
+            return content;
+          } catch(e) { return null; }
+        }));
+        batchResults.forEach(function(r) { if (r && r._filename !== 'hardcoded-overrides.json') submittedData.push(r); });
+      }
     }
   } catch(e) {
     console.error(e);
