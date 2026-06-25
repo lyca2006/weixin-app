@@ -270,6 +270,9 @@ body {
 </div>
 
 <script>
+if (!new URLSearchParams(window.location.search).has('from')) {
+  window.location.replace('home.html');
+}
 let gender = '';
 let nickname = '';
 let currentQ = 0;
