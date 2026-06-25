@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案管理 v9</title>
+<title>群友档案管理 v10</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -782,15 +782,10 @@ function renderCards() {
 
     // Title & desc
     let displayTitle, displayDesc;
-    if (isHardcoded) {
-      displayTitle = d._introOverride ? d._introOverride.title : d.title;
-      displayDesc = d._introOverride ? d._introOverride.desc : d.desc;
-    } else {
-      const intro = d._introOverride || d._introCache || generateIntro(d);
-      if (!d._introOverride && !d._introCache) d._introCache = intro;
-      displayTitle = (d._introOverride || d._introCache || intro).title;
-      displayDesc = (d._introOverride || d._introCache || intro).desc;
-    }
+    const intro = d._introOverride || d._introCache || generateIntro(d);
+    if (!d._introOverride && !d._introCache) d._introCache = intro;
+    displayTitle = intro.title;
+    displayDesc = intro.desc;
 
     // Avatar
     const avatarHtml = d.avatar
@@ -819,7 +814,7 @@ function renderCards() {
             </div>
           </div>
           ${abcdHtml}
-          <div class="card-time">${d.time || (isHardcoded ? '群友' : '')}</div>
+          <div class="card-time">${d.time || ''}</div>
         </div>
       </div>
       <div class="card-intro">
