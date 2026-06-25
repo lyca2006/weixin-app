@@ -246,6 +246,11 @@ const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_tr
 const letters = ['A','B','C','D'];
 
 // ==================== Utility ====================
+function b64decode(str) {
+  const bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
 function findIdx(qid, ans) {
   const opts = femaleOptionTexts[qid];
   if (!opts || !ans) return -1;
@@ -1126,11 +1131,12 @@ async function loadAll() {
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
       jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-      // Parallel fetch all files (使用 download_url 直接拉 JSON，无需鉴权，更快)
+      // Parallel fetch all files
       const results = await Promise.all(jsonFiles.map(async (file) => {
         try {
-          const r = await fetch(file.download_url);
-          const content = await r.json();
+          const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+          const fd = await r.json();
+          const content = JSON.parse(b64decode(fd.content));
           content._filename = file.name;
           if (content.introOverride) content._introOverride = content.introOverride;
           return content;
@@ -1194,8 +1200,9 @@ async function syncHardcoded(skipConfirm) {
 
     const results = await Promise.all(jsonFiles.map(async (file) => {
       try {
-        const r = await fetch(file.download_url);
-        return await r.json();
+        const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+        const fd = await r.json();
+        return JSON.parse(b64decode(fd.content));
       } catch(e) { return null; }
     }));
     const allSubmissions = results.filter(c => c !== null);
@@ -1221,7 +1228,7 @@ async function syncHardcoded(skipConfirm) {
         headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
       });
       const quizFile = await quizResp.json();
-      let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
+      let quizContent = b64decode(quizFile.content);
 
       quizContent = quizContent.replace(
         /const submittedMales = \[.*?\];/s,
