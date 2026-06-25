@@ -157,6 +157,7 @@ body {
     </div>
     <div class="header-btns">
       <button class="batch-save-btn" id="batchSaveBtn" onclick="batchSaveAll()" disabled>📤 一键更新到库里</button>
+      <button class="sync-btn" onclick="syncHardcoded()">🔄 同步硬编码</button>
       <button class="refresh-btn" onclick="loadAll()">🔄 刷新</button>
     </div>
   </div>
@@ -349,6 +350,15 @@ const hardcodedMales = [
     title: '🔱 荒野男神·行走的安全感堡垒',
     desc: '这个男人是从户外杂志里走出来的吧？消防员的正义感和安全感，配上一身扛得起帐篷也扛得起你的肌肉，光站在那里就让人觉得天塌了都不怕。周末带你露营看星星、桨板划湖面，晚上还能给你做一桌热腾腾的饭菜。能喝酒能聊天，上山下海全都行。这种又野又暖、又硬又会照顾人的男人，简直就是言情小说照进现实。',
     types: ['stable', 'active'],
+    _isHardcoded: true
+  },
+  {
+    nickname: '钟总',
+    gender: 'male',
+    avatar: AVATAR_BASE + 'avatars/zhongzhong.png',
+    title: '🎬 电影脸男主·沉稳系天花板',
+    desc: '有些男人的魅力不是说出来的，是往那一站你就感觉到的。干净利落的穿搭，阳光俊朗的长相，沉稳老成的气质——这三样凑在一起，就是钟总。他不需要刻意表现什么，一开口说话那种从容和笃定，就让人觉得这个男人靠得住。不浮夸、不张扬，但每一句话都有分量。这种自带电影男主滤镜的男人，现实中真的太稀缺了。',
+    types: ['stable', 'growth'],
     _isHardcoded: true
   }
 ];
