@@ -350,7 +350,10 @@ const qIds = ['style','date_detail','recharge','conflict','heartbeat','hidden_tr
 const letters = ['A','B','C','D'];
 
 // ==================== Utility ====================
-function findIdx(qid, ans) {
+function b64decode(str) {
+  const bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
   const opts = femaleOptionTexts[qid];
   if (!opts || !ans) return -1;
   return opts.findIndex(o => ans === o || ans.includes(o.slice(2)) || o.includes(ans));
@@ -1193,7 +1196,7 @@ async function batchSaveAll() {
       if (checkResp.ok) {
         const fd = await checkResp.json();
         existingSha = fd.sha;
-        try { existingData = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, ''))))); } catch(e) {}
+        try { existingData = JSON.parse(b64decode(fd.content)); } catch(e) {}
       }
       const merged = { ...existingData, ...hardcodedOverrides };
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(merged, null, 2))));
@@ -1265,7 +1268,7 @@ async function loadAll() {
         try {
           const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
           const fd = await r.json();
-          const content = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+          const content = JSON.parse(b64decode(fd.content));
           content._filename = file.name;
           if (content.introOverride) content._introOverride = content.introOverride;
           return content;
@@ -1288,7 +1291,7 @@ async function loadAll() {
     });
     if (ovResp.ok) {
       const fd = await ovResp.json();
-      hardcodedOverrides = JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+      hardcodedOverrides = JSON.parse(b64decode(fd.content));
     }
   } catch(e) {}
 
@@ -1351,7 +1354,7 @@ async function syncHardcoded(skipConfirm) {
       try {
         const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
         const fd = await r.json();
-        return JSON.parse(decodeURIComponent(escape(atob(fd.content.replace(/\n/g, '')))));
+        return JSON.parse(b64decode(fd.content));
       } catch(e) { return null; }
     }));
     const allSubmissions = results.filter(c => c !== null);
@@ -1377,7 +1380,7 @@ async function syncHardcoded(skipConfirm) {
         headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
       });
       const quizFile = await quizResp.json();
-      let quizContent = decodeURIComponent(escape(atob(quizFile.content.replace(/\n/g, ''))));
+      let quizContent = b64decode(quizFile.content);
 
       quizContent = quizContent.replace(
         /const submittedMales = \[.*?\];/s,
