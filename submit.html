@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>填写资料，开始接客</title>
+<script>
+if (!new URLSearchParams(window.location.search).has('from')) {
+  window.location.replace('home.html');
+}
+</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -270,9 +275,6 @@ body {
 </div>
 
 <script>
-if (!new URLSearchParams(window.location.search).has('from')) {
-  window.location.replace('home.html');
-}
 let gender = '';
 let nickname = '';
 let currentQ = 0;
