@@ -1257,7 +1257,8 @@ async function batchSaveAll() {
   if (failCount === 0) {
     modifiedSet.clear();
     updateBatchBtn();
-    showToast(`全部保存成功 (${successCount}条)`, 'success');
+    showToast(`保存成功 (${successCount}条)，正在同步硬编码...`, 'success');
+    await syncHardcoded(true);
   } else {
     showToast(`${successCount}条成功，${failCount}条失败`, 'error');
   }
@@ -1373,9 +1374,9 @@ async function loadAll() {
   }
 }
 
-async function syncHardcoded() {
-  if (!confirm('将所有提交数据同步到测试页硬编码，确认？')) return;
-  showToast('正在同步...', 'info');
+async function syncHardcoded(skipConfirm) {
+  if (!skipConfirm && !confirm('将所有提交数据同步到测试页硬编码，确认？')) return;
+  showToast('正在同步硬编码...', 'info');
 
   try {
     // 1. 读取 submissions/ 下所有 JSON
