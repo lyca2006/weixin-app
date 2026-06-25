@@ -991,18 +991,23 @@ async function loadAll() {
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
       jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
 
-      // Parallel fetch all files
-      const results = await Promise.all(jsonFiles.map(async (file) => {
-        try {
-          const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
-          const fd = await r.json();
-          var rawBytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
-          const content = JSON.parse(new TextDecoder().decode(rawBytes));
-          content._filename = file.name;
-          if (content.introOverride) content._introOverride = content.introOverride;
-          return content;
-        } catch(e) { console.error(e); return null; }
-      }));
+      // Fetch files in batches of 5 to avoid API throttling
+      const results = [];
+      for (let batch = 0; batch < jsonFiles.length; batch += 5) {
+        const chunk = jsonFiles.slice(batch, batch + 5);
+        const batchResults = await Promise.all(chunk.map(async (file) => {
+          try {
+            const r = await fetch(file.url, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
+            const fd = await r.json();
+            var rawBytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+            const content = JSON.parse(new TextDecoder().decode(rawBytes));
+            content._filename = file.name;
+            if (content.introOverride) content._introOverride = content.introOverride;
+            return content;
+          } catch(e) { console.error(e); return null; }
+        }));
+        results.push(...batchResults);
+      }
 
       submittedData = results.filter(c => c !== null && c._filename !== 'hardcoded-overrides.json');
     }
