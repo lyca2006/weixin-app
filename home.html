@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>天天向上一家人</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.stars { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 0; }
+.star { position: absolute; width: 2px; height: 2px; background: #fff; border-radius: 50%; animation: twinkle ease-in-out infinite alternate; }
+@keyframes twinkle { 0% { opacity: 0.2; } 100% { opacity: 1; } }
+
+.container {
+  position: relative; z-index: 1;
+  max-width: 420px; margin: 0 auto; padding: 20px 16px;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+.hero-icon { font-size: 48px; animation: float 3s ease-in-out infinite; margin-bottom: 16px; }
+
+.hero-title {
+  font-size: 26px; font-weight: 800; margin-bottom: 8px; text-align: center;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 40px; text-align: center;
+}
+
+.cards {
+  display: flex; gap: 16px; width: 100%;
+}
+
+.card {
+  flex: 1; padding: 32px 16px; border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.3s; text-decoration: none; color: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card:active { transform: scale(0.96); }
+
+.card:hover {
+  border-color: rgba(245,87,108,0.5);
+  background: rgba(245,87,108,0.1);
+  box-shadow: 0 8px 30px rgba(245,87,108,0.2);
+}
+
+.card-icon { font-size: 40px; }
+.card-title { font-size: 18px; font-weight: 700; }
+.card-desc { font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+
+<div class="container">
+  <div class="hero-icon">💘</div>
+  <div class="hero-title">天天向上一家人</div>
+  <div class="hero-subtitle">如有不满，请举报群主👉细总</div>
+
+  <div class="cards">
+    <a class="card" href="submit.html">
+      <div class="card-icon">📝</div>
+      <div class="card-title">填写资料</div>
+      <div class="card-desc">新成员入口<br>填完直接匹配</div>
+    </a>
+    <a class="card" href="quiz-v2.html">
+      <div class="card-icon">🎯</div>
+      <div class="card-title">开始匹配</div>
+      <div class="card-desc">看看本群<br>谁和你最搭</div>
+    </a>
+  </div>
+</div>
+
+<script>
+function createStars() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.width = s.style.height = (Math.random() * 2 + 1) + 'px';
+    s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    c.appendChild(s);
+  }
+}
+createStars();
+</script>
+</body>
+</html>
