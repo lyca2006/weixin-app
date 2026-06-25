@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>群友档案管理 v4</title><!-- r -->
+<title>群友档案管理 v6</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
@@ -1045,12 +1045,13 @@ async function loadAll() {
 
   renderCards();
 
-  // Auto-save newly generated intros to GitHub so they persist
+  // Mark newly generated intros as modified (user can save manually)
   if (needsSave.length > 0) {
-    console.log(`自动保存 ${needsSave.length} 个新生成的介绍`);
-    for (const d of needsSave) {
-      try { await saveEntry(d); } catch(e) { console.error('auto-save failed', e); }
-    }
+    console.log(needsSave.length + ' 个新档案需要生成介绍');
+    needsSave.forEach((d, i) => {
+      const idx = allData.indexOf(d);
+      if (idx >= 0) modifiedSet.add(idx);
+    });
     updateBatchBtn();
   }
 }
