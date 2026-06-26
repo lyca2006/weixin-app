@@ -110,8 +110,9 @@ body {
 .scroll-track {
   display: flex; gap: 20px; width: max-content;
   animation: scrollLeft 30s linear infinite;
+  touch-action: pan-y;
 }
-.scroll-track:hover { animation-play-state: paused; }
+.scroll-item { -webkit-user-select: none; user-select: none; touch-action: manipulation; }
 @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 .scroll-item {
   display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0;
