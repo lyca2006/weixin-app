@@ -1125,7 +1125,6 @@ async function syncAll() {
     });
 
     var QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
-    var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
     var headers = { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' };
 
     // Helper: decode base64 content from GitHub API
@@ -1189,19 +1188,6 @@ async function syncAll() {
     var hFile = await hResp.json();
     var hText = b64decode(hFile.content);
 
-    var scrollItems = activeData.map(function(d) {
-      var intro = d.introOverride || d._introOverride || {};
-      return {name: d.nickname, gender: d.gender || '', avatar: d.avatar || '', title: (intro.title || '').replace(/'/g, "\\'"), desc: (intro.desc || '').replace(/'/g, "\\'")};
-    });
-    scrollItems.sort(function(a, b) {
-      var ha = 0, hb = 0;
-      for (var i = 0; i < a.name.length; i++) ha = (ha * 31 + a.name.charCodeAt(i)) | 0;
-      for (var i = 0; i < b.name.length; i++) hb = (hb * 31 + b.name.charCodeAt(i)) | 0;
-      return ha - hb;
-    });
-    var scrollLines = scrollItems.map(function(s) {
-      return "  {name:'" + s.name.replace(/'/g, "\\'") + "',gender:'" + s.gender + "',avatar:'" + s.avatar + "',title:'" + s.title + "',desc:'" + s.desc + "'}";
-    });
     var scrollJs = 'const scrollMembers = [\n' + scrollLines.join(',\n') + '\n];';
 
     var sPos = findArrayEnd(hText, 'const scrollMembers = ');
