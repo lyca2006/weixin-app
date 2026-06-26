@@ -6,6 +6,7 @@
 <title>天天向上一家人</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; max-width: 100%; }
 
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
@@ -105,7 +106,7 @@ body {
 .match-card .m-btn:active { transform: scale(0.95); }
 
 /* 滚动头像展示 */
-.scroll-section { width: 100vw; margin-left: calc(-50vw + 50%); margin-top: 36px; overflow: hidden; }
+.scroll-section { width: calc(100% + 32px); margin-left: -16px; margin-top: 36px; overflow: hidden; }
 .scroll-section .divider-title { padding: 0 20px; margin-bottom: 12px; }
 .scroll-track {
   display: flex; gap: 20px; width: max-content;
