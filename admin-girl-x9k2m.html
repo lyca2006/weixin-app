@@ -1127,13 +1127,11 @@ async function syncAll() {
     var QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
     var headers = { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' };
 
-    // Helper: decode base64 content from GitHub API
     function b64decode(str) {
       var bytes = Uint8Array.from(atob(str.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
       return new TextDecoder().decode(bytes);
     }
 
-    // Helper: find end of JS array by bracket tracking
     function findArrayEnd(text, marker) {
       var idx = text.indexOf(marker);
       if (idx < 0) return null;
@@ -1154,7 +1152,6 @@ async function syncAll() {
       return null;
     }
 
-    // 1. Sync quiz-v2.html
     var qResp = await fetch(QUIZ_URL + '?ref=main', { headers: headers });
     var qFile = await qResp.json();
     var qText = b64decode(qFile.content);
@@ -1183,40 +1180,8 @@ async function syncAll() {
       });
     }
 
-    // 2. Sync home.html scroll
-    var hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
-    var hFile = await hResp.json();
-    var hText = b64decode(hFile.content);
-
-    var scrollJs = 'const scrollMembers = [\n' + scrollLines.join(',\n') + '\n];';
-
-    var sPos = findArrayEnd(hText, 'const scrollMembers = ');
-    if (sPos) {
-      var skipEnd = sPos.end;
-      while (skipEnd < hText.length && (hText.charAt(skipEnd) === ';' || hText.charAt(skipEnd) === '\n')) skipEnd++;
-      hText = hText.slice(0, sPos.start) + scrollJs + '\n' + hText.slice(skipEnd);
-    }
-
-    var hPut = await fetch(HOME_URL, {
-      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-      body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
-    });
-    if (hPut.status === 409) {
-      await new Promise(function(r) { setTimeout(r, 1500); });
-      hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
-      hFile = await hResp.json();
-      hText = b64decode(hFile.content);
-      sStart = hText.indexOf('const scrollMembers = [');
-      sEnd = hText.indexOf('];\n', sStart) + 3;
-      hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
-      hPut = await fetch(HOME_URL, {
-        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
-        body: JSON.stringify({ message: '滚动条' + scrollItems.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
-      });
-    }
-
-    if (qPut.ok && hPut.ok) showToast('全部同步完成！', 'success');
-    else showToast('部分同步失败', 'error');
+    if (qPut.ok) showToast('同步完成！', 'success');
+    else showToast('同步失败', 'error');
   } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
 }
 
