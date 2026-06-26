@@ -1204,9 +1204,12 @@ async function syncAll() {
     });
     var scrollJs = 'const scrollMembers = [\n' + scrollLines.join(',\n') + '\n];';
 
-    var sStart = hText.indexOf('const scrollMembers = [');
-    var sEnd = hText.indexOf('];\n', sStart) + 3;
-    hText = hText.slice(0, sStart) + scrollJs + hText.slice(sEnd);
+    var sPos = findArrayEnd(hText, 'const scrollMembers = ');
+    if (sPos) {
+      var skipEnd = sPos.end;
+      while (skipEnd < hText.length && (hText.charAt(skipEnd) === ';' || hText.charAt(skipEnd) === '\n')) skipEnd++;
+      hText = hText.slice(0, sPos.start) + scrollJs + '\n' + hText.slice(skipEnd);
+    }
 
     var hPut = await fetch(HOME_URL, {
       method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
