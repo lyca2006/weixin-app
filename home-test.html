@@ -252,7 +252,7 @@ const scrollMembers = [
   }).join('');
   track.innerHTML = html + html;
 }
-buildScroll(scrollMembers);
+setTimeout(function() { buildScroll(scrollMembers); }, 50);
 
 document.getElementById('scrollTrack').addEventListener('click', function(e) {
   var item = e.target.closest('.scroll-item');
