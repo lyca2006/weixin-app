@@ -1288,7 +1288,7 @@ var axiQuotesSha = '';
 
 async function loadQuotes() {
   try {
-    var resp = await fetch(API.replace('/submissions', '/contents/submissions') + '/axi-quotes.json', {
+    var resp = await fetch(API + '/axi-quotes.json', {
       headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' }
     });
     if (!resp.ok) return;
@@ -1302,7 +1302,7 @@ async function loadQuotes() {
 async function saveQuotesToFile() {
   try {
     var content = btoa(unescape(encodeURIComponent(JSON.stringify(axiQuotesList, null, 2))));
-    var resp = await fetch(API.replace('/submissions', '/contents/submissions') + '/axi-quotes.json', {
+    var resp = await fetch(API + '/axi-quotes.json', {
       method: 'PUT',
       headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: '语录更新', content: content, sha: axiQuotesSha, branch: 'main' })
