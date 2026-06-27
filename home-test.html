@@ -351,20 +351,27 @@ function buildScroll(members) {
 }
 buildScroll(scrollMembers);
 
-// 随机头像跳动提示
+// 随机头像跳动提示（只选可见区域内的头像）
 (function() {
-  var lastIdx = -1;
+  var lastEl = null;
   function pulseRandom() {
+    var section = document.querySelector('.scroll-section');
     var items = document.querySelectorAll('#scrollTrack .scroll-item');
-    if (!items.length) return;
-    // Pick a different index from last time
-    var idx;
-    do { idx = Math.floor(Math.random() * items.length); } while (idx === lastIdx && items.length > 1);
-    lastIdx = idx;
-    var el = items[idx];
+    if (!items.length || !section) return;
+    var sectionRect = section.getBoundingClientRect();
+    // Find visible items
+    var visible = Array.prototype.filter.call(items, function(el) {
+      var r = el.getBoundingClientRect();
+      return r.left >= sectionRect.left && r.right <= sectionRect.right + 10;
+    });
+    if (!visible.length) { setTimeout(pulseRandom, 1000); return; }
+    // Pick one different from last
+    var candidates = visible.filter(function(el) { return el !== lastEl; });
+    if (!candidates.length) candidates = visible;
+    var el = candidates[Math.floor(Math.random() * candidates.length)];
+    lastEl = el;
     el.classList.add('scroll-item-pulse');
     setTimeout(function() { el.classList.remove('scroll-item-pulse'); }, 400);
-    // Next pulse in 3-5 seconds
     setTimeout(pulseRandom, 3000 + Math.random() * 2000);
   }
   setTimeout(pulseRandom, 1500);
