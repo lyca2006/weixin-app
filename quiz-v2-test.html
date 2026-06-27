@@ -807,11 +807,10 @@ async function showFemaleResult() {
       return;
     }
 
-    // 4. 给每个女生计算维度和类型
+    // 4. 使用已缓存的类型，不重复计算
     const scoredFemales = females.map(f => {
-      const fScores = scoreFemale(f.answers);
-      const fType = determineFemaleType(fScores);
-      return { ...f, scores: fScores, type: fType, typeKey: fType };
+      const fType = (f.types && f.types[0]) ? f.types[0] : '均衡型';
+      return { ...f, type: fType, typeKey: fType };
     });
 
     // 5. 10% 彩蛋：随机从所有女生中选
@@ -1726,8 +1725,13 @@ let cachedFemales = null;
 let cachedNewMales = null;
 
 function preloadData() {
-  // 使用硬编码数据，不再调API
-  cachedFemales = submittedFemales;
+  // 使用硬编码数据，不再调API，预计算女生类型
+  cachedFemales = submittedFemales.map(function(f) {
+    if (f.types && f.types.length > 0) return f;
+    var sc = scoreFemale(f.answers);
+    var tp = determineFemaleType(sc);
+    return Object.assign({}, f, { types: [tp] });
+  });
 
   // 给新男生用统一的 generateMaleIntro 生成介绍
   cachedNewMales = submittedMales.map(m => {
