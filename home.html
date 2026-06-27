@@ -105,15 +105,7 @@ body {
 .match-card .m-btn:active { transform: scale(0.95); }
 
 /* 滚动头像展示 */
-.scroll-item-pulse {
-  animation: item-pulse 0.9s ease-in-out;
-}
-@keyframes item-pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
-}
-.scroll-section { width: 100vw; margin-left: calc(-50vw + 50%); margin-top: 8px; overflow: hidden; padding-top: 6px; margin-top: 2px; }
+.scroll-section { width: 100vw; margin-left: calc(-50vw + 50%); margin-top: 8px; overflow: hidden; }
 .scroll-section .divider-title { padding: 0 20px; margin-bottom: 12px; }
 .scroll-track {
   display: flex; gap: 20px; width: max-content;
@@ -350,32 +342,6 @@ function buildScroll(members) {
   track.innerHTML = html + html;
 }
 buildScroll(scrollMembers);
-
-// 随机头像跳动提示（只选可见区域内的头像）
-(function() {
-  var lastEl = null;
-  function pulseRandom() {
-    var section = document.querySelector('.scroll-section');
-    var items = document.querySelectorAll('#scrollTrack .scroll-item');
-    if (!items.length || !section) return;
-    var sectionRect = section.getBoundingClientRect();
-    // Find visible items
-    var visible = Array.prototype.filter.call(items, function(el) {
-      var r = el.getBoundingClientRect();
-      return r.left >= sectionRect.left && r.right <= sectionRect.right + 10;
-    });
-    if (!visible.length) { setTimeout(pulseRandom, 1000); return; }
-    // Pick one different from last
-    var candidates = visible.filter(function(el) { return el !== lastEl; });
-    if (!candidates.length) candidates = visible;
-    var el = candidates[Math.floor(Math.random() * candidates.length)];
-    lastEl = el;
-    el.classList.add('scroll-item-pulse');
-    setTimeout(function() { el.classList.remove('scroll-item-pulse'); }, 900);
-    setTimeout(pulseRandom, 1500 + Math.random() * 1000);
-  }
-  setTimeout(pulseRandom, 1500);
-})();
 
 document.getElementById('scrollTrack').addEventListener('click', function(e) {
   var item = e.target.closest('.scroll-item');
