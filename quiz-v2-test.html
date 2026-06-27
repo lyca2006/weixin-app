@@ -595,6 +595,7 @@ function enterMaleMode() {
   currentQ = 0;
   answers = [];
   window._randomizedQs = null;
+  window._randomizedIndices = null;
   showPage('quizPage');
   renderQuestion();
 }
@@ -604,6 +605,7 @@ function enterFemaleMode() {
   currentQ = 0;
   answers = [];
   window._randomizedQs = null;
+  window._randomizedIndices = null;
   showPage('quizPage');
   renderQuestion();
 }
@@ -682,7 +684,7 @@ async function showMaleResult() {
     // 1. 计算女生4维度得分
     const femScores = { stable: 0, romantic: 0, active: 0, growth: 0 };
     answers.forEach((ans, idx) => {
-      const rule = pickMaleDimensionRules[idx];
+      const rule = pickMaleDimensionRules[window._randomizedIndices[idx]];
       const dim = rule[ans];
       if (dim) femScores[dim]++;
     });
