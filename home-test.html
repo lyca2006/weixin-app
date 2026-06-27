@@ -345,7 +345,7 @@ const scrollMembers = [{"name":"LLF","gender":"female","avatar":"data:image/jpeg
 function buildScroll(members) {
   var track = document.getElementById('scrollTrack');
   var html = members.map(function(m, idx) {
-    return '<div class="scroll-item" data-idx="' + idx + '" style="cursor:pointer"><img src="' + m.avatar + '" alt="' + m.name + '" loading="lazy"><span>' + m.name + '</span></div>';
+    return '<div class="scroll-item" data-idx="' + idx + '" style="cursor:pointer"><img src="' + m.avatar + '" alt="' + m.name + '" ><span>' + m.name + '</span></div>';
   }).join('');
   track.innerHTML = html + html;
 }
