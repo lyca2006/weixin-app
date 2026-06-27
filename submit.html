@@ -1037,7 +1037,7 @@ function generateFemaleIntro(femaleAnswers) {
     parts.splice(0, 0, '她是那种第一眼就让人想认识的女生。');
   }
 
-  return { title, desc: parts.join('') };
+  return { title, desc: parts.join(''), types: [femaleType] };
 }
 
 
@@ -1055,6 +1055,7 @@ async function submitAll() {
 
   const intro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
   profile.introOverride = { title: intro.title, desc: intro.desc };
+  if (intro.types) profile.types = intro.types;
 
   try {
     const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
