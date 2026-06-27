@@ -1283,7 +1283,36 @@ async function syncAll() {
 
 
 // ==================== 阿细语录 ====================
-var axiQuotesList = ["随便截", "不得不说，我不是腿控，都觉得那个女的腿好看", "算了", "我还是喜欢其他人好了", "我有时好孤独的", "我都钟意你啊，t哥", "好了，今天我也要上锁了", "有无d钟意肥仔的", "那就星期四", "闭一个月", "不谈了", "我不找的", "@天河每晚都很饿  明天我都做下卷腹先", "我守群就好了"];
+var axiQuotesList = [];
+var axiQuotesSha = '';
+
+async function loadQuotes() {
+  try {
+    var resp = await fetch(API.replace('/submissions', '/contents/submissions') + '/axi-quotes.json', {
+      headers: { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!resp.ok) return;
+    var fd = await resp.json();
+    axiQuotesSha = fd.sha;
+    var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+    axiQuotesList = JSON.parse(new TextDecoder().decode(bytes));
+  } catch(e) { console.log('语录加载失败:', e); }
+}
+
+async function saveQuotesToFile() {
+  try {
+    var content = btoa(unescape(encodeURIComponent(JSON.stringify(axiQuotesList, null, 2))));
+    var resp = await fetch(API.replace('/submissions', '/contents/submissions') + '/axi-quotes.json', {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '语录更新', content: content, sha: axiQuotesSha, branch: 'main' })
+    });
+    if (resp.ok) {
+      var result = await resp.json();
+      axiQuotesSha = result.content.sha;
+    }
+  } catch(e) { showToast('语录保存失败: ' + e.message, 'error'); }
+}
 
 function renderQuotes() {
   var panel = document.getElementById('quotesPanel');
@@ -1302,18 +1331,20 @@ function renderQuotes() {
   panel.innerHTML = html;
 }
 
-function addQuote() {
+async function addQuote() {
   var input = document.getElementById('newQuoteInput');
   var val = input.value.trim();
   if (!val) { showToast('语录不能为空', 'error'); return; }
   axiQuotesList.push(val);
+  await saveQuotesToFile();
   syncQuotesToHome();
   renderQuotes();
   showToast('已添加', 'success');
 }
 
-function deleteQuote(idx) {
+async function deleteQuote(idx) {
   axiQuotesList.splice(idx, 1);
+  await saveQuotesToFile();
   syncQuotesToHome();
   renderQuotes();
   showToast('已删除', 'success');
@@ -1342,7 +1373,9 @@ function syncQuotesToHome() {
 }
 
 
-loadAll();
+
+async function initAll() { await loadAll(); await loadQuotes(); }
+initAll();
 </script>
 </body>
 </html>
