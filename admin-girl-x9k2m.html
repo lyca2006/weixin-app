@@ -1107,22 +1107,48 @@ async function permanentDelete(deletedIdx) {
   } catch(e) { showToast('删除失败', 'error'); console.error(e); }
 }
 
+function compressAvatar(dataUrl, size, quality) {
+  return new Promise(function(resolve) {
+    if (!dataUrl || !dataUrl.startsWith('data:image')) { resolve(dataUrl || ''); return; }
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = size; canvas.height = size;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, size, size);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = function() { resolve(dataUrl); };
+    img.src = dataUrl;
+  });
+}
+
 async function syncAll() {
-  showToast('正在同步...', 'info');
+  showToast('正在压缩头像并同步...', 'info');
   try {
     var activeData = allRawData.filter(function(d) { return !d._deleted; });
-    var females = activeData.filter(function(c) { return c.gender === 'female'; }).map(function(c) {
-      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+
+    var females = [];
+    for (var i = 0; i < activeData.length; i++) {
+      var c = activeData[i];
+      if (c.gender !== 'female') continue;
+      var compressed = await compressAvatar(c.avatar, 200, 0.75);
+      var o = {nickname:c.nickname,gender:c.gender,avatar:compressed,answers:c.answers||{},_filename:c._filename||''};
       if(c.introOverride) o.introOverride = c.introOverride;
       if(c.types) o.types = c.types;
-      return o;
-    });
-    var males = activeData.filter(function(c) { return c.gender === 'male'; }).map(function(c) {
-      var o = {nickname:c.nickname,gender:c.gender,avatar:c.avatar||'',answers:c.answers||{}};
+      females.push(o);
+    }
+
+    var males = [];
+    for (var i = 0; i < activeData.length; i++) {
+      var c = activeData[i];
+      if (c.gender !== 'male') continue;
+      var compressed = await compressAvatar(c.avatar, 200, 0.75);
+      var o = {nickname:c.nickname,gender:c.gender,avatar:compressed,answers:c.answers||{},_filename:c._filename||''};
       if(c.introOverride) o.introOverride = c.introOverride;
       if(c.types) o.types = c.types;
-      return o;
-    });
+      males.push(o);
+    }
 
     var QUIZ_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/quiz-v2.html';
     var headers = { 'Authorization': 'token ' + TOKEN, 'Accept': 'application/vnd.github.v3+json' };
@@ -1180,7 +1206,56 @@ async function syncAll() {
       });
     }
 
-    if (qPut.ok) showToast('同步完成！', 'success');
+    if (!qPut.ok) { showToast('quiz同步失败', 'error'); return; }
+    showToast('quiz已同步，正在同步home...', 'info');
+
+    // === 同步 home.html scrollMembers ===
+    var scrollEntries = [];
+    for (var si = 0; si < activeData.length; si++) {
+      var sc = activeData[si];
+      var intro = sc.introOverride || {title:'', desc:''};
+      var scrollAvatar = await compressAvatar(sc.avatar, 80, 0.6);
+      scrollEntries.push({
+        name: sc.nickname,
+        gender: sc.gender,
+        avatar: scrollAvatar,
+        title: intro.title || '',
+        desc: intro.desc || '',
+        _filename: sc._filename || ''
+      });
+    }
+
+    var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
+    var hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+    var hFile = await hResp.json();
+    var hText = b64decode(hFile.content);
+
+    var sPos = findArrayEnd(hText, 'const scrollMembers = ');
+    if (sPos) {
+      hText = hText.slice(0, sPos.start) + 'const scrollMembers = ' + JSON.stringify(scrollEntries) + ';' + hText.slice(sPos.end + 1);
+    }
+
+    var hPut = await fetch(HOME_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '同步scrollMembers: ' + scrollEntries.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+    });
+    if (hPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+      hFile = await hResp.json();
+      hText = b64decode(hFile.content);
+      sPos = findArrayEnd(hText, 'const scrollMembers = ');
+      if (sPos) {
+        hText = hText.slice(0, sPos.start) + 'const scrollMembers = ' + JSON.stringify(scrollEntries) + ';' + hText.slice(sPos.end + 1);
+      }
+      hPut = await fetch(HOME_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '同步scrollMembers: ' + scrollEntries.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+      });
+    }
+
+    if (qPut.ok && hPut.ok) showToast('全部同步完成！quiz + home', 'success');
+    else if (hPut.ok) showToast('quiz同步完成，home失败', 'error');
     else showToast('同步失败', 'error');
   } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
 }
