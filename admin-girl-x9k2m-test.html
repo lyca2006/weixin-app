@@ -262,11 +262,10 @@ function showToast(msg, type) {
 
 function updateBatchBtn() {
   const btn = document.getElementById('batchSaveBtn');
+  btn.disabled = false;
   if (modifiedSet.size > 0) {
-    btn.disabled = false;
     btn.textContent = `📤 一键更新 (${modifiedSet.size})`;
   } else {
-    btn.disabled = true;
     btn.textContent = '📤 一键更新';
   }
 }
