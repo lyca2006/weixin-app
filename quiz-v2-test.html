@@ -500,176 +500,13 @@ let answers = [];
 
 // ==================== 男生模式 - 群友数据库 ====================
 // ==================== 男生模式 - 题目（女生答题选男生） ====================
-const maleQuestions = [
-  { q: '你更喜欢哪种性格的男生？', options: [
-    { text: '🏔️ 成熟稳重，话不多但句句靠谱' },
-    { text: '😂 幽默风趣，随时能把你逗笑' },
-    { text: '🌸 温柔细腻，能察觉你所有小情绪' },
-    { text: '👑 自信霸气，有主见能拿主意' }
-  ]},
-  { q: '周末约会，你最想跟他做什么？', options: [
-    { text: '☕ 找家舒服的咖啡馆，窝一下午聊天' },
-    { text: '⛰️ 去户外徒步、露营或者看展' },
-    { text: '🍜 他带我去吃一家他私藏的宝藏小店' },
-    { text: '🏠 在家一起做饭、看电影，不出门也行' }
-  ]},
-  { q: '你更吃哪一套"被追求"的方式？', options: [
-    { text: '🌱 日久生情，从朋友慢慢变成恋人' },
-    { text: '🔥 热烈直接，喜欢就大方说出来' },
-    { text: '📝 细节满分，记得我说过的每一件小事' },
-    { text: '🌍 带我见识新世界，拓展我的生活圈' }
-  ]},
-  { q: '你觉得男生最减分的点是什么？', options: [
-    { text: '🤥 太爱吹牛，眼高手低不务实' },
-    { text: '😑 死气沉沉，啥都没兴趣不热爱生活' },
-    { text: '💢 情绪化严重，动不动就炸毛' },
-    { text: '💛 对谁都暖，边界感模糊' }
-  ]},
-  { q: '你更希望他是什么样的"爱人角色"？', options: [
-    { text: '⛰️ 像一座山，让我安心依靠' },
-    { text: '☀️ 像一束光，让生活变得有趣' },
-    { text: '🍵 像一杯温水，时刻暖到心里' },
-    { text: '📖 像一本书，总能给我新的启发' }
-  ]},
-  { q: '他对你做过最让你心动的事，你希望是哪种？', options: [
-    { text: '🌙 深夜我说饿了，他二话不说出门买夜宵' },
-    { text: '🎵 他写了一首只有我才听得懂的歌或诗' },
-    { text: '✈️ 他带我去看了我一直想看的极光或远方' },
-    { text: '🤝 他把我介绍给他所有朋友，自豪地牵着我的手' }
-  ]},
-  { q: '你理想的感情节奏是？', options: [
-    { text: '🐢 慢慢来，不着急确定关系' },
-    { text: '⚡ 互相有好感就尽快确认，不拖' },
-    { text: '🌊 先以朋友相处，顺其自然' },
-    { text: '🪞 看对方节奏，他快我就快，他慢我就慢' }
-  ]},
-  { q: '你最希望他拥有的"软实力"是什么？', options: [
-    { text: '💗 共情力强，能接住我的情绪' },
-    { text: '🗣️ 沟通力强，吵架也能好好说话' },
-    { text: '🧭 领导力强，和他在一起有方向感' },
-    { text: '😄 幽默感强，再平淡的日子也能哈哈过' }
-  ]},
-  { q: '你觉得自己在感情里最需要的"安全感"来自什么？', options: [
-    { text: '💍 他坚定地选择我，不暧昧不犹豫' },
-    { text: '⏰ 他愿意为我花时间，陪伴就是告白' },
-    { text: '🛠️ 他有能力帮我解决生活中的难题' },
-    { text: '🌟 他让我觉得，和他在一起我在变好' }
-  ]},
-  { q: '用一个词形容你向往的爱情，你选哪个？', options: [
-    { text: '🔒 笃定' },
-    { text: '🔥 滚烫' },
-    { text: '🤫 默契' },
-    { text: '🌊 辽阔' }
-  ]}
-];
+const maleQuestions = [{"q": "你更喜欢哪种性格的男生？","options": [{"text": "🏔️ 成熟稳重，话不多但句句靠谱"},{"text": "😂 幽默风趣，随时能把你逗笑"},{"text": "🌸 温柔细腻，能察觉你所有小情绪"},{"text": "👑 自信霸气，有主见能拿主意"}]},{"q": "周末约会，你最想跟他做什么？","options": [{"text": "☕ 找家舒服的咖啡馆，窝一下午聊天"},{"text": "⛰️ 去户外徒步、露营或者看展"},{"text": "🍜 他带我去吃一家他私藏的宝藏小店"},{"text": "🏠 在家一起做饭、看电影，不出门也行"}]},{"q": "你更吃哪一套\"被追求\"的方式？","options": [{"text": "🌱 日久生情，从朋友慢慢变成恋人"},{"text": "🔥 热烈直接，喜欢就大方说出来"},{"text": "📝 细节满分，记得我说过的每一件小事"},{"text": "🌍 带我见识新世界，拓展我的生活圈"}]},{"q": "你觉得男生最减分的点是什么？","options": [{"text": "🤥 太爱吹牛，眼高手低不务实"},{"text": "😑 死气沉沉，啥都没兴趣不热爱生活"},{"text": "💢 情绪化严重，动不动就炸毛"},{"text": "💛 对谁都暖，边界感模糊"}]},{"q": "你更希望他是什么样的\"爱人角色\"？","options": [{"text": "⛰️ 像一座山，让我安心依靠"},{"text": "☀️ 像一束光，让生活变得有趣"},{"text": "🍵 像一杯温水，时刻暖到心里"},{"text": "📖 像一本书，总能给我新的启发"}]},{"q": "他对你做过最让你心动的事，你希望是哪种？","options": [{"text": "🌙 深夜我说饿了，他二话不说出门买夜宵"},{"text": "🎵 他写了一首只有我才听得懂的歌或诗"},{"text": "✈️ 他带我去看了我一直想看的极光或远方"},{"text": "🤝 他把我介绍给他所有朋友，自豪地牵着我的手"}]},{"q": "你理想的感情节奏是？","options": [{"text": "🐢 慢慢来，不着急确定关系"},{"text": "⚡ 互相有好感就尽快确认，不拖"},{"text": "🌊 先以朋友相处，顺其自然"},{"text": "🪞 看对方节奏，他快我就快，他慢我就慢"}]},{"q": "你最希望他拥有的\"软实力\"是什么？","options": [{"text": "💗 共情力强，能接住我的情绪"},{"text": "🗣️ 沟通力强，吵架也能好好说话"},{"text": "🧭 领导力强，和他在一起有方向感"},{"text": "😄 幽默感强，再平淡的日子也能哈哈过"}]},{"q": "你觉得自己在感情里最需要的\"安全感\"来自什么？","options": [{"text": "💍 他坚定地选择我，不暧昧不犹豫"},{"text": "⏰ 他愿意为我花时间，陪伴就是告白"},{"text": "🛠️ 他有能力帮我解决生活中的难题"},{"text": "🌟 他让我觉得，和他在一起我在变好"}]},{"q": "用一个词形容你向往的爱情，你选哪个？","options": [{"text": "🔒 笃定"},{"text": "🔥 滚烫"},{"text": "🤫 默契"},{"text": "🌊 辽阔"}]},{"q": "他哪里比较容易让你\"忍不住\"？","options": [{"text": "🧠 他说的话，每次都能戳中我内心"},{"text": "👀 他看我的眼神，让我脸发烫"},{"text": "💪 他做事的样子，认真起来太帅了"},{"text": "🫦 他无意间靠近我的距离感，心跳加速"}]},{"q": "深夜睡不着，你希望他做什么？","options": [{"text": "📞 打电话陪我聊到天亮"},{"text": "🚗 直接开车过来找我"},{"text": "🌙 发一句\"睡不着随时找我，我在\""},{"text": "🎧 给我分享一首他正在听的歌"}]},{"q": "你觉得男生床上比较加分的是什么？","options": [{"text": "🛏️ 事后抱着你聊天，不急着走"},{"text": "🔥 体力好，精力旺盛"},{"text": "🫂 全程关注你的感受，温柔克制"},{"text": "🧠 会玩，有创意，不按套路"}]},{"q": "他喝醉了，第一反应你希望是？","options": [{"text": "☎️ 给我打电话，说一堆平时不好意思说的话"},{"text": "🤪 拉着我跳舞唱歌，像个傻子一样可爱"},{"text": "😴 安静地靠着我睡着，像只大型犬"},{"text": "🤔 突然聊起人生哲学，说想和我有个未来"}]},{"q": "你洗澡时手机响了，他发来的消息你希望是？","options": [{"text": "💌 \"洗完了吗？想你了\""},{"text": "🔥 \"快点出来，我有个惊喜\""},{"text": "🍵 \"洗完早点睡，别熬夜\""},{"text": "📸 \"刚看到个东西，觉得你会喜欢\""}]},{"q": "他跟你吵架后的\"和好方式\"，你比较喜欢哪种？","options": [{"text": "🎁 买个小礼物，不说对不起但行动上示好"},{"text": "🤣 跟你斗嘴斗着斗着两个人都笑了"},{"text": "🤗 冷静完过来抱你，说\"我们不吵了好不好\""},{"text": "📝 给你写小作文，认真分析自己的问题"}]},{"q": "他第一次到你家的场景，你期待哪种？","options": [{"text": "🍷 带了一瓶红酒，进门就夸你家好看"},{"text": "🎮 一进门就跟你家猫/狗玩起来了"},{"text": "🧹 看到水槽有碗，默默帮你洗了"},{"text": "📚 站在你书架前看了半天，聊起你喜欢的书"}]},{"q": "你觉得他身上比较\"性感\"的地方是？","options": [{"text": "🗣️ 声音，低沉有磁性"},{"text": "🏋️ 身材，线条分明"},{"text": "🤲 手，骨节分明握起来很有力"},{"text": "👁️ 眼神，看穿一切的锐利感"}]},{"q": "如果有一天他忽然\"消失\"了一上午，你希望原因是？","options": [{"text": "🌹 他在偷偷准备一个惊喜给你"},{"text": "🏃 他在参加一个比赛，赢了奖杯给你"},{"text": "🏠 他在帮你处理一件你忘了的麻烦事"},{"text": "💼 他在谈一个重要的项目，为了你们的未来"}]},{"q": "你更希望他叫你什么？","options": [{"text": "👶 宝宝/宝贝"},{"text": "😈 只有你们俩懂的暗号"},{"text": "👰 老婆/媳妇"},{"text": "👑 你的名字，但后面加个\"总\""}]},{"q": "你和他的\"第一次\"，你希望是怎样的？","options": [{"text": "🕯️ 精心布置的房间，香薰蜡烛和音乐"},{"text": "🏨 一时冲动，在某个意想不到的地方"},{"text": "🏠 在彼此都最放松的家里，自然发生"},{"text": "🌍 旅行途中，异国他乡的某个夜晚"}]},{"q": "你觉得男生在床上比较减分的行为是？","options": [{"text": "😴 完事倒头就睡，不管你了"},{"text": "⚡ 只顾自己爽，完全不问你感受"},{"text": "🤐 全程不说话，像在完成任务"},{"text": "📱 完事拿起手机开始刷"}]},{"q": "他跟你聊得比较\"深入\"的话题，你希望是什么？","options": [{"text": "💭 聊他过去的感情经历，坦诚相待"},{"text": "🔥 聊他有什么 fantasy，两人一起探索"},{"text": "💍 聊他对未来的规划，包括你在内"},{"text": "🧠 聊他对亲密关系的理解，思想交流"}]},{"q": "你比较喜欢他做什么\"床上准备\"？","options": [{"text": "🎵 放一首你们都喜欢的歌"},{"text": "👅 前戏充足，不急着进入正题"},{"text": "🛁 先一起洗个澡，放松下来"},{"text": "🗣️ 会用语言撩你，让你心痒难耐"}]},{"q": "他和你亲热时说了句话让你瞬间上头，你希望是？","options": [{"text": "💗 \"你真的好美\""},{"text": "🔥 \"你知道我等这一刻等了多久吗\""},{"text": "🫂 \"别紧张，跟着我就好\""},{"text": "🧠 \"你是唯一一个让我有这种感觉的人\""}]},{"q": "你觉得\"好床品\"的男人应该具备什么？","options": [{"text": "💝 事后会抱着你，亲你额头"},{"text": "🔄 愿意尝试你喜欢的姿势和节奏"},{"text": "🧼 注意卫生，干净整洁"},{"text": "📖 会学习，会改进，一次比一次好"}]},{"q": "你比较抗拒他在什么时候\"动手动脚\"？","options": [{"text": "😤 刚吵完架就来碰你"},{"text": "👥 在公共场合，当着别人面"},{"text": "📱 你正忙的时候，不打招呼就上手"},{"text": "😐 面无表情，像在走流程"}]},{"q": "他比较让你\"身体发软\"的瞬间是？","options": [{"text": "🎤 在你耳边低声说话，气息扫过耳朵"},{"text": "💪 单手把你抱起来，你完全没反应过来"},{"text": "🤲 从背后环住你，手放在你腰上"},{"text": "👁️ 直直地看着你，慢慢靠近，不躲开"}]},{"q": "你希望他跟你讨论\"那个\"的时候，用什么样的语气？","options": [{"text": "🥰 温柔地，像在哄你"},{"text": "😏 坏坏的，带着点挑衅"},{"text": "🤗 坦诚地，像在商量正事"},{"text": "🧐 认真地，像一个研究课题"}]},{"q": "如果用一个词形容你想要的那种\"亲密关系\"，你选？","options": [{"text": "🔥 炙热"},{"text": "🌊 汹涌"},{"text": "🌙 缠绵"},{"text": "🎢 探索"}]}];
 
 // G1-G10 女生维度映射：安稳stable, 浪漫romantic, 活力active, 成长growth
-const pickMaleDimensionRules = [
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },     // G1
-  { A: 'romantic', B: 'active', C: 'growth', D: 'stable' },     // G2
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },     // G3
-  { A: 'growth', B: 'active', C: 'stable', D: 'romantic' },     // G4
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },     // G5
-  { A: 'stable', B: 'romantic', C: 'growth', D: 'active' },     // G6
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },     // G7
-  { A: 'romantic', B: 'stable', C: 'growth', D: 'active' },     // G8
-  { A: 'stable', B: 'romantic', C: 'growth', D: 'growth' },     // G9
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' }      // G10
-];
+const pickMaleDimensionRules = [{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "romantic","B": "active","C": "growth","D": "stable"},{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "growth","B": "active","C": "stable","D": "romantic"},{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "stable","B": "romantic","C": "growth","D": "active"},{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "romantic","B": "stable","C": "growth","D": "active"},{"A": "stable","B": "romantic","C": "growth","D": "growth"},{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"}];
 
 // ==================== 女生模式 - 题目 ====================
-const femaleQuestions = [
-  {
-    q: '兄弟们眼中的你，最常被夸的一点是？',
-    options: [
-      { text: '💪 靠谱，有事真上' },
-      { text: '😂 幽默，有你在绝不冷场' },
-      { text: '🤝 仗义，对朋友没话说' },
-      { text: '💡 有想法，大家爱听你意见' }
-    ]
-  },
-  {
-    q: '你觉得自己最招女生喜欢的特质是什么？',
-    options: [
-      { text: '✨ 长得还行，收拾得干净' },
-      { text: '🗣️ 嘴甜会哄，情商在线' },
-      { text: '👀 细心体贴，能注意到细节' },
-      { text: '🚀 事业上进，有股冲劲' }
-    ]
-  },
-  {
-    q: '如果给未来女朋友做一顿饭，你的水平是？',
-    options: [
-      { text: '🥩 煎个牛排煮个意面，氛围拉满' },
-      { text: '🍳 几道家常小炒，没问题' },
-      { text: '🍜 只会煮泡面加蛋' },
-      { text: '💰 带她出去吃，我买单就行' }
-    ]
-  },
-  {
-    q: '你理想中的恋爱状态更像哪种画风？',
-    options: [
-      { text: '🎬 韩剧——浪漫细节拉满' },
-      { text: '🌍 美剧——独立自由不粘人' },
-      { text: '🌸 日剧——平淡温暖治愈系' },
-      { text: '😂 综艺——两个人在一起就是搞笑节目' }
-    ]
-  },
-  {
-    q: '你在感情里最拿得出手的一个优点是？',
-    options: [
-      { text: '💍 专一，认定了就不放手' },
-      { text: '💰 大方，不舍得让她花钱' },
-      { text: '🤲 耐心，吵架从来先低头' },
-      { text: '🎉 有趣，和我在一起不会无聊' }
-    ]
-  },
-  {
-    q: '周末不加班，你更愿意怎么过？',
-    options: [
-      { text: '🚶 出门——探店、看展、压马路' },
-      { text: '🏀 运动——打球、健身、户外' },
-      { text: '🍻 社交——约朋友聚会组局' },
-      { text: '🎮 宅家——打游戏、刷剧、放空' }
-    ]
-  },
-  {
-    q: '你更希望女朋友怎么形容你？',
-    options: [
-      { text: '🛡️ "他让我很有安全感"' },
-      { text: '😄 "他真的好有趣"' },
-      { text: '💗 "他真的很懂我"' },
-      { text: '🌟 "他让我想变得更好"' }
-    ]
-  },
-  {
-    q: '关于"浪漫"这件事，你的真实水平是？',
-    options: [
-      { text: '🎯 高手，仪式感安排得明明白白' },
-      { text: '📖 一般，但愿意学' },
-      { text: '💸 不太会，但钱管够随便花' },
-      { text: '🤗 我的浪漫就是陪着你' }
-    ]
-  },
-  {
-    q: '你对待事业和赚钱的态度是？',
-    options: [
-      { text: '🔥 事业心强，想给她更好的生活' },
-      { text: '☺️ 够用就行，生活比工作重要' },
-      { text: '📈 正在奋斗期，未来可期' },
-      { text: '🧘 佛系，开心最重要' }
-    ]
-  },
-  {
-    q: '你觉得女生跟你在一起，最大的"福利"是什么？',
-    options: [
-      { text: '🛡️ 情绪稳定，永远不会让她受委屈' },
-      { text: '🎢 生活精彩，天天不重样' },
-      { text: '👸 被宠成小孩，什么都不用操心' },
-      { text: '🚀 带她升级，一起看更高处的风景' }
-    ]
-  }
-];
+const femaleQuestions = [{"q": "兄弟们眼中的你，比较常被夸的一点是？","options": [{"text": "💪 靠谱，有事真上"},{"text": "😂 幽默，有你在绝不冷场"},{"text": "🤝 仗义，对朋友没话说"},{"text": "💡 有想法，大家爱听你意见"}]},{"q": "你觉得自己比较招女生喜欢的特质是什么？","options": [{"text": "✨ 长得还行，收拾得干净"},{"text": "🗣️ 嘴甜会哄，情商在线"},{"text": "👀 细心体贴，能注意到细节"},{"text": "🚀 事业上进，有股冲劲"}]},{"q": "如果给未来女朋友做一顿饭，你的水平是？","options": [{"text": "🥩 煎个牛排煮个意面，氛围拉满"},{"text": "🍳 几道家常小炒，没问题"},{"text": "🍜 只会煮泡面加蛋"},{"text": "💰 带她出去吃，我买单就行"}]},{"q": "你理想中的恋爱状态更像哪种画风？","options": [{"text": "🎬 韩剧——浪漫细节拉满"},{"text": "🌍 美剧——独立自由不粘人"},{"text": "🌸 日剧——平淡温暖治愈系"},{"text": "😂 综艺——两个人在一起就是搞笑节目"}]},{"q": "你在感情里比较拿得出手的一个优点是？","options": [{"text": "💍 专一，认定了就不放手"},{"text": "💰 大方，不舍得让她花钱"},{"text": "🤲 耐心，吵架从来先低头"},{"text": "🎉 有趣，和我在一起不会无聊"}]},{"q": "周末不加班，你更愿意怎么过？","options": [{"text": "🚶 出门——探店、看展、压马路"},{"text": "🏀 运动——打球、健身、户外"},{"text": "🍻 社交——约朋友聚会组局"},{"text": "🎮 宅家——打游戏、刷剧、放空"}]},{"q": "你更希望女朋友怎么形容你？","options": [{"text": "🛡️ \"他让我很有安全感\""},{"text": "😄 \"他真的好有趣\""},{"text": "💗 \"他真的很懂我\""},{"text": "🌟 \"他让我想变得更好\""}]},{"q": "关于\"浪漫\"这件事，你的真实水平是？","options": [{"text": "🎯 高手，仪式感安排得明明白白"},{"text": "📖 一般，但愿意学"},{"text": "💸 不太会，但钱管够随便花"},{"text": "🤗 我的浪漫就是陪着你"}]},{"q": "你对待事业和赚钱的态度是？","options": [{"text": "🔥 事业心强，想给她更好的生活"},{"text": "☺️ 够用就行，生活比工作重要"},{"text": "📈 正在奋斗期，未来可期"},{"text": "🧘 佛系，开心最重要"}]},{"q": "你觉得女生跟你在一起，比较大的\"福利\"是什么？","options": [{"text": "🛡️ 情绪稳定，永远不会让她受委屈"},{"text": "🎢 生活精彩，天天不重样"},{"text": "👸 被宠成小孩，什么都不用操心"},{"text": "🚀 带她升级，一起看更高处的风景"}]},{"q": "你觉得女生比较\"撩\"到你的一瞬间是？","options": [{"text": "👀 她歪着头看你，眼神里带点坏笑"},{"text": "💃 她跳舞/运动时头发甩起来的样子"},{"text": "🫖 她专心做一件事，完全没注意到你在看她"},{"text": "🧩 她说了一句你从没听过的独特见解"}]},{"q": "她穿什么比较让你移不开眼？","options": [{"text": "👗 一条刚好到膝盖的连衣裙"},{"text": "🏀 你的球衣，oversize 挂在身上"},{"text": "🧥 干干净净的素色穿搭，头发随意扎起"},{"text": "🕶️ 她自己的风格，不管别人怎么说"}]},{"q": "你们第一次接吻，你希望发生在哪？","options": [{"text": "🌅 日落的海边，她把头靠在你肩上"},{"text": "🎢 过山车刚下来，肾上腺素飙升时"},{"text": "🛋️ 在家沙发上看电影，她忽然转头看你"},{"text": "✈️ 异国他乡的街头，你们迷路了但很开心"}]},{"q": "她喝醉后，你比较想做什么？","options": [{"text": "🎤 听她唱歌，录下来当手机铃声"},{"text": "🤳 拉着她自拍，她醉了比平时可爱"},{"text": "🛁 扶她去躺着，帮她卸妆盖好被子"},{"text": "🗣️ 听她吐真言，她醉了说的都是大实话"}]},{"q": "她生气了，你觉得哪种\"哄法\"比较有效？","options": [{"text": "💐 不说话，直接买花/奶茶出现在她面前"},{"text": "🤪 做鬼脸逗她，她憋不住笑就输了"},{"text": "🫂 抱住她，让她把气撒完"},{"text": "📊 给她列一个\"解决方案\"，1234 条理清楚"}]},{"q": "你希望她怎么夸你？","options": [{"text": "🥰 \"你是我见过最温柔的人\""},{"text": "😂 \"跟你在一起从来不会无聊\""},{"text": "🛡️ \"有你在，我什么都不怕\""},{"text": "🚀 \"你让我觉得未来可期\""}]},{"q": "约会时她忽然\"偷袭\"你，你希望是？","options": [{"text": "😘 趁你不注意亲你脸颊"},{"text": "🏃 拉着你开始跑，说\"跟我来\""},{"text": "🫂 从背后抱住你，把脸贴在你背上"},{"text": "🤔 忽然问你一个很深的问题，等着你认真回答"}]},{"q": "你觉得女生比较\"欲\"的时刻是？","options": [{"text": "🛀 刚洗完澡出来，头发还湿着"},{"text": "🏃 运动完脸颊通红，汗珠顺着脖子流"},{"text": "🌙 半夜翻个身，迷迷糊糊往你怀里钻"},{"text": "🎤 在众人面前侃侃而谈，自信发光"}]},{"q": "如果你们同居，你比较期待什么？","options": [{"text": "🌅 每天早上醒来第一眼看到她"},{"text": "🎉 随时可以一起发疯，说走就走"},{"text": "🍳 她给你做早餐，你给她泡咖啡"},{"text": "🧠 深夜卧谈，聊人生聊未来聊到天亮"}]},{"q": "你希望她怎么叫你？","options": [{"text": "🐻 哥哥/大叔"},{"text": "😎 你的外号，只有她这么叫"},{"text": "🐶 傻狗/狗子"},{"text": "👔 你的名字，但叫得特别好听"}]},{"q": "你觉得女生在床上比较\"杀\"你的是什么？","options": [{"text": "🎤 她会叫，声音让你受不了"},{"text": "💃 她主动，把你按下去"},{"text": "👀 她全程看着你，不躲闪"},{"text": "🧠 她说的某句话，让你记住好几天"}]},{"q": "你比较受不了女生穿什么？","options": [{"text": "👙 黑色蕾丝，若隐若现"},{"text": "🧦 只穿你的衬衫，其他什么都没"},{"text": "🛏️ 裸妆素颜，真实的样子"},{"text": "🕶️ 她穿什么都行，关键是气场"}]},{"q": "和女生第一次过夜，你比较在意什么？","options": [{"text": "🕯️ 氛围要对，不能太随便"},{"text": "⚡ 顺其自然，感觉到了不用忍"},{"text": "🛁 卫生和舒适度，细节做到位"},{"text": "🗣️ 先聊清楚彼此的边界和期待"}]},{"q": "你觉得亲密关系中\"冷感\"的来源是什么？","options": [{"text": "💔 一方不再表达爱意和赞美"},{"text": "🔒 拒绝尝试新事物，变成例行公事"},{"text": "📱 各玩各的手机，身体接触越来越少"},{"text": "🤐 不再沟通，有什么事都憋着"}]},{"q": "你更希望她怎样\"勾引\"你？","options": [{"text": "😘 发一条暧昧消息，然后假装没发过"},{"text": "💃 在你面前跳舞，故意撩完就跑"},{"text": "🫂 从背后抱住你，手在你胸口画圈"},{"text": "🧩 给你一个谜题，答对了有奖励"}]},{"q": "你认为理想的\"频率\"是怎样的？","options": [{"text": "🌊 有感觉就做，不需要计划"},{"text": "⚡ 越多越好，两人都精力旺盛"},{"text": "🧘 适量就好，重要的是质量"},{"text": "📈 随着感情深入，越来越默契"}]},{"q": "你觉得女生\"事后\"比较让你心动的是什么？","options": [{"text": "🥰 她靠在你胸口，说\"腿软了\""},{"text": "😂 她跟你开玩笑，说\"下次我要在上面\""},{"text": "😴 她直接睡着了，完全信任你"},{"text": "💬 她开始跟你聊刚才的感受，复盘"}]},{"q": "你比较不想在亲密关系中听到的话是？","options": [{"text": "😑 \"你每次都这样，好无聊\""},{"text": "⏰ \"快点，我还要干嘛干嘛\""},{"text": "🤷 \"随便吧，你想怎样就怎样\""},{"text": "📉 \"你不如我前任\""}]},{"q": "你觉得两个人在身体上\"合拍\"比较重要的是什么？","options": [{"text": "💗 有感情基础，才有感觉"},{"text": "🔥 双方都愿意主动，互相取悦"},{"text": "🫂 默契，不需要说太多就知道对方想要什么"},{"text": "🧠 能坦诚沟通，告诉对方自己喜欢什么"}]},{"q": "如果你们的亲密关系是一道菜，你希望是？","options": [{"text": "🍫 熔岩巧克力蛋糕——外面硬，里面烫"},{"text": "🌶️ 麻辣火锅——越吃越上头"},{"text": "🍲 老火靓汤——慢慢熬，越来越浓"},{"text": "🍣 Omakase——每次都有惊喜"}]}];
 
 // ==================== 女生模式 - 维度评分规则 ====================
 // 男生答题 → 维度评分
@@ -700,28 +537,7 @@ const maleDimensionRules = [
 // 女生答题 → 维度评分
 // 字段顺序: style, date_detail, recharge, conflict, heartbeat, hidden_trait, sleep, dealbreaker, money, ideal_animal
 const femaleAnswerKeys = ['style', 'date_detail', 'recharge', 'conflict', 'heartbeat', 'hidden_trait', 'sleep', 'dealbreaker', 'money', 'ideal_animal'];
-const femaleDimensionRules = [
-  // Q1(style): A=成长, B=安稳, C=浪漫, D=活力
-  { A: 'growth', B: 'stable', C: 'romantic', D: 'active' },
-  // Q2(date_detail): A=安稳, B=成长, C=活力, D=浪漫
-  { A: 'stable', B: 'growth', C: 'active', D: 'romantic' },
-  // Q3(recharge): A=安稳, B=活力, C=成长, D=安稳
-  { A: 'stable', B: 'active', C: 'growth', D: 'stable' },
-  // Q4(conflict): A=安稳, B=浪漫, C=活力, D=成长
-  { A: 'stable', B: 'romantic', C: 'active', D: 'growth' },
-  // Q5(heartbeat): A=安稳, B=浪漫, C=成长, D=浪漫
-  { A: 'stable', B: 'romantic', C: 'growth', D: 'romantic' },
-  // Q6(hidden_trait): A=浪漫, B=安稳, C=安稳, D=活力
-  { A: 'romantic', B: 'stable', C: 'stable', D: 'active' },
-  // Q7(sleep): A=安稳, B=活力, C=浪漫, D=成长
-  { A: 'stable', B: 'active', C: 'romantic', D: 'growth' },
-  // Q8(dealbreaker): A=成长, B=安稳, C=活力, D=浪漫
-  { A: 'growth', B: 'stable', C: 'active', D: 'romantic' },
-  // Q9(money): A=安稳, B=成长, C=活力, D=安稳
-  { A: 'stable', B: 'growth', C: 'active', D: 'stable' },
-  // Q10(ideal_animal): A=成长, B=安稳, C=浪漫, D=活力
-  { A: 'growth', B: 'stable', C: 'romantic', D: 'active' }
-];
+const femaleDimensionRules = [{"A": "growth","B": "stable","C": "romantic","D": "active"},{"A": "stable","B": "growth","C": "active","D": "romantic"},{"A": "stable","B": "active","C": "growth","D": "stable"},{"A": "stable","B": "romantic","C": "active","D": "growth"},{"A": "stable","B": "romantic","C": "growth","D": "romantic"},{"A": "romantic","B": "stable","C": "stable","D": "active"},{"A": "stable","B": "active","C": "romantic","D": "growth"},{"A": "growth","B": "stable","C": "active","D": "romantic"},{"A": "stable","B": "growth","C": "active","D": "stable"},{"A": "growth","B": "stable","C": "romantic","D": "active"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"},{"A": "romantic","B": "active","C": "stable","D": "growth"}];
 
 // 女生问题选项（用来匹配存储的答案文本 → ABCD）
 const femaleOptionTexts = {
@@ -756,6 +572,7 @@ function enterMaleMode() {
   currentMode = 'male';
   currentQ = 0;
   answers = [];
+  window._randomizedQs = null;
   showPage('quizPage');
   renderQuestion();
 }
@@ -764,6 +581,7 @@ function enterFemaleMode() {
   currentMode = 'female';
   currentQ = 0;
   answers = [];
+  window._randomizedQs = null;
   showPage('quizPage');
   renderQuestion();
 }
@@ -778,10 +596,18 @@ function getQuestions() {
 
 function renderQuestion() {
   const qs = getQuestions();
-  const q = qs[currentQ];
-  const percent = ((currentQ) / qs.length * 100).toFixed(0);
+  // 从30道题库中随机选10道，只在第一次答题时生成
+  if (!window._randomizedQs) {
+    var shuffled = qs.slice().sort(function() { return Math.random() - 0.5; });
+    window._randomizedQs = shuffled.slice(0, 10);
+    currentQ = 0;
+    answers = [];
+  }
+  var selectedQs = window._randomizedQs;
+  const q = selectedQs[currentQ];
+  const percent = ((currentQ) / selectedQs.length * 100).toFixed(0);
   document.getElementById('progressFill').style.width = percent + '%';
-  document.getElementById('progressText').textContent = `${currentQ + 1} / ${qs.length}`;
+  document.getElementById('progressText').textContent = `${currentQ + 1} / 10`;
 
   const card = document.getElementById('questionCard');
   card.style.animation = 'none';
