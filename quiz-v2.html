@@ -1197,13 +1197,15 @@ function generateMaleIntro(answers) {
     descParts.splice(0, 0, '他是那种第一眼就让人想认识的男生。');
   }
 
-  const typeArr = [];
-  if (maxS >= 3) {
-    Object.entries(scores).filter(([k,v]) => v === maxS).forEach(([k]) => typeArr.push(k));
+  var topTypes = Object.entries(scores).filter(([k,v]) => v === maxS).map(([k]) => k);
+  if (topTypes.length > 2) {
+    while (topTypes.length > 2) {
+      topTypes.splice(Math.floor(Math.random() * topTypes.length), 1);
+    }
   }
-  if (typeArr.length === 0) typeArr.push('stable','romantic','active','growth');
+  if (topTypes.length === 0) topTypes = ['stable','romantic'];
 
-  return { title, desc: descParts.join(''), types: typeArr };
+  return { title, desc: descParts.join(''), types: topTypes };
 }
 
 // ==================== GitHub API ====================
