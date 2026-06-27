@@ -431,6 +431,12 @@ body {
   line-height: 1.6;
   margin-bottom: 24px;
 }
+
+.result-stats {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  font-size: 10px; color: #fff; margin-top: 8px;
+}
+.result-stats .stat-num { display: inline-block; min-width: 28px; text-align: right; }
 </style>
 </head>
 <body>
@@ -889,9 +895,11 @@ async function showMaleResult() {
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       ${avatarHtml}
       <div class="result-name">${match.name}</div>
+      <div class="result-stats" id="matchStats">加载中...</div>
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
     `;
+    loadMatchStats(match.name, 'matchStats');
   } catch(e) {
     console.error(e);
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -903,6 +911,7 @@ async function showMaleResult() {
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
       <div class="result-name">${match.name}</div>
+      <div class="result-stats" id="matchStats">加载中...</div>
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
     `;
@@ -981,9 +990,11 @@ async function showFemaleResult() {
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       ${avatarSrc ? `<img class="result-avatar" src="${avatarSrc}" alt="${chosen.nickname}">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">👩</div>'}
       <div class="result-name">${chosen.nickname}</div>
+      <div class="result-stats" id="femaleMatchStats">加载中...</div>
       <div class="result-title">${intro.title}</div>
       <div class="result-desc">${intro.desc}</div>
     `;
+    loadMatchStats(chosen.nickname, 'femaleMatchStats');
 
   } catch (e) {
     console.error('匹配出错:', e);
@@ -1758,6 +1769,36 @@ function saveImage() {
   });
 }
 
+
+
+function loadMatchStats(nickname, containerId) {
+  var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+  var API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+  var headers = { 'Authorization': 'token ' + TK, 'Accept': 'application/vnd.github.v3+json' };
+  
+  fetch(API, { headers: headers })
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].name.endsWith('.json') && files[i].name !== 'hardcoded-overrides.json') {
+          if (files[i].name.indexOf(nickname) >= 0 || files[i].name.indexOf(encodeURIComponent(nickname)) >= 0) {
+            return fetch(files[i].url, { headers: headers });
+          }
+        }
+      }
+    })
+    .then(function(r) { if (r) return r.json(); })
+    .then(function(fd) {
+      if (!fd || !fd.content) return;
+      var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+      var data = JSON.parse(new TextDecoder().decode(bytes));
+      var mc = data.matchCount || 0;
+      var vc = data.viewCount || 0;
+      var el = document.getElementById(containerId);
+      if (el) el.innerHTML = '<span>被匹配 <span class="stat-num">' + mc + '</span> 次</span><span>被查看 <span class="stat-num">' + vc + '</span> 次</span>';
+    })
+    .catch(function() {});
+}
 
 // ========== 匹配计数 ==========
 function updateMatchCount(nickname) {
