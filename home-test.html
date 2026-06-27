@@ -105,6 +105,14 @@ body {
 .match-card .m-btn:active { transform: scale(0.95); }
 
 /* 滚动头像展示 */
+.scroll-item-pulse {
+  animation: item-pulse 0.4s ease-in-out;
+}
+@keyframes item-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
 .scroll-section { width: 100vw; margin-left: calc(-50vw + 50%); margin-top: 8px; overflow: hidden; }
 .scroll-section .divider-title { padding: 0 20px; margin-bottom: 12px; }
 .scroll-track {
@@ -342,6 +350,25 @@ function buildScroll(members) {
   track.innerHTML = html + html;
 }
 buildScroll(scrollMembers);
+
+// 随机头像跳动提示
+(function() {
+  var lastIdx = -1;
+  function pulseRandom() {
+    var items = document.querySelectorAll('#scrollTrack .scroll-item');
+    if (!items.length) return;
+    // Pick a different index from last time
+    var idx;
+    do { idx = Math.floor(Math.random() * items.length); } while (idx === lastIdx && items.length > 1);
+    lastIdx = idx;
+    var el = items[idx];
+    el.classList.add('scroll-item-pulse');
+    setTimeout(function() { el.classList.remove('scroll-item-pulse'); }, 400);
+    // Next pulse in 3-5 seconds
+    setTimeout(pulseRandom, 3000 + Math.random() * 2000);
+  }
+  setTimeout(pulseRandom, 1500);
+})();
 
 document.getElementById('scrollTrack').addEventListener('click', function(e) {
   var item = e.target.closest('.scroll-item');
