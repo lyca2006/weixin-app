@@ -1135,7 +1135,12 @@ async function syncAll() {
       var compressed = await compressAvatar(c.avatar, 200, 0.75);
       var o = {nickname:c.nickname,gender:c.gender,avatar:compressed,answers:c.answers||{},_filename:c._filename||''};
       if(c.introOverride) o.introOverride = c.introOverride;
-      if(c.types) o.types = c.types;
+      if(c.types && c.types.length > 0) {
+        o.types = c.types;
+      } else if(c.answers) {
+        var fIntro = generateFemaleIntro(c.answers);
+        if(fIntro && fIntro.types) o.types = fIntro.types;
+      }
       females.push(o);
     }
 
