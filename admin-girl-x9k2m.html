@@ -995,7 +995,7 @@ async function loadAll() {
     if (resp.status !== 404) {
       const files = await resp.json();
       const jsonFiles = files.filter(f => f.name.endsWith('.json'));
-      jsonFiles.sort((a, b) => b.name.localeCompare(a.name));
+      jsonFiles.sort(function(a, b) { var aOld = a.name.indexOf('_old_') >= 0 ? 1 : 0; var bOld = b.name.indexOf('_old_') >= 0 ? 1 : 0; if (aOld !== bOld) return aOld - bOld; return b.name.localeCompare(a.name); });
 
       // Fetch files in batches, render progressively
       submittedData = [];
