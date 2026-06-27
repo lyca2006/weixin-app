@@ -1236,7 +1236,7 @@ async function fetchFemales() {
   }));
 
   // 只保留女生
-  return contents.filter(c => c && c.gender === 'female');
+  return contents.filter(c => c && c.gender === 'female' && !c._deleted);
 }
 
 // ==================== 从库拉取新男生 ====================
@@ -1260,7 +1260,7 @@ async function fetchSubmittedMales() {
       } catch(e) { return null; }
     }));
 
-    const males = contents.filter(c => c && c.gender === 'male');
+    const males = contents.filter(c => c && c.gender === 'male' && !c._deleted);
 
     return males.map(m => {
       if (m.introOverride) {
