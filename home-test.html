@@ -150,9 +150,12 @@ body {
 .popup-gender.female { background: rgba(245,87,108,0.2); color: #f5576c; }
 
 .popup-stats {
-  display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 8px;
-  font-size: 10px; color: rgba(255,255,255,0.35);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 8px;
+  font-size: 10px; color: rgba(255,255,255,0.35); position: absolute; top: 12px; right: 16px;
 }
+.popup-stats span { display: inline-block; }
+.popup-stats .stat-num { display: inline-block; min-width: 28px; text-align: right; }
+.popup-card { position: relative; }
 </style>
 </head>
 <body>
@@ -326,7 +329,7 @@ function loadAndUpdateViewCount(nickname) {
       var vc = (data.viewCount || 0) + 1;
       
       var el = document.getElementById('popupStats');
-      if (el) el.innerHTML = '被匹配 ' + mc + '次 · 被查看 ' + vc + '次';
+      if (el) el.innerHTML = '<span>被匹配 <span class="stat-num">' + mc + '</span> 次</span><span>被查看 <span class="stat-num">' + vc + '</span> 次</span>';
       
       data.viewCount = vc;
       
