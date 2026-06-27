@@ -181,7 +181,7 @@ body {
 .axi-bubble-chat {
   display: none;
   background: #95EC69;
-  border-radius: 12px 12px 12px 4px;
+  border-radius: 4px 16px 16px 16px;
   padding: 10px 12px;
   font-size: 16px;
   color: #111;
@@ -202,8 +202,7 @@ body {
 .axi-bubble-chat::before {
   content: '';
   position: absolute;
-  left: -8px; top: 50%;
-  transform: translateY(-50%);
+  left: -8px; top: 10px;
   border: 6px solid transparent;
   border-right-color: #95EC69;
   border-left: 0;
@@ -279,7 +278,7 @@ function createStars() {
 
 
 // ==================== 阿细语录 ====================
-const axiQuotes = ['我就系怕姨妈痛你班衰女', '你班衰女一点也不给力真的我都不知道讲你好', '细总说得对你班衰女一点也不给力真的我都不知道应该怎么讲你才好'];
+const axiQuotes = ['好好好', '我就系怕姨妈痛你班衰女', '你班衰女一点也不给力真的我都不知道讲你好', '细总说得对你班衰女一点也不给力真的我都不知道应该怎么讲你才好'];
 var _axiOpen = false;
 
 function toggleAxiQuote() {
