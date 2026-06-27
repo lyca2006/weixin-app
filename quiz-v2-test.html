@@ -433,12 +433,11 @@ body {
 }
 
 .result-stats {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  font-size: 10px; color: #fff;
+  font-size: 10px; color: rgba(255,255,255,0.6); text-align: right;
+  position: absolute; top: 8px; right: 12px;
 }
-.result-stats .stat-num { display: inline-block; min-width: 28px; text-align: right; }
-.result-avatar-row { position: relative; text-align: center; margin-bottom: 6px; }
-.result-avatar-row .result-stats { position: absolute; right: 8px; top: 0; }
+.result-avatar-row { text-align: center; margin-bottom: 6px; }
+.result-page { position: relative; }
 </style>
 </head>
 <body>
@@ -895,7 +894,8 @@ async function showMaleResult() {
     updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 和你最默契的群友是 ✨</div>
-      <div class="result-avatar-row"><div class="result-stats" id="matchStats"></div>${avatarHtml}</div>
+      <div class="result-stats" id="matchStats"></div>
+      <div class="result-avatar-row">${avatarHtml}</div>
       <div class="result-name">${match.name}</div>
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
@@ -1796,7 +1796,7 @@ function loadMatchStats(nickname, containerId) {
       var mc = data.matchCount || 0;
       var vc = data.viewCount || 0;
       var el = document.getElementById(containerId);
-      if (el) el.innerHTML = '<span>被匹配 <span class="stat-num">' + mc + '</span> 次</span><span>被查看 <span class="stat-num">' + vc + '</span> 次</span>';
+      if (el) el.innerHTML = '被匹配 ' + mc + '次 · 被查看 ' + vc + '次';
     })
     .catch(function() {});
 }
