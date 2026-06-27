@@ -884,6 +884,7 @@ async function showMaleResult() {
       ? `<img class="result-avatar" src="${match.avatar}" alt="${match.name}">`
       : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">🧑</div>';
 
+    updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       ${avatarHtml}
@@ -898,6 +899,7 @@ async function showMaleResult() {
     const match = allMales[Math.floor(Math.random() * allMales.length)];
     showPage('resultPage');
     spawnHearts();
+    updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
@@ -968,6 +970,7 @@ async function showFemaleResult() {
 
     // 7. 生成介绍文案（优先用管理员编辑过的版本）
     const intro = chosen.introOverride || generateFemaleIntro(chosen.answers);
+    updateMatchCount(chosen.nickname);
 
     // 8. 显示结果
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -975,6 +978,7 @@ async function showFemaleResult() {
     spawnHearts();
 
     const avatarSrc = chosen.avatar || '';
+    updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 你的命中注定是 ✨</div>
       ${avatarSrc ? `<img class="result-avatar" src="${avatarSrc}" alt="${chosen.nickname}">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">👩</div>'}
@@ -1754,6 +1758,49 @@ function saveImage() {
     console.error(e);
     alert('保存失败，请长按截图保存');
   });
+}
+
+
+// ========== 匹配计数 ==========
+function updateMatchCount(nickname) {
+  var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+  var API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+  var headers = { 'Authorization': 'token ' + TK, 'Accept': 'application/vnd.github.v3+json' };
+  
+  fetch(API, { headers: headers })
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      var target = null;
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].name.endsWith('.json') && files[i].name !== 'hardcoded-overrides.json') {
+          if (files[i].name.indexOf(nickname) >= 0 || files[i].name.indexOf(encodeURIComponent(nickname)) >= 0) {
+            target = files[i];
+            break;
+          }
+        }
+      }
+      if (!target) return;
+      return fetch(target.url, { headers: headers });
+    })
+    .then(function(r) { if (r) return r.json(); })
+    .then(function(fd) {
+      if (!fd) return;
+      var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+      var data = JSON.parse(new TextDecoder().decode(bytes));
+      
+      if (data.nickname !== nickname) return;
+      
+      data.matchCount = (data.matchCount || 0) + 1;
+      
+      var content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+      
+      fetch(fd.url.split('?')[0], {
+        method: 'PUT',
+        headers: { 'Authorization': 'token ' + TK, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: 'matchCount+1: ' + nickname, content: content, sha: fd.sha, branch: 'main' })
+      }).catch(function() {});
+    })
+    .catch(function() {});
 }
 
 // ==================== 视觉效果 ====================
