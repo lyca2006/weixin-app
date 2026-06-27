@@ -776,6 +776,7 @@ async function showMaleResult() {
       ? `<img class="result-avatar" id="resultAvatarImg" src="" alt="${match.name}" style="background:rgba(255,255,255,0.1);">`
       : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 8px;">🧑</div>';
 
+    window._lastMatch = match.name;
     updateMatchCount(match.name, match._filename);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 和你最默契的群友是 ✨</div>
@@ -784,6 +785,10 @@ async function showMaleResult() {
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
     `;
+    setTimeout(function() {
+      var imgEl = document.getElementById('resultAvatarImg');
+      if (imgEl) fetchAvatar(match._filename, imgEl);
+    }, 100);
     document.getElementById('resultStatsBar').innerHTML = '加载中...';
     loadMatchStats(match.name, 'resultStatsBar', match._filename);
   } catch(e) {
@@ -877,15 +882,18 @@ async function showFemaleResult() {
     spawnHearts();
     window._lastMatch = chosen.nickname;
 
-    const avatarSrc = chosen.avatar || '';
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 和你最默契的群友是 ✨</div>
-      ${avatarSrc ? `<img class="result-avatar" src="${avatarSrc}" alt="${chosen.nickname}">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 8px;">👩</div>'}
+      ${chosen._filename ? `<img class="result-avatar" id="resultAvatarImg" src="" alt="${chosen.nickname}" style="background:rgba(255,255,255,0.1);">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">👩</div>'}
       <div class="result-stats" id="femaleMatchStats"></div>
       <div class="result-name">${chosen.nickname}</div>
       <div class="result-title">${intro.title}</div>
       <div class="result-desc">${intro.desc}</div>
     `;
+    setTimeout(function() {
+      var imgEl = document.getElementById('resultAvatarImg');
+      if (imgEl) fetchAvatar(chosen._filename, imgEl);
+    }, 100);
     document.getElementById('resultStatsBar').innerHTML = '加载中...';
     loadMatchStats(chosen.nickname, 'resultStatsBar', chosen._filename);
 
