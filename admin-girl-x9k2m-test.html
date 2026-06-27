@@ -1260,8 +1260,8 @@ async function syncAll() {
       method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
       body: JSON.stringify({ message: '同步scrollMembers: ' + scrollEntries.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
     });
-    if (hPut.status === 409) {
-      await new Promise(function(r) { setTimeout(r, 1500); });
+    for (var hRetry = 0; hRetry < 3 && hPut.status === 409; hRetry++) {
+      await new Promise(function(r) { setTimeout(r, 1500 + hRetry * 500); });
       hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
       hFile = await hResp.json();
       hText = b64decode(hFile.content);
