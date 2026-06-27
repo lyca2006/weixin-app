@@ -1780,9 +1780,14 @@ async function syncNewData() {
 		let newFCount = 0;
 		apiFemales.forEach(f => {
 			if (!f || !f.nickname) return;
+			if (!f.types || f.types.length === 0) {
+				const sc = scoreFemale(f.answers);
+				f.types = [determineFemaleType(sc)];
+			}
 			const existingIdx = cachedFemales.findIndex(c => c.nickname === f.nickname);
 			if (existingIdx >= 0) {
 				if (f.introOverride) cachedFemales[existingIdx].introOverride = f.introOverride;
+				if (f.types) cachedFemales[existingIdx].types = f.types;
 			} else {
 				cachedFemales.push(f);
 				newFCount++;
