@@ -165,12 +165,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 4px;
+  margin-bottom: 0;
 }
 .hero-icon {
   transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
   transform-origin: center;
   flex-shrink: 0;
+  margin-bottom: 0 !important;
+  align-self: center;
 }
 .axi-row.active .hero-icon { transform: translateX(-10px); }
 .axi-row.active.text-medium .hero-icon { transform: translateX(-20px); }
@@ -194,10 +196,14 @@ body {
 }
 .axi-row.text-medium .axi-bubble-chat { max-width: 210px; }
 .axi-row.text-long .axi-bubble-chat { max-width: 240px; }
+.axi-bubble-chat {
+  align-self: center;
+}
 .axi-bubble-chat::before {
   content: '';
   position: absolute;
-  left: -8px; top: 10px;
+  left: -8px; top: 50%;
+  transform: translateY(-50%);
   border: 6px solid transparent;
   border-right-color: #95EC69;
   border-left: 0;
