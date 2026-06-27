@@ -253,7 +253,7 @@ body {
   overflow: hidden;
 }
 @keyframes result-in {
-  0% { opacity: 0; transform: scale(0.8) translateY(30px); }
+  0% { opacity: 0; transform: scale(0.6) translateY(40px); }
   100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .result-card::before {
@@ -627,10 +627,15 @@ function goHome() {
 
 function swapResult() {
   window._swapped = true;
-  // Show "返回首页" button after swap
   document.getElementById('resultActions').innerHTML =
     '<button class="share-btn" onclick="goHome()">返回首页</button>';
-  // Re-run matching with same answers
+  // Reset card animation before re-matching
+  const card = document.querySelector('.result-card');
+  if (card) {
+    card.style.animation = 'none';
+    card.offsetHeight; // reflow
+    card.style.animation = 'result-in 0.8s ease';
+  }
   if (currentMode === 'male') {
     showMaleResult(true);
   } else {
