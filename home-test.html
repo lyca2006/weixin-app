@@ -175,10 +175,28 @@ body {
   align-self: center;
   display: flex;
   align-items: center;
+  position: relative;
 }
 .hero-icon img {
   display: block;
   vertical-align: middle;
+}
+.hero-icon::after {
+  content: '💬';
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  font-size: 18px;
+  animation: badge-bounce 2s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes badge-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-4px) scale(1.15); }
+  60% { transform: translateY(-2px) scale(1.08); }
+}
+.axi-row.active .hero-icon::after {
+  display: none;
 }
 .axi-row.active .hero-icon { transform: translateX(-16px); }
 
