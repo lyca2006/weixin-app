@@ -624,6 +624,10 @@ function renderQuestion() {
   if (!window._randomizedQs) {
     var shuffled = qs.slice().sort(function() { return Math.random() - 0.5; });
     window._randomizedQs = shuffled.slice(0, 10);
+    window._randomizedIndices = [];
+    for (var ri = 0; ri < window._randomizedQs.length; ri++) {
+      window._randomizedIndices.push(qs.indexOf(window._randomizedQs[ri]));
+    }
     currentQ = 0;
     answers = [];
   }
@@ -779,7 +783,7 @@ async function showFemaleResult() {
     // 1. 计算男生维度
     const maleScores = { stable: 0, romantic: 0, active: 0, growth: 0 };
     answers.forEach((ans, idx) => {
-      const rule = maleDimensionRules[idx];
+      const rule = maleDimensionRules[window._randomizedIndices[idx]];
       const dim = rule[ans];
       if (dim) maleScores[dim]++;
     });
