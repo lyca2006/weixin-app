@@ -1235,6 +1235,11 @@ async function syncAll() {
     var hFile = await hResp.json();
     var hText = b64decode(hFile.content);
 
+    // 打乱顺序，男女错开显示
+    for (var si2 = scrollEntries.length - 1; si2 > 0; si2--) {
+      var sj = Math.floor(Math.random() * (si2 + 1));
+      var tmp = scrollEntries[si2]; scrollEntries[si2] = scrollEntries[sj]; scrollEntries[sj] = tmp;
+    }
     var sPos = findArrayEnd(hText, 'const scrollMembers = ');
     if (sPos) {
       hText = hText.slice(0, sPos.start) + 'const scrollMembers = ' + JSON.stringify(scrollEntries) + ';' + hText.slice(sPos.end + 1);
