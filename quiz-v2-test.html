@@ -434,10 +434,10 @@ body {
 
 .result-stats {
   display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  font-size: 10px; color: #fff; position: absolute; top: 42px; right: 16px;
+  font-size: 10px; color: #fff;
 }
 .result-stats .stat-num { display: inline-block; min-width: 28px; text-align: right; }
-.result-card { position: relative; }
+.result-avatar-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 18px; }
 </style>
 </head>
 <body>
@@ -894,8 +894,7 @@ async function showMaleResult() {
     updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 你的命中注定是 ✨</div>
-      ${avatarHtml}
-      <div class="result-stats" id="matchStats"></div>
+      <div class="result-avatar-row">${avatarHtml}<div class="result-stats" id="matchStats"></div></div>
       <div class="result-name">${match.name}</div>
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
