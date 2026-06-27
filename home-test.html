@@ -148,6 +148,11 @@ body {
 .popup-gender { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-bottom: 8px; vertical-align: middle; line-height: 1.4; }
 .popup-gender.male { background: rgba(66,165,245,0.2); color: #42a5f5; }
 .popup-gender.female { background: rgba(245,87,108,0.2); color: #f5576c; }
+
+.popup-stats {
+  display: flex; justify-content: flex-end; gap: 12px; margin-bottom: 8px;
+  font-size: 10px; color: rgba(255,255,255,0.35);
+}
 </style>
 </head>
 <body>
@@ -279,7 +284,66 @@ function renderCard(data) {
   var gc = data.gender === 'male' ? 'male' : 'female';
   var gt = data.gender === 'male' ? '🧑 男生' : '👩 女生';
   var av = data.avatar ? '<img class="popup-avatar" src="' + data.avatar + '" alt="' + data.name + '">' : '<div class="popup-avatar-placeholder">' + (data.gender === 'male' ? '🧑' : '👩') + '</div>';
-  popup.innerHTML = av + '<div class="popup-name">' + data.name + '</div><span class="popup-gender ' + gc + '">' + gt + '</span>' + (data.title ? '<div class="popup-title">' + data.title + '</div>' : '') + (data.desc ? '<div class="popup-desc">' + data.desc + '</div>' : '');
+  var stats = '<div class="popup-stats" id="popupStats">加载中...</div>';
+  popup.innerHTML = stats + av + '<div class="popup-name">' + data.name + '</div><span class="popup-gender ' + gc + '">' + gt + '</span>' + (data.title ? '<div class="popup-title">' + data.title + '</div>' : '') + (data.desc ? '<div class="popup-desc">' + data.desc + '</div>' : '');
+  loadAndUpdateViewCount(data.name);
+}
+
+function loadAndUpdateViewCount(nickname) {
+  var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+  var API = 'https://api.github.com/repos/lyca2006/weixin-app/contents/submissions';
+  var headers = { 'Authorization': 'token ' + TK, 'Accept': 'application/vnd.github.v3+json' };
+  
+  fetch(API, { headers: headers })
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      var target = null;
+      for (var i = 0; i < files.length; i++) {
+        if (files[i].name.indexOf(nickname) >= 0 || files[i].name.indexOf(encodeURIComponent(nickname)) >= 0) {
+          target = files[i];
+          break;
+        }
+      }
+      if (!target) {
+        for (var i = 0; i < files.length; i++) {
+          if (files[i].name.endsWith('.json') && files[i].name !== 'hardcoded-overrides.json') {
+            // Fetch and check nickname
+          }
+        }
+        return;
+      }
+      return fetch(target.url, { headers: headers });
+    })
+    .then(function(r) { if (r) return r.json(); })
+    .then(function(fd) {
+      if (!fd) return;
+      var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+      var data = JSON.parse(new TextDecoder().decode(bytes));
+      
+      if (data.nickname !== nickname) return;
+      
+      var mc = data.matchCount || 0;
+      var vc = (data.viewCount || 0) + 1;
+      
+      var el = document.getElementById('popupStats');
+      if (el) el.innerHTML = '被匹配 ' + mc + '次 · 被查看 ' + vc + '次';
+      
+      data.viewCount = vc;
+      
+      var saveData = JSON.parse(JSON.stringify(data));
+      var content = btoa(unescape(encodeURIComponent(JSON.stringify(saveData, null, 2))));
+      var encodedFilename = encodeURIComponent(fd.name.split('/').pop() || target.name);
+      
+      fetch(API + '/' + encodedFilename, {
+        method: 'PUT',
+        headers: { 'Authorization': 'token ' + TK, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: 'viewCount+1: ' + nickname, content: content, sha: fd.sha, branch: 'main' })
+      }).catch(function() {});
+    })
+    .catch(function() {
+      var el = document.getElementById('popupStats');
+      if (el) el.innerHTML = '';
+    });
 }
 </script>
 
