@@ -485,8 +485,8 @@ body {
       <div class="result-card">
         <div class="result-inner" id="resultInner"></div>
       </div>
-      <div class="result-actions" style="margin-top: 24px;">
-        <button class="share-btn" onclick="restart()">再点一个</button>
+      <div class="result-actions" style="margin-top: 24px;" id="resultActions">
+        <button class="share-btn" id="swapBtn" onclick="swapResult()">再换一位</button>
       </div>
     </div>
   </div>
@@ -596,6 +596,8 @@ function enterMaleMode() {
   answers = [];
   window._randomizedQs = null;
   window._randomizedIndices = null;
+  window._lastMatch = null;
+  window._swapped = false;
   showPage('quizPage');
   renderQuestion();
 }
@@ -606,12 +608,34 @@ function enterFemaleMode() {
   answers = [];
   window._randomizedQs = null;
   window._randomizedIndices = null;
+  window._lastMatch = null;
+  window._swapped = false;
   showPage('quizPage');
   renderQuestion();
 }
 
 function restart() {
+  window._swapped = false;
+  window._randomizedQs = null;
+  window._randomizedIndices = null;
   showPage('modePage');
+}
+
+function goHome() {
+  window.location.href = 'home-test.html';
+}
+
+function swapResult() {
+  window._swapped = true;
+  // Show "返回首页" button after swap
+  document.getElementById('resultActions').innerHTML =
+    '<button class="share-btn" onclick="goHome()">返回首页</button>';
+  // Re-run matching with same answers
+  if (currentMode === 'male') {
+    showMaleResult(true);
+  } else {
+    showFemaleResult(true);
+  }
 }
 
 function getQuestions() {
@@ -733,8 +757,10 @@ async function showMaleResult() {
       if (pool.length === 0) pool = allMales;
     }
 
-    // 7. 随机选一个
-    const match = pool[Math.floor(Math.random() * pool.length)];
+    // 7. 随机选一个（换一位时排除上次匹配的人）
+    let filteredPool = window._lastMatch ? pool.filter(m => m.name !== window._lastMatch) : pool;
+    if (filteredPool.length === 0) filteredPool = pool;
+    const match = filteredPool[Math.floor(Math.random() * filteredPool.length)];
 
     // 8. 显示结果
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -827,8 +853,10 @@ async function showFemaleResult() {
       if (pool.length === 0) pool = scoredFemales;
     }
 
-    // 6. 随机选一个
-    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    // 6. 随机选一个（换一位时排除上次匹配的人）
+    let filteredPool = window._lastMatch ? pool.filter(f => f.nickname !== window._lastMatch) : pool;
+    if (filteredPool.length === 0) filteredPool = pool;
+    const chosen = filteredPool[Math.floor(Math.random() * filteredPool.length)];
 
     // 7. 生成介绍文案（优先用管理员编辑过的版本）
     const intro = chosen.introOverride || generateFemaleIntro(chosen.answers);
