@@ -180,9 +180,7 @@ body {
   display: block;
   vertical-align: middle;
 }
-.axi-row.active .hero-icon { transform: translateX(-10px); }
-.axi-row.active.text-medium .hero-icon { transform: translateX(-20px); }
-.axi-row.active.text-long .hero-icon { transform: translateX(-30px); }
+.axi-row.active .hero-icon { transform: translateX(-16px); }
 
 .axi-bubble-chat {
   display: none;
@@ -192,7 +190,7 @@ body {
   font-size: 16px;
   color: #111;
   line-height: 1.3em;
-  max-width: 170px;
+  max-width: 232px;
   position: relative;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   opacity: 0;
@@ -201,8 +199,6 @@ body {
   transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
   align-self: center;
 }
-.axi-row.text-medium .axi-bubble-chat { max-width: 210px; }
-.axi-row.text-long .axi-bubble-chat { max-width: 240px; }
 
 .axi-bubble-chat::before {
   content: '';
@@ -295,10 +291,6 @@ function toggleAxiQuote() {
   document.getElementById('axiText').textContent = quote;
   var row = document.getElementById('axiRow');
   var bubble = document.getElementById('axiChatBubble');
-  row.classList.remove('text-short', 'text-medium', 'text-long');
-  if (quote.length <= 12) row.classList.add('text-short');
-  else if (quote.length <= 22) row.classList.add('text-medium');
-  else row.classList.add('text-long');
   bubble.classList.remove('visible');
   row.classList.add('active');
   setTimeout(function() { bubble.classList.add('visible'); }, 20);
@@ -309,7 +301,7 @@ function closeAxiQuote() {
   var row = document.getElementById('axiRow');
   var bubble = document.getElementById('axiChatBubble');
   bubble.classList.remove('visible');
-  setTimeout(function() { row.classList.remove('active', 'text-short', 'text-medium', 'text-long'); }, 250);
+  setTimeout(function() { row.classList.remove('active'); }, 250);
   _axiOpen = false;
 }
 
