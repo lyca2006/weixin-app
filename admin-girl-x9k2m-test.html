@@ -1206,7 +1206,56 @@ async function syncAll() {
       });
     }
 
-    if (qPut.ok) showToast('同步完成！', 'success');
+    if (!qPut.ok) { showToast('quiz同步失败', 'error'); return; }
+    showToast('quiz已同步，正在同步home...', 'info');
+
+    // === 同步 home-test.html scrollMembers ===
+    var scrollEntries = [];
+    for (var si = 0; si < activeData.length; si++) {
+      var sc = activeData[si];
+      var intro = sc.introOverride || {title:'', desc:''};
+      var scrollAvatar = await compressAvatar(sc.avatar, 80, 0.6);
+      scrollEntries.push({
+        name: sc.nickname,
+        gender: sc.gender,
+        avatar: scrollAvatar,
+        title: intro.title || '',
+        desc: intro.desc || '',
+        _filename: sc._filename || ''
+      });
+    }
+
+    var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home-test.html';
+    var hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+    var hFile = await hResp.json();
+    var hText = b64decode(hFile.content);
+
+    var sPos = findArrayEnd(hText, 'const scrollMembers = ');
+    if (sPos) {
+      hText = hText.slice(0, sPos.start) + 'const scrollMembers = ' + JSON.stringify(scrollEntries) + ';' + hText.slice(sPos.end + 1);
+    }
+
+    var hPut = await fetch(HOME_URL, {
+      method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify({ message: '同步scrollMembers: ' + scrollEntries.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+    });
+    if (hPut.status === 409) {
+      await new Promise(function(r) { setTimeout(r, 1500); });
+      hResp = await fetch(HOME_URL + '?ref=main', { headers: headers });
+      hFile = await hResp.json();
+      hText = b64decode(hFile.content);
+      sPos = findArrayEnd(hText, 'const scrollMembers = ');
+      if (sPos) {
+        hText = hText.slice(0, sPos.start) + 'const scrollMembers = ' + JSON.stringify(scrollEntries) + ';' + hText.slice(sPos.end + 1);
+      }
+      hPut = await fetch(HOME_URL, {
+        method: 'PUT', headers: { 'Authorization': 'token ' + TOKEN, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: '同步scrollMembers: ' + scrollEntries.length + '人', content: btoa(unescape(encodeURIComponent(hText))), sha: hFile.sha, branch: 'main' })
+      });
+    }
+
+    if (qPut.ok && hPut.ok) showToast('全部同步完成！quiz + home', 'success');
+    else if (hPut.ok) showToast('quiz同步完成，home失败', 'error');
     else showToast('同步失败', 'error');
   } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
 }
