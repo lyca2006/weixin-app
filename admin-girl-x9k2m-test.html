@@ -928,29 +928,33 @@ async function saveEntry(d) {
 
 // ==================== Batch Save ====================
 async function batchSaveAll() {
-  if (modifiedSet.size === 0) return;
   const btn = document.getElementById('batchSaveBtn');
   btn.disabled = true;
-  btn.textContent = '📤 保存中...';
+  btn.textContent = '📤 处理中...';
 
-  let successCount = 0;
-  let failCount = 0;
+  if (modifiedSet.size > 0) {
+    let successCount = 0;
+    let failCount = 0;
 
-  for (const idx of modifiedSet) {
-    const ok = await saveEntry(allData[idx]);
-    if (ok) successCount++;
-    else failCount++;
-  }
+    for (const idx of modifiedSet) {
+      const ok = await saveEntry(allData[idx]);
+      if (ok) successCount++;
+      else failCount++;
+    }
 
-  if (failCount === 0) {
+    if (failCount > 0) {
+      showToast(`${successCount}条成功，${failCount}条失败`, 'error');
+      updateBatchBtn();
+      renderCards();
+      return;
+    }
+
     modifiedSet.clear();
-    updateBatchBtn();
     showToast(`保存成功 (${successCount}条)，正在同步...`, 'success');
-    await syncAll();
-  } else {
-    showToast(`${successCount}条成功，${failCount}条失败`, 'error');
   }
 
+  await syncAll();
+  updateBatchBtn();
   renderCards();
 }
 
