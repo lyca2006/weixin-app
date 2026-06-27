@@ -432,7 +432,7 @@ body {
   margin-bottom: 24px;
 }
 
-.result-stats {
+.result-stats-unused {
   font-size: 10px; color: #fff; text-align: right;
   margin-bottom: -4px;
 }
@@ -481,6 +481,7 @@ body {
   <!-- 结果页 -->
   <div class="page" id="resultPage">
     <div class="result-page">
+      <div class="result-stats-bar" id="resultStatsBar"></div>
       <div class="result-card">
         <div class="result-inner" id="resultInner"></div>
       </div>
@@ -894,13 +895,12 @@ async function showMaleResult() {
     updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
       <div class="result-label">✨ 和你最默契的群友是 ✨</div>
-      <div class="result-stats" id="matchStats"></div>
       <div class="result-avatar-row">${avatarHtml}</div>
       <div class="result-name">${match.name}</div>
       <div class="result-title">${match.title}</div>
       <div class="result-desc">${match.desc}</div>
     `;
-    loadMatchStats(match.name, 'matchStats');
+    loadMatchStats(match.name, 'resultStatsBar');
   } catch(e) {
     console.error(e);
     document.getElementById('loadingOverlay').classList.add('hidden');
@@ -995,7 +995,7 @@ async function showFemaleResult() {
       <div class="result-title">${intro.title}</div>
       <div class="result-desc">${intro.desc}</div>
     `;
-    loadMatchStats(chosen.nickname, 'femaleMatchStats');
+    loadMatchStats(chosen.nickname, 'resultStatsBar');
 
   } catch (e) {
     console.error('匹配出错:', e);
