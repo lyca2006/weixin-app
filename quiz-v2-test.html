@@ -667,8 +667,7 @@ function selectOption(idx, el) {
 
   setTimeout(() => {
     currentQ++;
-    const qs = getQuestions();
-    if (currentQ < qs.length) {
+    if (currentQ < 10) {
       renderQuestion();
     } else {
       if (currentMode === 'male') {
