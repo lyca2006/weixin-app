@@ -893,7 +893,7 @@ async function showMaleResult() {
 
     updateMatchCount(match.name);
     document.getElementById('resultInner').innerHTML = `
-      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      <div class="result-label">✨ 和你最默契的群友是 ✨</div>
       <div class="result-avatar-row">${avatarHtml}<div class="result-stats" id="matchStats"></div></div>
       <div class="result-name">${match.name}</div>
       <div class="result-title">${match.title}</div>
@@ -908,7 +908,7 @@ async function showMaleResult() {
     showPage('resultPage');
     spawnHearts();
     document.getElementById('resultInner').innerHTML = `
-      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      <div class="result-label">✨ 和你最默契的群友是 ✨</div>
       <img class="result-avatar" src="${match.avatar}" alt="${match.name}">
       <div class="result-stats" id="matchStats"></div>
       <div class="result-name">${match.name}</div>
@@ -987,7 +987,7 @@ async function showFemaleResult() {
 
     const avatarSrc = chosen.avatar || '';
     document.getElementById('resultInner').innerHTML = `
-      <div class="result-label">✨ 你的命中注定是 ✨</div>
+      <div class="result-label">✨ 和你最默契的群友是 ✨</div>
       ${avatarSrc ? `<img class="result-avatar" src="${avatarSrc}" alt="${chosen.nickname}">` : '<div style="width:130px;height:130px;border-radius:12px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:48px;margin:0 auto 18px;">👩</div>'}
       <div class="result-stats" id="femaleMatchStats"></div>
       <div class="result-name">${chosen.nickname}</div>
