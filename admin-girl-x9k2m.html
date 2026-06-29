@@ -1142,7 +1142,7 @@ async function syncAll() {
     var females = [];
     for (var i = 0; i < activeData.length; i++) {
       var c = activeData[i];
-      if (c.gender !== 'female') continue;
+      if (c.gender !== 'female' || c._noMatch) continue;
       var compressed = await compressAvatar(c.avatar, 200, 0.75);
       var o = {nickname:c.nickname,gender:c.gender,avatar:compressed,answers:c.answers||{},_filename:c._filename||''};
       if(c.introOverride) o.introOverride = c.introOverride;
