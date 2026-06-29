@@ -261,8 +261,10 @@ function selectOption(idx, el) {
 
   // Handle special question effects
   if (q.isSpecial) {
-    if (opt.effect === 'all+3') {
-      for (var k in scores) scores[k] += 3;
+    if (opt.effect === 'random+3') {
+      var dims = Object.keys(scores);
+      var rd = dims[Math.floor(Math.random() * dims.length)];
+      scores[rd] += 3;
     } else if (opt.effect === 'all=0') {
       for (var k in scores) scores[k] = 0;
     }
