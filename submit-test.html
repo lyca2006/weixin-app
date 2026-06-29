@@ -1065,7 +1065,7 @@ async function submitAll() {
   try {
     var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
     var genderText = gender === 'male' ? '男生' : '女生';
-    var aiPrompt = '根据这位' + genderText + '的答题内容，写一段个人介绍。\n\n昵称：' + nickname + '\n答题内容：\n' + qaList + '\n模板参考（仅供参考，不要照抄）：\n标题：' + templateIntro.title + '\n描述：' + templateIntro.desc + '\n\n要求：\n1. 生成一个有趣的称号标题（格式：emoji + 称号，如「🌹 人间清醒·恋爱军师」）\n2. 写一段个性化描述（根据ta的答题风格、性格特点来写）\n3. 语气轻松有趣，像朋友在夸ta\n4. 要有具体细节，不要泛泛而谈\n5. 描述控制在100字以内\n请用JSON格式返回：{"title":"称号","desc":"描述"}';
+    var aiPrompt = '根据这位' + genderText + '的答题内容，写一段爆赞的个人介绍。\n\n昵称：' + nickname + '\n答题内容：\n' + qaList + '\n\n要求：\n1. 标题要惊艳有梗，格式：emoji + 称号·副标题（参考：「👑 万人迷·灵魂社交家」「🎯 暖男天花板·情商之王」「🚀 行走的绩优股·潜力无限」），要根据答题内容提炼ta最亮眼的特质\n2. 描述要猛夸：先点出ta最突出的1-2个特质，用让人心动的语言夸到位，再埋一个小有趣的梗结尾\n3. 让看完的人忍不住想认识这个人\n4. 有具体细节，不要空洞的大词\n5. 描述控制在100字以内\n请用JSON格式返回：{\"title\":\"称号\",\"desc\":\"描述\"}';
 
     var aiResp = await fetch('https://models.inference.ai.azure.com/chat/completions', {
       method: 'POST',
