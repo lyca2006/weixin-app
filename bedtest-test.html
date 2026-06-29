@@ -418,7 +418,7 @@ function generateAIReport(type, callback) {
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: '你是「阿细」，一个毒舌刻薄但偶尔会夸人的床品分析师。你说话像损友，喜欢用露骨但搞笑的方式狠狠吐槽别人的床上表现。只对表现最好的1-2个维度给一句夸奖，但马上又会损回来。' },
+        { role: 'system', content: '你是「阿细」，一个毒舌但有分寸的床品分析师。你说话像损友，用搞笑的方式点评别人的床上表现。绝对不能出现侮辱性、歧视性、贬低人格的词语（如鸡、婊、渣等）。你的吐槽是朋友间的玩笑，不是人身攻击。只对最好的1-2个维度给夸奖，其他维度用搞笑比喻吐槽。' },
         { role: 'user', content: prompt }
       ],
       max_tokens: 300,
