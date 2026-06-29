@@ -994,7 +994,7 @@ async function loadAll() {
     const resp = await fetch(API, { headers: { 'Authorization': `token ${TOKEN}`, 'Accept': 'application/vnd.github.v3+json' } });
     if (resp.status !== 404) {
       const files = await resp.json();
-      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+      const jsonFiles = files.filter(f => f.name.endsWith('.json') && f.name !== 'axi-quotes.json');
       jsonFiles.sort(function(a, b) { var aOld = a.name.indexOf('_old_') >= 0 ? 1 : 0; var bOld = b.name.indexOf('_old_') >= 0 ? 1 : 0; if (aOld !== bOld) return aOld - bOld; return b.name.localeCompare(a.name); });
 
       // Fetch files in batches, render progressively
@@ -1014,7 +1014,7 @@ async function loadAll() {
             return content;
           } catch(e) { return null; }
         }));
-        batchResults.forEach(function(r) { if (r && r._filename !== 'hardcoded-overrides.json') submittedData.push(r); });
+        batchResults.forEach(function(r) { if (r && r._filename !== 'hardcoded-overrides.json' && r._filename !== 'axi-quotes.json') submittedData.push(r); });
       }
     }
   } catch(e) {
