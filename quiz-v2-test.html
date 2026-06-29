@@ -1137,7 +1137,7 @@ async function fetchFemales() {
   }));
 
   // 只保留女生
-  return contents.filter(c => c && c.gender === 'female' && !c._deleted);
+  return contents.filter(c => c && c.gender === 'female' && !c._deleted && !c._noMatch);
 }
 
 // ==================== 从库拉取新男生 ====================
@@ -1794,7 +1794,7 @@ let cachedNewMales = null;
 
 function preloadData() {
   // 使用硬编码数据，不再调API，预计算女生类型
-  cachedFemales = submittedFemales.map(function(f) {
+  cachedFemales = submittedFemales.filter(function(f) { return !f._noMatch; }).map(function(f) {
     if (f.types && f.types.length > 0) return f;
     var sc = scoreFemale(f.answers);
     var tp = determineFemaleType(sc);
