@@ -84,7 +84,7 @@ body {
 .result-page { padding-top:4vh; text-align:center; }
 .result-card {
   background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  border-radius:24px; padding:32px 20px 28px; border:1px solid rgba(255,255,255,0.1);
+  border-radius:24px; padding:20px 16px 20px; border:1px solid rgba(255,255,255,0.1);
   animation: result-in 0.8s ease; position:relative; overflow:hidden;
 }
 @keyframes result-in { 0%{opacity:0;transform:scale(0.6) translateY(40px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
@@ -95,14 +95,14 @@ body {
 }
 @keyframes rotate-bg { 100%{transform:rotate(360deg)} }
 .result-inner { position:relative; z-index:1; }
-.result-type-emoji { font-size:56px; margin-bottom:8px; }
-.result-type-name {
+.result-type-emoji { font-size:32px; margin-right:8px; vertical-align:middle; display:inline; }
+.result-type-name { display:inline;
   font-size:28px; font-weight:700; margin-bottom:4px;
   background:linear-gradient(135deg,#f093fb,#f5576c,#fda085);
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
 .result-type-desc { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px; }
-.radar-wrap { display:flex; justify-content:center; margin-bottom:20px; }
+.radar-wrap { display:flex; justify-content:center; margin-bottom:10px; }
 .report-text {
   text-align:left; font-size:15px; line-height:1.8; color:rgba(255,255,255,0.85);
   background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-bottom:16px;
@@ -111,7 +111,7 @@ body {
 .report-loading { text-align:center; color:rgba(255,255,255,0.4); padding:20px; }
 .match-suggest {
   font-size:14px; color:#fda085; padding:10px 16px;
-  background:rgba(253,160,133,0.1); border-radius:10px; margin-bottom:20px;
+  background:rgba(253,160,133,0.1); border-radius:10px; margin-bottom:12px;
 }
 .result-actions { display:flex; gap:12px; justify-content:center; }
 .action-btn {
@@ -307,7 +307,7 @@ function drawRadarChart(canvasId) {
   var canvas = document.getElementById(canvasId);
   var ctx = canvas.getContext('2d');
   var dpr = window.devicePixelRatio || 1;
-  var cssW = 260, cssH = 260;
+  var cssW = 180, cssH = 180;
   canvas.width = cssW * dpr;
   canvas.height = cssH * dpr;
   canvas.style.width = cssW + 'px';
