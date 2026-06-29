@@ -459,9 +459,13 @@ function showResult() {
 
   setTimeout(function() { drawRadarChart('radarChart'); }, 100);
 
-  generateAIReport(type, function(report) {
-    document.getElementById('reportText').innerHTML = report;
-  });
+  if (type === '一条废柴') {
+    document.getElementById('reportText').innerHTML = fallbackReports[type];
+  } else {
+    generateAIReport(type, function(report) {
+      document.getElementById('reportText').innerHTML = report;
+    });
+  }
 }
 
 function createStars() {
