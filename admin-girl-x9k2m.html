@@ -1275,9 +1275,17 @@ async function syncAll() {
       });
     }
 
-    if (qPut.ok && hPut.ok) showToast('全部同步完成！quiz + home', 'success');
-    else if (hPut.ok) showToast('quiz同步完成，home失败', 'error');
-    else showToast('同步失败', 'error');
+    if (!qPut.ok || !hPut.ok) {
+      showToast('同步失败: quiz=' + (qPut.ok?'✅':'❌') + ' home=' + (hPut.ok?'✅':'❌'), 'error');
+    } else {
+      showToast('quiz+home已同步，正在同步语录...', 'info');
+      try {
+        await syncQuotesToHome();
+        showToast('全部同步完成！quiz + home + 语录', 'success');
+      } catch(e) {
+        showToast('quiz+home已同步，语录同步失败', 'error');
+      }
+    }
   } catch(e) { console.error(e); showToast('同步失败: ' + e.message, 'error'); }
 }
 
@@ -1337,39 +1345,40 @@ async function addQuote() {
   if (!val) { showToast('语录不能为空', 'error'); return; }
   axiQuotesList.push(val);
   await saveQuotesToFile();
-  syncQuotesToHome();
+  try { await syncQuotesToHome(); showToast('已添加并同步到HOME', 'success'); } catch(e) { showToast('已添加，但HOME同步失败', 'error'); }
   renderQuotes();
-  showToast('已添加', 'success');
 }
 
 async function deleteQuote(idx) {
   axiQuotesList.splice(idx, 1);
   await saveQuotesToFile();
-  syncQuotesToHome();
+  try { await syncQuotesToHome(); showToast('已删除并同步到HOME', 'success'); } catch(e) { showToast('已删除，但HOME同步失败', 'error'); }
   renderQuotes();
-  showToast('已删除', 'success');
 }
 
-function syncQuotesToHome() {
+async function syncQuotesToHome() {
   var TK = TOKEN;
   var headers = { 'Authorization': 'token ' + TK, 'Accept': 'application/vnd.github.v3+json' };
   var HOME_URL = 'https://api.github.com/repos/lyca2006/weixin-app/contents/home.html';
-  fetch(HOME_URL + '?ref=main', { headers: headers })
-    .then(function(r) { return r.json(); })
-    .then(function(fd) {
-      var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
-      var hText = new TextDecoder().decode(bytes);
-      var newArr = JSON.stringify(axiQuotesList, null, null);
-      hText = hText.replace(/const axiQuotes = \[.*?\];/, 'const axiQuotes = ' + newArr + ';');
-      var encoded = btoa(unescape(encodeURIComponent(hText)));
-      return fetch(HOME_URL, {
-        method: 'PUT',
-        headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
-        body: JSON.stringify({ message: '语录更新', content: encoded, sha: fd.sha, branch: 'main' })
-      });
-    })
-    .then(function() { showToast('已同步到HOME', 'success'); })
-    .catch(function(e) { showToast('同步失败: ' + e.message, 'error'); });
+  try {
+    var r = await fetch(HOME_URL + '?ref=main', { headers: headers });
+    var fd = await r.json();
+    var bytes = Uint8Array.from(atob(fd.content.replace(/\n/g, '')), function(c) { return c.charCodeAt(0); });
+    var hText = new TextDecoder().decode(bytes);
+    var newArr = JSON.stringify(axiQuotesList, null, null);
+    hText = hText.replace(/const axiQuotes = \[.*?\];/, 'const axiQuotes = ' + newArr + ';');
+    var encoded = btoa(unescape(encodeURIComponent(hText)));
+    var putResp = await fetch(HOME_URL, {
+      method: 'PUT',
+      headers: Object.assign({}, headers, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ message: '语录更新', content: encoded, sha: fd.sha, branch: 'main' })
+    });
+    if (!putResp.ok) throw new Error('PUT failed: ' + putResp.status);
+    return true;
+  } catch(e) {
+    console.error('syncQuotesToHome error:', e);
+    throw e;
+  }
 }
 
 
