@@ -1053,26 +1053,76 @@ async function submitAll() {
     time: new Date().toLocaleString('zh-CN')
   };
 
-  const intro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
-  profile.introOverride = { title: intro.title, desc: intro.desc };
-  if (intro.types) profile.types = intro.types;
+  var templateIntro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
+  if (templateIntro.types) profile.types = templateIntro.types;
+
+  var qaList = '';
+  var qs = gender === 'male' ? maleQuestions : femaleQuestions;
+  qs.forEach(function(q) {
+    if (answers[q.id]) qaList += q.q + ' → ' + answers[q.id] + '\n';
+  });
 
   try {
-    const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
-    const token = TK.join('');
-    const ts = Date.now();
-    const safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
-    const filename = `submissions/${gender}_${ts}_${safeName}.json`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
+    var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+    var genderText = gender === 'male' ? '男生' : '女生';
+    var aiPrompt = '根据这位' + genderText + '的答题内容，写一段个人介绍。\n\n昵称：' + nickname + '\n答题内容：\n' + qaList + '\n模板参考（仅供参考，不要照抄）：\n标题：' + templateIntro.title + '\n描述：' + templateIntro.desc + '\n\n要求：\n1. 生成一个有趣的称号标题（格式：emoji + 称号，如「🌹 人间清醒·恋爱军师」）\n2. 写一段个性化描述（根据ta的答题风格、性格特点来写）\n3. 语气轻松有趣，像朋友在夸ta\n4. 要有具体细节，不要泛泛而谈\n5. 描述控制在100字以内\n请用JSON格式返回：{"title":"称号","desc":"描述"}';
 
-    const resp = await fetch(`https://api.github.com/repos/lyca2006/weixin-app/contents/${filename}`, {
+    var aiResp = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TK },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: '你是一个擅长写人物介绍的文案高手。根据对方的答题内容分析性格特点，写出有趣、个性化的介绍。返回纯JSON格式，不要markdown。' },
+          { role: 'user', content: aiPrompt }
+        ],
+        max_tokens: 300, temperature: 0.8
+      })
+    });
+
+    if (aiResp.ok) {
+      var aiData = await aiResp.json();
+      if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
+        var aiText = aiData.choices[0].message.content.trim();
+        try {
+          aiText = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          var aiIntro = JSON.parse(aiText);
+          if (aiIntro.title && aiIntro.desc) {
+            profile.introOverride = { title: aiIntro.title, desc: aiIntro.desc };
+            console.log('AI生成介绍成功');
+          } else {
+            profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+          }
+        } catch(pe) {
+          console.log('AI返回格式异常，使用模板', pe);
+          profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+        }
+      } else {
+        profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+      }
+    } else {
+      profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+    }
+  } catch(aiErr) {
+    console.log('AI调用失败，使用模板', aiErr);
+    profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+  }
+
+  try {
+    var token = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+    var ts = Date.now();
+    var safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    var filename = 'submissions/' + gender + '_' + ts + '_' + safeName + '.json';
+    var fileContent = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
+
+    var resp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/' + filename, {
       method: 'PUT',
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': 'token ' + token,
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json'
       },
-      body: JSON.stringify({ message: `档案: ${nickname}`, content: content, branch: 'main' })
+      body: JSON.stringify({ message: '档案: ' + nickname, content: fileContent, branch: 'main' })
     });
 
     if (resp.ok) {
@@ -1084,6 +1134,9 @@ async function submitAll() {
     alert('网络错误，请检查网络后重试');
     console.error(e);
   }
+
+  document.getElementById('loading').classList.add('hidden');
+}
 
   document.getElementById('loading').classList.add('hidden');
 }
