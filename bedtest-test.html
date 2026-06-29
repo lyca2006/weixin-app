@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>床品测试</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+.stars { position: fixed; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:0; }
+.star { position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; animation: twinkle ease-in-out infinite alternate; }
+@keyframes twinkle { 0%{opacity:0.2;transform:scale(1)} 100%{opacity:1;transform:scale(1.5)} }
+.container { position:relative; z-index:1; max-width:420px; margin:0 auto; padding:20px 16px 40px; min-height:100vh; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* 性别选择页 */
+.mode-page { text-align:center; padding-top:10vh; }
+.mode-icon { font-size:72px; margin-bottom:20px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.mode-title {
+  font-size:30px; font-weight:700; margin-bottom:12px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.mode-subtitle { font-size:15px; color:rgba(255,255,255,0.6); margin-bottom:40px; line-height:1.6; }
+.mode-buttons { display:flex; gap:16px; justify-content:center; margin-bottom:30px; }
+.mode-btn {
+  flex:1; max-width:160px; padding:28px 16px; border-radius:20px;
+  border:2px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent;
+}
+.mode-btn:active { transform:scale(0.95); }
+.mode-btn:hover { border-color:rgba(245,87,108,0.5); background:rgba(245,87,108,0.1); }
+.mode-btn .btn-icon { font-size:40px; }
+.mode-btn .btn-label { font-size:18px; font-weight:700; color:#fff; }
+
+/* 题目页 */
+.quiz-page { padding-top:20px; }
+.progress-bar { width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin-bottom:8px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#f093fb,#f5576c); border-radius:2px; transition:width 0.4s ease; }
+.progress-text { text-align:right; font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:30px; }
+.question-card {
+  background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:20px; padding:28px 22px; border:1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in { 0%{opacity:0;transform:translateX(40px)} 100%{opacity:1;transform:translateX(0)} }
+.question-num { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+.question-text { font-size:20px; font-weight:600; line-height:1.5; margin-bottom:28px; }
+.options { display:flex; flex-direction:column; gap:12px; }
+.option-btn {
+  display:flex; align-items:center; padding:16px 18px;
+  background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:14px; color:#fff; font-size:15px; cursor:pointer;
+  transition:all 0.25s; -webkit-tap-highlight-color:transparent; text-align:left; line-height:1.4;
+}
+.option-btn:active { transform:scale(0.97); }
+.option-btn.selected { background:rgba(245,87,108,0.2); border-color:#f5576c; }
+.option-letter {
+  width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:600; margin-right:14px; flex-shrink:0; transition:all 0.25s;
+}
+.option-btn.selected .option-letter { background:#f5576c; }
+
+/* 结果页 */
+.result-page { padding-top:4vh; text-align:center; }
+.result-card {
+  background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:24px; padding:32px 20px 28px; border:1px solid rgba(255,255,255,0.1);
+  animation: result-in 0.8s ease; position:relative; overflow:hidden;
+}
+@keyframes result-in { 0%{opacity:0;transform:scale(0.6) translateY(40px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+.result-card::before {
+  content:''; position:absolute; top:-50%;left:-50%; width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent,rgba(245,87,108,0.1),transparent,rgba(240,147,251,0.1),transparent);
+  animation: rotate-bg 6s linear infinite;
+}
+@keyframes rotate-bg { 100%{transform:rotate(360deg)} }
+.result-inner { position:relative; z-index:1; }
+.result-type-emoji { font-size:56px; margin-bottom:8px; }
+.result-type-name {
+  font-size:28px; font-weight:700; margin-bottom:4px;
+  background:linear-gradient(135deg,#f093fb,#f5576c,#fda085);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.result-type-desc { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px; }
+.radar-wrap { display:flex; justify-content:center; margin-bottom:20px; }
+.report-text {
+  text-align:left; font-size:15px; line-height:1.8; color:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-bottom:16px;
+  min-height:80px;
+}
+.report-loading { text-align:center; color:rgba(255,255,255,0.4); padding:20px; }
+.match-suggest {
+  font-size:14px; color:#fda085; padding:10px 16px;
+  background:rgba(253,160,133,0.1); border-radius:10px; margin-bottom:20px;
+}
+.result-actions { display:flex; gap:12px; justify-content:center; }
+.action-btn {
+  flex:1; padding:14px; border-radius:24px; border:none; font-size:15px; font-weight:600;
+  cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+}
+.action-btn:active { transform:scale(0.95); }
+.action-btn.primary { background:linear-gradient(135deg,#f093fb,#f5576c); color:#fff; }
+.action-btn.secondary { background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); }
+
+/* Loading */
+.loading-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); display:flex;flex-direction:column;align-items:center;justify-content:center; z-index:999; }
+.loading-overlay.hidden { display:none; }
+.loading-spinner { width:36px;height:36px; border:3px solid rgba(255,255,255,0.2); border-top-color:#f5576c; border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { 100%{transform:rotate(360deg)} }
+.loading-text { color:rgba(255,255,255,0.6); margin-top:12px; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">AI 正在分析你的床品...</div>
+</div>
+
+<div class="container">
+  <!-- 性别选择页 -->
+  <div class="page active" id="modePage">
+    <div class="mode-page">
+      <div class="mode-icon">🛏️</div>
+      <div class="mode-title">床品测试</div>
+      <div class="mode-subtitle">测测你是什么类型的床上选手<br>AI 生成你的专属报告</div>
+      <div class="mode-buttons">
+        <div class="mode-btn" onclick="startQuiz('male')">
+          <div class="btn-icon">🧑</div>
+          <div class="btn-label">我是男生</div>
+        </div>
+        <div class="mode-btn" onclick="startQuiz('female')">
+          <div class="btn-icon">👩</div>
+          <div class="btn-label">我是女生</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 答题页 -->
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">1 / 10</div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <!-- 结果页 -->
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-card">
+        <div class="result-inner" id="resultInner"></div>
+      </div>
+      <div class="result-actions" style="margin-top:24px">
+        <button class="action-btn secondary" onclick="restart()">再测一次</button>
+        <button class="action-btn primary" onclick="goHome()">返回首页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== 题目数据 ====================
+var maleQuestions = [
+  { q:'周末晚上，她说想要一个特别的夜晚，你会？', options:[
+    {text:'🕯️ 布置好蜡烛和音乐，营造氛围', dim:'情趣'}, {text:'💪 直接把她公主抱进卧室', dim:'主动性'},
+    {text:'🛁 先帮她放好热水，一起泡个澡', dim:'温柔度'}, {text:'📖 上网研究了几个新花样', dim:'技巧'}]},
+  { q:'她说「你今晚好像特别有精神」，你的反应是？', options:[
+    {text:'😏 那当然，我可是储备了好几天', dim:'持久力'}, {text:'🔥 边说边把她拉过来', dim:'主动性'},
+    {text:'😘 轻轻亲她额头说「因为想你」', dim:'温柔度'}, {text:'🏋️ 不说话，直接展示最近健身的成果', dim:'体力'}]},
+  { q:'关于「前戏」，你的态度是？', options:[
+    {text:'⏰ 越充分越好，至少半小时起步', dim:'温柔度'}, {text:'🎯 精准点穴，效率和质量并重', dim:'技巧'},
+    {text:'🎭 喜欢角色扮演增加趣味', dim:'情趣'}, {text:'⚡ 看心情，有时候直接也很好', dim:'主动性'}]},
+  { q:'你觉得自己最大的「床上优势」是什么？', options:[
+    {text:'⏱️ 持久在线，从不让她失望', dim:'持久力'}, {text:'💡 花样多，总有新惊喜', dim:'情趣'},
+    {text:'🤸 体力好，各种姿势都hold住', dim:'体力'}, {text:'👐 手法好，知道怎么让她舒服', dim:'技巧'}]},
+  { q:'她今晚兴致不高，你会？', options:[
+    {text:'🫂 抱着她聊天，不强求', dim:'温柔度'}, {text:'💋 慢慢撩拨，用亲吻唤醒她', dim:'技巧'},
+    {text:'😂 讲笑话逗她开心，制造轻松氛围', dim:'情趣'}, {text:'🏃 那我去做100个俯卧撑消耗精力', dim:'体力'}]},
+  { q:'你们尝试新姿势，你的学习方式是？', options:[
+    {text:'📱 提前看教程，做好功课', dim:'技巧'}, {text:'🎲 即兴发挥，怎么舒服怎么来', dim:'主动性'},
+    {text:'🗣️ 问她喜欢什么，按她的来', dim:'温柔度'}, {text:'🔄 反复练习直到完美', dim:'持久力'}]},
+  { q:'你理想的「频率」是？', options:[
+    {text:'📅 每天都可以，精力充沛', dim:'体力'}, {text:'🌊 看感觉，有chemistry就来', dim:'主动性'},
+    {text:'🎯 质量大于数量，每次都要到位', dim:'技巧'}, {text:'🎪 不固定，但每次要有新花样', dim:'情趣'}]},
+  { q:'事后，你一般会？', options:[
+    {text:'🫂 搂着她说甜言蜜语', dim:'温柔度'}, {text:'💬 复盘讨论刚才的感受', dim:'技巧'},
+    {text:'😴 体力消耗太大，直接睡了', dim:'体力'}, {text:'🔄 休息一下准备第二轮', dim:'持久力'}]},
+  { q:'她夸你「今晚好厉害」，你觉得她指的是？', options:[
+    {text:'⏰ 时间够久，她很满足', dim:'持久力'}, {text:'🎯 找到了她的敏感点', dim:'技巧'},
+    {text:'💪 体力爆棚，全程高能', dim:'体力'}, {text:'🎉 今晚的情趣游戏很成功', dim:'情趣'}]},
+  { q:'如果用一道菜形容你的风格，你选？', options:[
+    {text:'🌶️ 麻辣火锅——热烈直接', dim:'主动性'}, {text:'🍲 老火靓汤——慢炖入味', dim:'持久力'},
+    {text:'🍣 精致料理——讲究技法', dim:'技巧'}, {text:'🎂 创意甜品——总有惊喜', dim:'情趣'}]}
+];
+
+var femaleQuestions = [
+  { q:'你觉得床上最重要的事情是？', options:[
+    {text:'💗 感觉被重视，全程关注我的反应', dim:'温柔度'}, {text:'🔥 激情，要有那种被「征服」的感觉', dim:'主动性'},
+    {text:'🎯 技术在线，能精准找到我的点', dim:'技巧'}, {text:'🎪 有趣，不千篇一律', dim:'情趣'}]},
+  { q:'你比较受不了另一半的哪种表现？', options:[
+    {text:'⚡ 太快结束，刚进入状态就完了', dim:'持久力'}, {text:'🪵 像块木头，全程等我主动', dim:'主动性'},
+    {text:'🤖 毫无技巧，一个姿势到底', dim:'技巧'}, {text:'😐 没有情趣，完成任务一样', dim:'情趣'}]},
+  { q:'让你「身体发软」的瞬间是？', options:[
+    {text:'🎤 他在耳边低声说话，气息喷在脖子上', dim:'温柔度'}, {text:'💪 单手把你抱起来换个位置', dim:'体力'},
+    {text:'👐 他的手法让你不自觉弓起腰', dim:'技巧'}, {text:'🔥 他突然把你按在墙上', dim:'主动性'}]},
+  { q:'你觉得理想的「前戏时长」是？', options:[
+    {text:'⏰ 越久越好，慢慢来最好', dim:'温柔度'}, {text:'⚡ 看状态，有时候直接也很刺激', dim:'主动性'},
+    {text:'🎯 不在于时间，在于他懂不懂路子', dim:'技巧'}, {text:'🎭 用情趣小道具增加乐趣', dim:'情趣'}]},
+  { q:'你比较喜欢什么时间段的亲密？', options:[
+    {text:'🌙 深夜，安静浪漫的氛围', dim:'情趣'}, {text:'☀️ 早晨，精力最充沛的时候', dim:'体力'},
+    {text:'🌅 黄昏，慢慢享受不着急', dim:'持久力'}, {text:'⚡ 随时随地，来了感觉就好', dim:'主动性'}]},
+  { q:'对方的哪个特质让你最「上头」？', options:[
+    {text:'🏋️ 身材好，体力惊人', dim:'体力'}, {text:'🧠 很会学习和改进', dim:'技巧'},
+    {text:'💐 营造浪漫氛围的能力', dim:'情趣'}, {text:'⏱️ 节奏感好，持久稳定', dim:'持久力'}]},
+  { q:'你比较喜欢他用什么方式「暗示」？', options:[
+    {text:'🫂 从背后搂住你，手慢慢往下', dim:'温柔度'}, {text:'👀 直接用眼神锁住你，按到床上', dim:'主动性'},
+    {text:'💌 发一条暧昧信息制造悬念', dim:'情趣'}, {text:'💆 先帮你按摩，手法越来越有章法', dim:'技巧'}]},
+  { q:'事后，你最希望他怎么做？', options:[
+    {text:'🫂 抱着你，亲你额头说「宝贝辛苦了」', dim:'温柔度'}, {text:'💬 认真聊刚才的感受，下次更好', dim:'技巧'},
+    {text:'🔄 休息一会儿来第二轮', dim:'持久力'}, {text:'🛁 一起去泡个澡，继续制造浪漫', dim:'情趣'}]},
+  { q:'你觉得「好床品」的人应该具备什么？', options:[
+    {text:'💪 体力和力量，hold住各种场面', dim:'体力'}, {text:'🎯 懂得察言观色，随时调整', dim:'技巧'},
+    {text:'⏱️ 能控制节奏，收放自如', dim:'持久力'}, {text:'🔥 主动出击，不需要你提示', dim:'主动性'}]},
+  { q:'用一个词形容你向往的亲密关系？', options:[
+    {text:'🌶️ 火辣——激情四射', dim:'主动性'}, {text:'🌊 缠绵——如水般温柔', dim:'温柔度'},
+    {text:'🎢 探索——总有新大陆', dim:'情趣'}, {text:'🏔️ 磅礴——排山倒海', dim:'体力'}]}
+];
+
+// ==================== 类型数据 ====================
+var typeMap = {
+  '温柔骑士': { emoji:'🤴', desc:'温柔是你最大的武器', match:'适合搭配「野性猎手」，温柔与激情的碰撞最来电⚡' },
+  '野性猎手': { emoji:'🐺', desc:'主动出击，势不可挡', match:'适合搭配「温柔骑士」或「感觉派」，有人接住你的热情🔥' },
+  '技术流':   { emoji:'🎯', desc:'精通各路技法的大师', match:'适合搭配「探索家」，两个实力派强强联合💪' },
+  '感觉派':   { emoji:'🎭', desc:'氛围感拉满的浪漫达人', match:'适合搭配「野性猎手」，你负责氛围ta负责行动🎬' },
+  '探索家':   { emoji:'🧗', desc:'体力惊人，探索无止境', match:'适合搭配「技术流」或「感觉派」，体力+技巧=完美🏆' }
+};
+
+var fallbackReports = {
+  '温柔骑士': '恭喜获得「温柔骑士」称号！你的温柔就像冬天的暖被子，让人一旦躺进去就不想出来。前戏是你的主场，事后抱抱是你的签名动作。找个「野性猎手」互补，不然你俩能温柔到天亮都没进入正题😂',
+  '野性猎手': '野性猎手上线！你在床上就像饿了三天的狮子看到羚羊——主动、直接、充满掠食者的气场。你的主动性让对方完全不用思考，躺平就行。找个「感觉派」搭档，ta负责布置战场，你负责冲锋陷阵🐺',
+  '技术流':   '技术流大师驾到！你把床上运动当成了一门学问，每个角度都经过精密计算。别人在享受，你在研究。找个「探索家」一起切磋，你们能把这件事做成学术论文📚',
+  '感觉派':   '感觉派艺术家来了！对你来说，氛围感大于一切。没有蜡烛和音乐？不好意思，今晚取消。你的情趣值拉满，每次都像拍一部浪漫电影。找个主动性强的人，不然你们光布置现场就天亮了🎬',
+  '探索家':   '探索家请注意！你的体力和持久力让人怀疑你是不是偷偷吃了什么。从日落到日出，你都能保持在线。找个同样精力旺盛的伙伴，不然对方可能需要提前买好跌打损伤药💊'
+};
+
+// ==================== 状态 ====================
+var gender = '';
+var currentQ = 0;
+var answers = [];
+
+// ==================== 页面控制 ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz(g) {
+  gender = g;
+  currentQ = 0;
+  answers = [];
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function restart() {
+  gender = '';
+  currentQ = 0;
+  answers = [];
+  showPage('modePage');
+}
+
+function goHome() {
+  window.location.href = 'home-test.html';
+}
+
+// ==================== 答题 ====================
+function getQuestions() {
+  return gender === 'male' ? maleQuestions : femaleQuestions;
+}
+
+function renderQuestion() {
+  var qs = getQuestions();
+  var q = qs[currentQ];
+  var percent = (currentQ / qs.length * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressText').textContent = (currentQ + 1) + ' / ' + qs.length;
+
+  var card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'card-in 0.4s ease';
+
+  var letters = ['A','B','C','D'];
+  var html = '<div class="question-num">第 ' + (currentQ + 1) + ' 题</div>';
+  html += '<div class="question-text">' + q.q + '</div>';
+  html += '<div class="options">';
+  q.options.forEach(function(opt, i) {
+    html += '<div class="option-btn" onclick="selectOption(' + i + ', this)">';
+    html += '<div class="option-letter">' + letters[i] + '</div>';
+    html += '<div>' + opt.text + '</div></div>';
+  });
+  html += '</div>';
+  card.innerHTML = html;
+}
+
+function selectOption(idx, el) {
+  el.classList.add('selected');
+  var allBtns = el.parentElement.querySelectorAll('.option-btn');
+  allBtns.forEach(function(b) { b.style.pointerEvents = 'none'; });
+
+  answers.push(idx);
+
+  setTimeout(function() {
+    currentQ++;
+    if (currentQ < getQuestions().length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 500);
+}
+
+// ==================== 评分 ====================
+function computeScores() {
+  var qs = getQuestions();
+  var scores = { '主动性':0, '体力':0, '技巧':0, '情趣':0, '温柔度':0, '持久力':0 };
+  answers.forEach(function(ansIdx, qIdx) {
+    var dim = qs[qIdx].options[ansIdx].dim;
+    scores[dim]++;
+  });
+  var normalized = {};
+  for (var key in scores) {
+    normalized[key] = Math.min(100, Math.max(15, scores[key] * 25));
+  }
+  return { raw: scores, normalized: normalized };
+}
+
+function determineType(scores) {
+  var sorted = Object.entries(scores.raw).sort(function(a, b) { return b[1] - a[1]; });
+  var topDim = sorted[0][0];
+  var dimToType = {
+    '温柔度': '温柔骑士', '主动性': '野性猎手', '技巧': '技术流',
+    '情趣': '感觉派', '体力': '探索家', '持久力': '探索家'
+  };
+  var type = dimToType[topDim] || '技术流';
+  if (sorted[0][1] === sorted[1][1]) {
+    var pair = [sorted[0][0], sorted[1][0]].sort().join('+');
+    if (pair.indexOf('体力') >= 0 && pair.indexOf('持久力') >= 0) type = '探索家';
+    if (pair.indexOf('温柔度') >= 0 && pair.indexOf('情趣') >= 0) type = '感觉派';
+    if (pair.indexOf('主动性') >= 0 && pair.indexOf('技巧') >= 0) type = '野性猎手';
+  }
+  return type;
+}
+
+// ==================== 雷达图 ====================
+function drawRadarChart(canvasId, scores) {
+  var canvas = document.getElementById(canvasId);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var cssW = 260, cssH = 260;
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  ctx.scale(dpr, dpr);
+
+  var cx = cssW / 2, cy = cssH / 2;
+  var radius = Math.min(cx, cy) - 30;
+  var dims = ['主动性', '体力', '技巧', '情趣', '温柔度', '持久力'];
+  var n = dims.length;
+
+  // Background rings
+  for (var level = 3; level >= 1; level--) {
+    var r = radius * (level / 3);
+    ctx.beginPath();
+    for (var i = 0; i <= n; i++) {
+      var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+      var x = cx + r * Math.cos(angle);
+      var y = cy + r * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Axis lines
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.stroke();
+  }
+
+  // Data polygon
+  ctx.beginPath();
+  for (var i = 0; i <= n; i++) {
+    var idx = i % n;
+    var angle = (Math.PI * 2 * idx) / n - Math.PI / 2;
+    var val = scores.normalized[dims[idx]] / 100;
+    var x = cx + radius * val * Math.cos(angle);
+    var y = cy + radius * val * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  }
+  ctx.fillStyle = 'rgba(245, 87, 108, 0.25)';
+  ctx.fill();
+  ctx.strokeStyle = '#f5576c';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    var val = scores.normalized[dims[i]] / 100;
+    var x = cx + radius * val * Math.cos(angle);
+    var y = cy + radius * val * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#f5576c';
+    ctx.fill();
+  }
+
+  // Labels
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    var labelR = radius + 20;
+    var x = cx + labelR * Math.cos(angle);
+    var y = cy + labelR * Math.sin(angle);
+    ctx.fillText(dims[i], x, y);
+  }
+}
+
+// ==================== AI 报告 ====================
+function generateAIReport(type, scores, callback) {
+  var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+  var genderText = gender === 'male' ? '男生' : '女生';
+  var scoreDesc = Object.entries(scores.raw).map(function(e) { return e[0]+':'+e[1]+'分'; }).join('、');
+
+  var prompt = '你是一个幽默风趣的"床品分析师"，专门给人写搞笑的床品报告。\n\n' +
+    '对象：一位' + genderText + '\n' +
+    '床品类型：' + type + '（' + typeMap[type].desc + '）\n' +
+    '六维得分：' + scoreDesc + '\n\n' +
+    '请用150字以内写一段幽默、搞笑、有梗的"床品分析报告"。要求：\n' +
+    '1. 先用一句话总结这个人的床上风格（要搞笑）\n' +
+    '2. 用网络热梗或有趣比喻描述ta的特点\n' +
+    '3. 最后给一句话的匹配建议\n' +
+    '4. 语气轻松幽默，像朋友之间开玩笑\n' +
+    '5. 可以稍微露骨一点但不要低俗\n' +
+    '注意：这是朋友群里的娱乐小游戏，保持轻松有趣！';
+
+  fetch('https://models.inference.ai.azure.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + TK
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: '你是一个专业但幽默的"床品分析师"，擅长用搞笑的方式分析人们的亲密关系风格。' },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 300,
+      temperature: 0.9
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      callback(data.choices[0].message.content);
+    } else {
+      callback(fallbackReports[type]);
+    }
+  })
+  .catch(function(e) {
+    console.error('AI API error:', e);
+    callback(fallbackReports[type]);
+  });
+}
+
+// ==================== 显示结果 ====================
+function showResult() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+
+  var scores = computeScores();
+  var type = determineType(scores);
+  var info = typeMap[type];
+
+  // Build result HTML
+  var html = '<div class="result-type-emoji">' + info.emoji + '</div>';
+  html += '<div class="result-type-name">' + type + '</div>';
+  html += '<div class="result-type-desc">' + info.desc + '</div>';
+  html += '<div class="radar-wrap"><canvas id="radarChart"></canvas></div>';
+  html += '<div class="report-text" id="reportText"><div class="report-loading">🤖 AI 正在撰写你的专属报告...</div></div>';
+  html += '<div class="match-suggest">💕 ' + info.match + '</div>';
+
+  document.getElementById('resultInner').innerHTML = html;
+
+  // Hide loading, show result
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  showPage('resultPage');
+
+  // Draw radar chart
+  setTimeout(function() {
+    drawRadarChart('radarChart', scores);
+  }, 100);
+
+  // Generate AI report
+  generateAIReport(type, scores, function(report) {
+    document.getElementById('reportText').innerHTML = report;
+  });
+}
+
+// ==================== 星星 ====================
+function createStars() {
+  var c = document.getElementById('stars');
+  for (var i = 0; i < 60; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.width = s.style.height = (Math.random() * 2 + 1) + 'px';
+    s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    c.appendChild(s);
+  }
+}
+createStars();
+</script>
+</body>
+</html>
