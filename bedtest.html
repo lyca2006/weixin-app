@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>天天想上一家人</title>
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  color: #fff;
+  overflow-x: hidden;
+}
+.stars { position: fixed; top:0; left:0; right:0; bottom:0; pointer-events:none; z-index:0; }
+.star { position:absolute; width:2px; height:2px; background:#fff; border-radius:50%; animation: twinkle ease-in-out infinite alternate; }
+@keyframes twinkle { 0%{opacity:0.2;transform:scale(1)} 100%{opacity:1;transform:scale(1.5)} }
+.container { position:relative; z-index:1; max-width:420px; margin:0 auto; padding:20px 16px 40px; min-height:100vh; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* 性别选择页 */
+.mode-page { text-align:center; padding-top:10vh; }
+.mode-icon { font-size:72px; margin-bottom:20px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.mode-title {
+  font-size:30px; font-weight:700; margin-bottom:12px;
+  background: linear-gradient(135deg, #f093fb, #f5576c, #fda085);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.mode-subtitle { font-size:15px; color:rgba(255,255,255,0.6); margin-bottom:40px; line-height:1.6; }
+.mode-buttons { display:flex; gap:16px; justify-content:center; margin-bottom:30px; }
+.mode-btn {
+  flex:1; max-width:160px; padding:28px 16px; border-radius:20px;
+  border:2px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+  cursor:pointer; transition:all 0.3s; -webkit-tap-highlight-color:transparent;
+}
+.mode-btn:active { transform:scale(0.95); }
+.mode-btn:hover { border-color:rgba(245,87,108,0.5); background:rgba(245,87,108,0.1); }
+.mode-btn .btn-icon { font-size:40px; }
+.mode-btn .btn-label { font-size:18px; font-weight:700; color:#fff; }
+
+/* 题目页 */
+.quiz-page { padding-top:20px; }
+.progress-bar { width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin-bottom:8px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,#f093fb,#f5576c); border-radius:2px; transition:width 0.4s ease; }
+.progress-text { text-align:right; font-size:12px; color:rgba(255,255,255,0.4); margin-bottom:30px; }
+.question-card {
+  background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:20px; padding:28px 22px; border:1px solid rgba(255,255,255,0.1);
+  animation: card-in 0.4s ease;
+}
+@keyframes card-in { 0%{opacity:0;transform:translateX(40px)} 100%{opacity:1;transform:translateX(0)} }
+.question-num { font-size:13px; color:rgba(255,255,255,0.4); margin-bottom:10px; }
+.question-text { font-size:20px; font-weight:600; line-height:1.5; margin-bottom:28px; }
+.options { display:flex; flex-direction:column; gap:12px; }
+.option-btn {
+  display:flex; align-items:center; padding:16px 18px;
+  background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.12);
+  border-radius:14px; color:#fff; font-size:15px; cursor:pointer;
+  transition:all 0.25s; -webkit-tap-highlight-color:transparent; text-align:left; line-height:1.4;
+}
+.option-btn:active { transform:scale(0.97); }
+.option-btn.selected { background:rgba(245,87,108,0.2); border-color:#f5576c; }
+.option-letter {
+  width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:600; margin-right:14px; flex-shrink:0; transition:all 0.25s;
+}
+.option-btn.selected .option-letter { background:#f5576c; }
+
+/* 结果页 */
+.result-page { padding-top:4vh; text-align:center; }
+.result-card {
+  background:rgba(255,255,255,0.08); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-radius:24px; padding:20px 16px 20px; border:1px solid rgba(255,255,255,0.1);
+  animation: result-in 0.8s ease; position:relative; overflow:hidden;
+}
+@keyframes result-in { 0%{opacity:0;transform:scale(0.6) translateY(40px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+.result-card::before {
+  content:''; position:absolute; top:-50%;left:-50%; width:200%;height:200%;
+  background:conic-gradient(from 0deg,transparent,rgba(245,87,108,0.1),transparent,rgba(240,147,251,0.1),transparent);
+  animation: rotate-bg 6s linear infinite;
+}
+@keyframes rotate-bg { 100%{transform:rotate(360deg)} }
+.result-inner { position:relative; z-index:1; }
+.result-type-emoji { font-size:28px; margin-right:8px; vertical-align:baseline; display:inline; line-height:1; }
+.result-type-name { display:inline;
+  font-size:28px; font-weight:700; margin-bottom:4px;
+  background:linear-gradient(135deg,#f093fb,#f5576c,#fda085);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.result-type-desc { font-size:14px; color:rgba(255,255,255,0.5); margin-bottom:20px; }
+.radar-wrap { display:flex; justify-content:center; margin-bottom:10px; }
+.report-text {
+  text-align:left; font-size:13px; line-height:1.6; color:rgba(255,255,255,0.85);
+  background:rgba(255,255,255,0.05); border-radius:12px; padding:16px; margin-bottom:16px;
+  min-height:80px;
+}
+.report-loading { text-align:center; color:rgba(255,255,255,0.4); padding:20px; }
+.match-suggest { text-align:center;
+  font-size:14px; color:#fda085; padding:10px 16px;
+  background:rgba(253,160,133,0.1); border-radius:10px; margin-bottom:12px;
+}
+.result-actions { display:flex; gap:12px; justify-content:center; }
+.action-btn {
+  flex:1; padding:14px; border-radius:24px; border:none; font-size:15px; font-weight:600;
+  cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+}
+.action-btn:active { transform:scale(0.95); }
+.action-btn.primary { background:linear-gradient(135deg,#f093fb,#f5576c); color:#fff; }
+.action-btn.secondary { background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.2); }
+
+/* Loading */
+.loading-overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); display:flex;flex-direction:column;align-items:center;justify-content:center; z-index:999; }
+.loading-overlay.hidden { display:none; }
+.loading-spinner { width:36px;height:36px; border:3px solid rgba(255,255,255,0.2); border-top-color:#f5576c; border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { 100%{transform:rotate(360deg)} }
+.loading-text { color:rgba(255,255,255,0.6); margin-top:12px; font-size:14px; }
+
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="loading-overlay hidden" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">阿细正在为你评估床品...</div>
+</div>
+
+<div class="container">
+  <div class="page active" id="modePage">
+    <div class="mode-page">
+      <div class="mode-icon">🛏️</div>
+      <div class="mode-title">床品测试</div>
+      <div class="mode-subtitle">测测你是什么类型的床上选手<br>阿细为你生成专属报告</div>
+      <div class="mode-buttons">
+        <div class="mode-btn" onclick="startQuiz('male')">
+          <div class="btn-icon">🧑</div>
+          <div class="btn-label">我是男生</div>
+        </div>
+        <div class="mode-btn" onclick="startQuiz('female')">
+          <div class="btn-icon">👩</div>
+          <div class="btn-label">我是女生</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="quizPage">
+    <div class="quiz-page">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">1 / 12</div>
+      <div class="question-card" id="questionCard"></div>
+    </div>
+  </div>
+
+  <div class="page" id="resultPage">
+    <div class="result-page">
+      <div class="result-card">
+        <div class="result-inner" id="resultInner"></div>
+      </div>
+      <div class="result-actions" style="margin-top:24px">
+        <button class="action-btn secondary" onclick="restart()">再测一次</button>
+        <button class="action-btn primary" onclick="goHome()">返回首页</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var maleQuestions = [{"q": "周末晚上，她说“今晚想有点不一样的”，你第一反应是？", "options": [{"text": "🕯️ 点蜡烛放点爵士乐，氛围先拉满", "dims": {"情趣": 1}}, {"text": "🏋️ 直接把她抱起来往卧室走", "dims": {"体力": 1, "主动性": 1}}, {"text": "🛁 问她要不要一起泡个澡放松一下", "dims": {"温柔度": 1}}, {"text": "📖 脑子里开始过一遍最近看过的“教程”", "dims": {"技巧": 1}}]}, {"q": "她穿了一件你从来没见过的睡衣出现在你面前，你？", "options": [{"text": "🔥 愣了一秒然后直接亲上去", "dims": {"主动性": 1, "情趣": 1}}, {"text": "👀 让她转一圈给你看看", "dims": {"持久力": 1}}, {"text": "😏 “你是想让我今晚睡不着吗？”", "dims": {"情趣": 1}}, {"text": "🤳 先拍张照再说", "dims": {"情趣": 1}}]}, {"q": "她说“你今晚好像特别有精神”，你怎么回？", "options": [{"text": "😘 “因为今天看到你的时候就开始了”", "dims": {"温柔度": 1, "情趣": 1}}, {"text": "⏳ “练了一周腿，不能白练”", "dims": {"持久力": 1}}, {"text": "🔥 “你摸摸看就知道了”", "dims": {"主动性": 1}}, {"text": "😂 “你猜我憋了几天”", "dims": {"持久力": 1}}]}, {"q": "你觉得“前戏”对你来说意味着什么？", "options": [{"text": "⏰ 正餐前的开胃菜，不能省", "dims": {"温柔度": 1}}, {"text": "🎯 精准打击，效率优先", "dims": {"技巧": 1}}, {"text": "🎭 表演时间，戏要足", "dims": {"情趣": 1}}, {"text": "⚡ 有时候直接来也挺好", "dims": {"主动性": 1}}]}, {"q": "她坐在你腿上，搂着你脖子但不说话，你？", "options": [{"text": "🤚 手搭在她腰上，慢慢往上滑", "dims": {"温柔度": 1, "技巧": 1}}, {"text": "🗣️ “你这样我很难专心看电视”", "dims": {"情趣": 1}}, {"text": "😏 直接吻她脖子侧面", "dims": {"主动性": 1}}, {"text": "🏋️ 把她抱起来换个地方坐", "dims": {"体力": 1}}]}, {"q": "你觉得自己最大的床上优势是什么？", "options": [{"text": "⏱️ 从来不让她等太久，也不让她太快结束", "dims": {"持久力": 1}}, {"text": "👐 手法好，她夸过我", "dims": {"技巧": 1}}, {"text": "🏃 体力跟得上，想换姿势随时换", "dims": {"体力": 1}}, {"text": "🧠 学习能力强，上次的反馈下次就改进", "dims": {"技巧": 1}}]}, {"q": "如果她今晚看起来不太想，你会？", "options": [{"text": "🫂 抱抱她问是不是累了", "dims": {"温柔度": 1}}, {"text": "😂 讲个段子让她先放松", "dims": {"情趣": 1}}, {"text": "💆 帮她按按肩膀和脖子", "dims": {"温柔度": 1}}, {"text": "⏳ 自己去冲个冷水澡冷静一下", "dims": {"持久力": 1}}]}, {"q": "你更喜欢哪种风格？", "options": [{"text": "🌶️ 麻辣火锅型——热烈、直接、出汗", "dims": {"主动性": 1, "体力": 1}}, {"text": "🍲 老火靓汤型——慢炖、入味、回甘", "dims": {"持久力": 1, "温柔度": 1}}, {"text": "🍣 精致料理型——讲究、细腻、有层次", "dims": {"技巧": 1}}, {"text": "🎂 创意甜品型——好玩、新鲜、总有惊喜", "dims": {"情趣": 1}}]}, {"q": "事后她趴在你胸口不说话，你？", "options": [{"text": "🫂 手指轻轻划她后背，有一搭没一搭地聊", "dims": {"温柔度": 1}}, {"text": "💬 “刚才那个角度你觉得怎么样？”", "dims": {"技巧": 1}}, {"text": "😴 太累了直接睡着", "dims": {"体力": 1}}, {"text": "🔄 “休息一下，等下再来？”", "dims": {"持久力": 1}}]}, {"q": "你觉得床上的“默契”重要吗？", "options": [{"text": "💯 超级重要，不用说话也知道要什么", "dims": {"温柔度": 1, "技巧": 1}}, {"text": "🤷 还行吧，有沟通就行", "dims": {"温柔度": 1}}, {"text": "🎯 默契是靠练出来的", "dims": {"技巧": 1}}, {"text": "🔥 不重要，热情比默契更关键", "dims": {"主动性": 1}}]}, {"q": "她洗完澡裹着浴巾出来，水滴还在肩膀上，你？", "options": [{"text": "🫦 走过去把浴巾扯了", "dims": {"主动性": 1}}, {"text": "😏 “你故意的吧”", "dims": {"情趣": 1}}, {"text": "🫂 拿毛巾帮她擦头发", "dims": {"温柔度": 1, "技巧": 1}}, {"text": "🏋️ 抱起来放到床上才开始下一步", "dims": {"体力": 1, "主动性": 1}}]}, {"q": "她穿着你的白衬衫在房间里晃来晃去，你？", "options": [{"text": "😏 “那件衬衫我明天还要穿的”", "dims": {"情趣": 1}}, {"text": "🫂 过去从背后抱住不撒手", "dims": {"温柔度": 1}}, {"text": "🔥 直接抱到床上", "dims": {"主动性": 1, "体力": 1}}, {"text": "👀 靠在门框上看她走来走去", "dims": {"持久力": 1}}]}, {"q": "早上醒来她还没醒，你会？", "options": [{"text": "🫂 从背后搂着继续眯一会儿", "dims": {"温柔度": 1}}, {"text": "👀 看她一会儿再亲额头叫醒", "dims": {"温柔度": 1}}, {"text": "⏳ 手开始不老实", "dims": {"持久力": 1}}, {"text": "🏃 自己先起床去洗漱", "dims": {"体力": 1}}]}, {"q": "约会前她发消息说“今天穿了新裙子”，你怎么回？", "options": [{"text": "😏 “那今天早点回来”", "dims": {"主动性": 1}}, {"text": "😂 “我先把床收拾一下”", "dims": {"情趣": 1}}, {"text": "🫦 “穿什么都好看，但我想看它掉在地上的样子”", "dims": {"情趣": 1, "主动性": 1}}, {"text": "🫂 “那我得好好欣赏一下”", "dims": {"温柔度": 1}}]}, {"q": "她突然在你洗澡时推门进来，你？", "options": [{"text": "😂 “要一起洗吗？省水。”", "dims": {"情趣": 1}}, {"text": "🏋️ 把她拉进来水花溅了一身", "dims": {"主动性": 1, "体力": 1}}, {"text": "😏 关水、擦干、抱出去——全程不说话", "dims": {"主动性": 1}}, {"text": "🫂 “我马上好，你去床上等我”", "dims": {"温柔度": 1}}]}, {"q": "你更喜欢哪种启动方式？", "options": [{"text": "🫂 从亲吻拥抱慢慢升温", "dims": {"温柔度": 1}}, {"text": "⚡ 她一个眼神你就有反应", "dims": {"主动性": 1}}, {"text": "💆 互相按个摩，自然发生", "dims": {"温柔度": 1, "技巧": 1}}, {"text": "🔥 直接脱衣服不废话", "dims": {"主动性": 1}}]}, {"q": "她说“你今晚别想睡了”，你怎么接？", "options": [{"text": "😏 “我怕你明天起不来”", "dims": {"持久力": 1, "体力": 1}}, {"text": "😏 “正好我今晚也没打算让你睡”", "dims": {"主动性": 1}}, {"text": "🫂 “那你负责叫我起床”", "dims": {"温柔度": 1}}, {"text": "😂 “我明天请假了”", "dims": {"情趣": 1}}]}, {"q": "尝试新姿势时，你的学习方式？", "options": [{"text": "📱 提前查过教程", "dims": {"技巧": 1}}, {"text": "🎲 即兴发挥，舒服就行", "dims": {"主动性": 1}}, {"text": "🗣️ 问她感觉怎么样随时调整", "dims": {"温柔度": 1, "持久力": 1}}, {"text": "🔄 同一个姿势反复练到完美", "dims": {"持久力": 1}}]}, {"q": "你更享受哪种节奏？", "options": [{"text": "🚀 快准狠，一波带走", "dims": {"体力": 1, "持久力": 1}}, {"text": "🌊 慢慢来，层层递进", "dims": {"温柔度": 1, "持久力": 1}}, {"text": "🔄 快慢交替，收放自如", "dims": {"技巧": 1}}, {"text": "🎭 每次不一样，看心情", "dims": {"情趣": 1}}]}, {"q": "她夸你“今晚好厉害”，你觉得她指的是？", "options": [{"text": "⏰ “时间够久”", "dims": {"持久力": 1}}, {"text": "🎯 “找到对的地方了”", "dims": {"技巧": 1}}, {"text": "🏋️ “体力全程在线”", "dims": {"体力": 1}}, {"text": "🎉 “刚才那个游戏玩得好”", "dims": {"情趣": 1}}]}, {"q": "她跟你说“教教我”的时候，你？", "options": [{"text": "🎯 手把手带她感受", "dims": {"技巧": 1}}, {"text": "😏 “不用教，跟着我就好”", "dims": {"主动性": 1}}, {"text": "😘 “你怎么做我都喜欢”", "dims": {"温柔度": 1}}, {"text": "📖 给她看个视频参考", "dims": {"情趣": 1}}]}, {"q": "事后你们躺在床上聊天，她忽然说“我刚才差点没忍住叫出声”，你？", "options": [{"text": "😏 “下次别忍了，我喜欢听”", "dims": {"主动性": 1, "情趣": 1}}, {"text": "😂 “我听到了，你在骗我”", "dims": {"持久力": 1}}, {"text": "🫂 “没关系，我懂”", "dims": {"温柔度": 1}}, {"text": "💬 “那个姿势下次可以再试试”", "dims": {"技巧": 1}}]}, {"q": "你最想被夸的是哪句？", "options": [{"text": "「你好持久」", "dims": {"持久力": 1}}, {"text": "「你好会」", "dims": {"技巧": 1}}, {"text": "「你好有力」", "dims": {"体力": 1}}, {"text": "「跟你做真的跟别人不一样」", "dims": {"情趣": 1}}]}, {"q": "她咬你耳朵说了句悄悄话，你？", "options": [{"text": "😈 “你完了，今晚别想睡了”", "dims": {"主动性": 1}}, {"text": "😂 “你刚才说什么？没听清”", "dims": {"情趣": 1}}, {"text": "🫂 “你再说一遍？”", "dims": {"温柔度": 1}}, {"text": "⏳ 直接把她扛起来", "dims": {"持久力": 1}}]}, {"q": "中间休息时她在你身上睡着了，你？", "options": [{"text": "😴 不管了，一起睡", "dims": {"体力": 1}}, {"text": "🫂 轻轻把她放到枕头上盖好被子", "dims": {"温柔度": 1}}, {"text": "⏳ 等她睡熟了自己去冲个澡", "dims": {"体力": 1, "持久力": 1}}, {"text": "🫦 捏她鼻子把她弄醒继续", "dims": {"情趣": 1, "主动性": 1}}]}, {"q": "她问你“累不累”，你？", "options": [{"text": "🏋️ “累？这才哪到哪”", "dims": {"体力": 1, "持久力": 1}}, {"text": "🫂 “累了但还想跟你待着”", "dims": {"温柔度": 1}}, {"text": "🫦 “你试试看累不累”", "dims": {"主动性": 1}}, {"text": "🔄 “等一下你就知道我累不累了”", "dims": {"情趣": 1}}]}, {"q": "她忽然说“我想看你那个样子”，你？", "options": [{"text": "😈 “那你别眨眼”", "dims": {"主动性": 1, "体力": 1}}, {"text": "🫦 “你先让我看看你的样子”", "dims": {"情趣": 1}}, {"text": "🫂 “你这样说我有点紧张”", "dims": {"温柔度": 1}}, {"text": "🎯 “那我得调整一下状态”", "dims": {"技巧": 1}}]}, {"q": "她说“再快一点”，你？", "options": [{"text": "🚀 立刻加速，全力以赴", "dims": {"持久力": 1}}, {"text": "🫦 偏不，我要慢慢来", "dims": {"技巧": 1, "主动性": 1}}, {"text": "🔄 快一会儿慢一会儿，吊胃口", "dims": {"技巧": 1}}, {"text": "🏋️ 加速同时加大力度", "dims": {"体力": 1, "持久力": 1}}]}, {"q": "你对玩具的态度是？", "options": [{"text": "🎉 非常欢迎，增加乐趣", "dims": {"情趣": 1}}, {"text": "🤷 可以试试，不排斥", "dims": {"情趣": 1}}, {"text": "😤 不需要，我自己就够了", "dims": {"主动性": 1}}, {"text": "📖 愿意研究怎么正确使用", "dims": {"技巧": 1}}]}, {"q": "“感觉来了”的时候，你通常是什么状态？", "options": [{"text": "⚡ 直接上头，不犹豫", "dims": {"主动性": 1}}, {"text": "🫂 先看她状态再行动", "dims": {"温柔度": 1}}, {"text": "📖 脑子里自动过流程", "dims": {"技巧": 1}}, {"text": "🔥 心跳加速、呼吸变重、开始出汗", "dims": {"体力": 1}}]}, {"q": "你觉得自己在床上的风格更偏向？", "options": [{"text": "🤴 伺候型——先让她舒服", "dims": {"温柔度": 1}}, {"text": "😈 征服型——我来掌控全场", "dims": {"体力": 1, "持久力": 1}}, {"text": "🧠 技术型——姿势角度节奏都算好", "dims": {"技巧": 1}}, {"text": "🎭 表演型——过程比结果重要", "dims": {"情趣": 1}}]}, {"q": "她说“你是我遇到过最——”还没说完就被你打断了，你希望她说的那个词是什么？", "options": [{"text": "“温柔的”", "dims": {"温柔度": 1}}, {"text": "“会玩的”", "dims": {"情趣": 1}}, {"text": "“持久的”", "dims": {"持久力": 1}}, {"text": "“会弄的”", "dims": {"技巧": 1}}]}, {"q": "你更在意“结果”还是“过程”？", "options": [{"text": "🎯 结果——大家都到了就行", "dims": {"主动性": 1}}, {"text": "🎬 过程——享受每一秒", "dims": {"情趣": 1}}, {"text": "🎯 都重要，但过程对了结果自然好", "dims": {"技巧": 1}}, {"text": "🫂 过程——结束后还能抱在一起聊天", "dims": {"温柔度": 1}}]}, {"q": "做完之后，你一般会？", "options": [{"text": "🫂 抱着她聊会儿天再睡", "dims": {"温柔度": 1}}, {"text": "💬 “刚才那个姿势你觉得怎么样？”", "dims": {"技巧": 1}}, {"text": "😴 体力耗尽直接睡", "dims": {"体力": 1}}, {"text": "🔄 “再来一次？”", "dims": {"持久力": 1}}]}, {"q": "你觉得一段关系里“床上合不合”占比多大？", "options": [{"text": "💯 50% 以上——很重要", "dims": {"主动性": 1, "体力": 1, "技巧": 1, "情趣": 1, "温柔度": 1, "持久力": 1}}, {"text": "🤷 30% 左右——锦上添花", "dims": {"温柔度": 1}}, {"text": "🎯 不重要——感情到位就行", "dims": {"温柔度": 1}}, {"text": "🔥 很重要——这是检验感情的方式", "dims": {"主动性": 1}}]}, {"q": "如果她闺蜜问“你们那方面怎么样”，你希望她怎么回答？", "options": [{"text": "😏 她脸红不说话", "dims": {"技巧": 1}}, {"text": "🔥 “她说我比她想象中会”", "dims": {"主动性": 1}}, {"text": "🥰 “她说跟我在一起很安心”", "dims": {"温柔度": 1}}, {"text": "⏳ “她说我体力比看起来好”", "dims": {"持久力": 1}}]}, {"q": "你连续奋战后她说“还要”，你？", "options": [{"text": "🏋️ “行，换个姿势继续”", "dims": {"体力": 1, "持久力": 1}}, {"text": "😂 “你今天是想要我命吗”", "dims": {"持久力": 1}}, {"text": "🫂 “休息十分钟再战”", "dims": {"温柔度": 1, "持久力": 1}}, {"text": "🎯 “那我换个节奏来”", "dims": {"技巧": 1}}]}, {"q": "她问“你到底什么时候结束”，你？", "options": [{"text": "🫦 “你什么时候想让我结束我就结束”", "dims": {"技巧": 1, "持久力": 1}}, {"text": "😈 “快了，再等一会儿”", "dims": {"主动性": 1}}, {"text": "😂 “这个问题我也想问自己”", "dims": {"情趣": 1}}, {"text": "🏋️ “等我先换个姿势”", "dims": {"体力": 1}}]}, {"q": "你做完了但她说“我还没到”，你？", "options": [{"text": "👅 “那我换个方式”", "dims": {"技巧": 1, "温柔度": 1}}, {"text": "🏋️ “继续，不差这一会儿”", "dims": {"体力": 1, "持久力": 1}}, {"text": "👐 “怎么不早说”", "dims": {"技巧": 1}}, {"text": "🫂 “没关系，慢慢来”", "dims": {"温柔度": 1}}]}, {"q": "用一句话总结，你对这件事的态度是？", "options": [{"text": "💗 这是表达爱的方式", "dims": {"温柔度": 1}}, {"text": "🔥 这是满足欲望的方式", "dims": {"主动性": 1}}, {"text": "🎨 这是探索彼此的方式", "dims": {"情趣": 1, "技巧": 1}}, {"text": "⚡ 这是检验默契的方式", "dims": {"持久力": 1}}]}, {"q": "她说“你今天好像特别快”，你第一反应是？", "options": [{"text": "😏 “那是因为你太撩了”", "dims": {"情趣": 1}}, {"text": "💪 “休息一下再来一次”", "dims": {"持久力": 1, "体力": 1}}, {"text": "🎯 “那你今天别想让我快”", "dims": {"持久力": 1, "技巧": 1}}, {"text": "😂 “我今天状态不好，你等我热身”", "dims": {"情趣": 1}}]}, {"q": "健身房里你最喜欢的训练项目是？", "options": [{"text": "🏋️ 大重量深蹲、硬拉", "dims": {"体力": 2}}, {"text": "🏃 长时间有氧、耐力训练", "dims": {"持久力": 2}}, {"text": "🧘 核心稳定、平衡控制", "dims": {"技巧": 1, "体力": 1}}, {"text": "💪 上肢力量、胸背训练", "dims": {"体力": 1}}]}, {"q": "她觉得你体力最惊艳的瞬间是？", "options": [{"text": "🏋️ 扛着她走了半小时", "dims": {"体力": 1, "持久力": 1}}, {"text": "🔄 换了好几个姿势都不带喘的", "dims": {"体力": 1, "持久力": 1}}, {"text": "🏃 做完还能出去买夜宵", "dims": {"体力": 1}}, {"text": "⏳ 一直保持节奏等她先到", "dims": {"持久力": 1, "技巧": 1}}]}, {"q": "前一天加班很晚，第二天她想要，你？", "options": [{"text": "💪 “没问题，等你先睡着”", "dims": {"体力": 1, "持久力": 1}}, {"text": "😂 “你得负责把我弄醒”", "dims": {"主动性": 1}}, {"text": "🫂 “抱着睡吧，明天补给你”", "dims": {"温柔度": 1}}, {"text": "☕ “我先喝杯咖啡再开始”", "dims": {"技巧": 1}}]}, {"q": "她抱怨“为什么你每次都比我先到”，你？", "options": [{"text": "😏 “那是因为我太喜欢你了”", "dims": {"温柔度": 1, "情趣": 1}}, {"text": "🎯 “那你下次别停，等我一下”", "dims": {"持久力": 1, "技巧": 1}}, {"text": "💪 “那我下次多练练”", "dims": {"体力": 1}}, {"text": "😂 “你太快了，我还没准备好”", "dims": {"情趣": 1}}]}, {"q": "你觉得最能体现男人“持久力”的场景是？", "options": [{"text": "⏰ 床上全程主导节奏", "dims": {"持久力": 1, "技巧": 1}}, {"text": "🏃 运动场上全场保持高强度", "dims": {"体力": 1, "持久力": 1}}, {"text": "💬 吵架时保持冷静和耐心", "dims": {"温柔度": 1, "持久力": 1}}, {"text": "🎯 长期坚持做一件事不放弃", "dims": {"持久力": 1}}]}, {"q": "她用力抓住你后背的时候，你？", "options": [{"text": "🏋️ “再抓用力点”", "dims": {"体力": 1}}, {"text": "🔄 “那你这下别想停了”", "dims": {"持久力": 1, "主动性": 1}}, {"text": "🫂 放慢速度回应她的力度", "dims": {"温柔度": 1}}, {"text": "😏 “你抓得越紧我越来劲”", "dims": {"情趣": 1, "持久力": 1}}]}, {"q": "你觉得自己“恢复”得快不快？", "options": [{"text": "⏱️ 几分钟就能再来一次", "dims": {"体力": 1, "持久力": 1}}, {"text": "⏰ 得缓半小时但能再来", "dims": {"持久力": 1}}, {"text": "🛌 今天一次就差不多了", "dims": {"体力": 1}}, {"text": "🔄 看她的状态，她想我就能", "dims": {"主动性": 1}}]}, {"q": "长途爬山她累了，你怎么做？", "options": [{"text": "💪 背着她继续走", "dims": {"体力": 2}}, {"text": "🫂 “歇会儿，我陪你”", "dims": {"温柔度": 1}}, {"text": "😂 “你这体力不行啊”", "dims": {"情趣": 1}}, {"text": "🗣️ 边走边讲故事分散她注意力", "dims": {"技巧": 1}}]}, {"q": "她问“你到底行不行”，你？", "options": [{"text": "💪 “你试试不就知道了”", "dims": {"体力": 1, "持久力": 1}}, {"text": "😏 “今天让你改口”", "dims": {"主动性": 1}}, {"text": "😂 “你问这个问题的时候就已经输了”", "dims": {"情趣": 1}}, {"text": "🫂 “行不行你心里没数吗”", "dims": {"温柔度": 1}}]}];
+var femaleQuestions = [{"q": "你觉得床上最重要的是什么？", "options": [{"text": "💗 被照顾的感觉，他在意我的反应", "dims": {"温柔度": 1}}, {"text": "🔥 激情，有被征服的瞬间", "dims": {"主动性": 1}}, {"text": "🎯 技术好，知道我在哪里", "dims": {"技巧": 1}}, {"text": "✨ 有趣不无聊，每次不一样", "dims": {"情趣": 1}}]}, {"q": "你最受不了什么样的表现？", "options": [{"text": "⚡ 太快了，刚进状态就结束", "dims": {"持久力": 1}}, {"text": "🪵 全程没声音，像在上课", "dims": {"技巧": 1}}, {"text": "🤖 一个姿势到底不换", "dims": {"技巧": 1}}, {"text": "😑 像完成任务一样没有感情", "dims": {"情趣": 1}}]}, {"q": "什么样的瞬间会让你身体发软？", "options": [{"text": "🗣️ 他在你耳边说话，气息喷在脖子上", "dims": {"温柔度": 1}}, {"text": "⏳ 单手把你抱起来换姿势", "dims": {"持久力": 1}}, {"text": "👐 他的手很会找地方", "dims": {"技巧": 1}}, {"text": "💥 突然把你按在墙上", "dims": {"体力": 1}}]}, {"q": "他问你想怎么开始，你内心真正想说的是？", "options": [{"text": "🫂 “你先抱我一会儿再继续”", "dims": {"温柔度": 1}}, {"text": "💪 “你直接来就行了，别问”", "dims": {"体力": 1}}, {"text": "🫦 “换个地方试试？”", "dims": {"情趣": 1}}, {"text": "📖 “这次换我来”", "dims": {"技巧": 1, "持久力": 1}}]}, {"q": "你更喜欢什么时间段？", "options": [{"text": "🌙 深夜安静浪漫", "dims": {"情趣": 1}}, {"text": "☀️ 早上起来精力最足的时候", "dims": {"体力": 1}}, {"text": "🌅 傍晚不赶时间慢慢来", "dims": {"持久力": 1}}, {"text": "⚡ 随时随地，有感觉就来", "dims": {"主动性": 1}}]}, {"q": "你最喜欢对方什么特质？", "options": [{"text": "🏋️ 体力好，能把我举起来", "dims": {"体力": 1}}, {"text": "🧠 会学，一次比一次好", "dims": {"技巧": 1}}, {"text": "💐 会制造氛围，让人放松", "dims": {"情趣": 1}}, {"text": "⏱️ 节奏感好，知道什么时候该快该慢", "dims": {"持久力": 1}}]}, {"q": "你更喜欢他怎么“开始”？", "options": [{"text": "🫂 从背后抱你，手慢慢往下放", "dims": {"温柔度": 1}}, {"text": "👀 盯着你看然后把你按下去", "dims": {"主动性": 1}}, {"text": "📱 发个暧昧消息制造悬念", "dims": {"情趣": 1}}, {"text": "💆 从按摩开始，越来越不正经", "dims": {"技巧": 1}}]}, {"q": "事后你希望他怎么做？", "options": [{"text": "🫂 抱着你亲额头说辛苦了", "dims": {"温柔度": 1}}, {"text": "💬 跟你聊刚才的感受，下次更好", "dims": {"技巧": 1}}, {"text": "🔄 休息一下再来一轮", "dims": {"持久力": 1}}, {"text": "🛁 一起泡澡继续腻在一起", "dims": {"情趣": 1}}]}, {"q": "你觉得自己最大的床上优势是？", "options": [{"text": "💃 配合度高，他喜欢什么我都会配合", "dims": {"温柔度": 1}}, {"text": "😏 主动不害羞，想要的会说出来", "dims": {"技巧": 1}}, {"text": "🧘 身体灵活，很多姿势都可以", "dims": {"技巧": 1}}, {"text": "🎭 不尴尬，什么都能玩", "dims": {"情趣": 1}}]}, {"q": "用一个词形容你向往的那种感觉？", "options": [{"text": "💥 火辣——热到出汗", "dims": {"体力": 1}}, {"text": "🌊 缠绵——温柔但有力量", "dims": {"温柔度": 1}}, {"text": "🎢 探索——每次都有新发现", "dims": {"情趣": 1}}, {"text": "🏔️ 磅礴——排山倒海的那种", "dims": {"体力": 1}}]}, {"q": "他洗完澡只裹着浴巾出来，你？", "options": [{"text": "😏 盯着看，不藏", "dims": {"情趣": 1, "持久力": 1}}, {"text": "😏 “你就这样出来？”", "dims": {"情趣": 1}}, {"text": "🫂 走过去帮他把水擦干", "dims": {"温柔度": 1}}, {"text": "🤸 趁他不注意把浴巾扯了", "dims": {"主动性": 1}}]}, {"q": "他说“今天早点回来”，你回什么？", "options": [{"text": "🫦 “那我得抓紧时间”", "dims": {"主动性": 1, "情趣": 1}}, {"text": "💗 “那我等你回来”", "dims": {"温柔度": 1}}, {"text": "😈 “你确定我回来你还出得了门？”", "dims": {"情趣": 1, "持久力": 1}}, {"text": "🤔 “几点算早？”", "dims": {"技巧": 1}}]}, {"q": "你穿了一件新内衣，他还没发现，你会？", "options": [{"text": "🫦 走到他面前撩一下衣角", "dims": {"情趣": 1, "主动性": 1}}, {"text": "🫂 靠在他身上蹭一蹭，等他发现", "dims": {"温柔度": 1}}, {"text": "😏 直接把外套拉链拉开给他看", "dims": {"主动性": 1}}, {"text": "📱 “你猜我今天穿了什么颜色”", "dims": {"技巧": 1}}]}, {"q": "早上你比他先醒，你会？", "options": [{"text": "👀 躺着看他一会儿", "dims": {"温柔度": 1}}, {"text": "🫦 手开始不老实把他弄醒", "dims": {"持久力": 1}}, {"text": "🫂 靠过去缩在他怀里", "dims": {"温柔度": 1}}, {"text": "🏃 自己先起来洗漱", "dims": {"主动性": 1}}]}, {"q": "你更喜欢哪种角色？", "options": [{"text": "👸 被他宠着照顾着", "dims": {"温柔度": 1}}, {"text": "😈 主动出击，我来掌控", "dims": {"体力": 1}}, {"text": "🎭 今天温柔明天野，看心情", "dims": {"情趣": 1}}, {"text": "🫶 平等互动，你来我往", "dims": {"技巧": 1}}]}, {"q": "他哪个部位最让你欲罢不能？", "options": [{"text": "🤲 手好看，骨节分明", "dims": {"技巧": 1}}, {"text": "🤸 手臂有肌肉线条", "dims": {"体力": 1}}, {"text": "🗣️ 锁骨和脖子的线条", "dims": {"情趣": 1}}, {"text": "👁️ 眼神专注看着你的时候", "dims": {"温柔度": 1}}]}, {"q": "你更喜欢他怎么“进入”？", "options": [{"text": "🌊 慢慢来一点一点", "dims": {"温柔度": 1}}, {"text": "⚡ 直接果断不犹豫", "dims": {"体力": 1}}, {"text": "🗣️ 一边说话一边分散注意力", "dims": {"情趣": 1}}, {"text": "🎯 找好角度精准到位", "dims": {"技巧": 1}}]}, {"q": "你更喜欢哪种节奏？", "options": [{"text": "⚡ 快节奏激烈到喘不过气", "dims": {"体力": 1}}, {"text": "🌊 慢节奏感受每一下", "dims": {"温柔度": 1}}, {"text": "🔄 快慢交替被他拿捏", "dims": {"技巧": 1}}, {"text": "😏 我来控制节奏", "dims": {"技巧": 1}}]}, {"q": "你一晚最多能接受几次？", "options": [{"text": "✅ 越多越好，只要状态好", "dims": {"体力": 1, "持久力": 1}}, {"text": "🤔 两次可以，三次看状态", "dims": {"持久力": 1}}, {"text": "1️⃣ 一次但质量要高", "dims": {"技巧": 1}}, {"text": "🎭 看心情，不固定", "dims": {"情趣": 1}}]}, {"q": "你觉得自己最“上头”的瞬间是什么？", "options": [{"text": "🗣️ 他说骚话的时候", "dims": {"情趣": 1}}, {"text": "🤸 他一把把你抱起来的时候", "dims": {"体力": 1}}, {"text": "👐 他手指刚碰到你的时候", "dims": {"技巧": 1}}, {"text": "😈 他气息变重、节奏加快的时候", "dims": {"持久力": 1}}]}, {"q": "尺寸对你来说重要吗？", "options": [{"text": "🤷 挺重要的，不能太小", "dims": {"体力": 1}}, {"text": "🤷 不重要，技术和感觉更关键", "dims": {"技巧": 1}}, {"text": "🎯 合适最好，太大也不行", "dims": {"技巧": 1}}, {"text": "💗 有感情什么都不重要", "dims": {"温柔度": 1}}]}, {"q": "你更喜欢在哪里？", "options": [{"text": "🛏️ 舒服干净的大床", "dims": {"温柔度": 1}}, {"text": "🚿 浴室，一边洗一边来", "dims": {"主动性": 1}}, {"text": "🏨 酒店，换环境有新鲜感", "dims": {"情趣": 1}}, {"text": "🚗 车里，刺激", "dims": {"情趣": 1, "体力": 1}}]}, {"q": "你达到高潮主要靠什么？", "options": [{"text": "👅 前戏和口", "dims": {"技巧": 1}}, {"text": "🎯 特定姿势和角度", "dims": {"技巧": 1}}, {"text": "🧠 心理+身体同时刺激", "dims": {"情趣": 1}}, {"text": "🏋️ 持续有力的节奏", "dims": {"体力": 1, "持久力": 1}}]}, {"q": "他说“你好紧”，你什么反应？", "options": [{"text": "😳 害羞但心里高兴", "dims": {"温柔度": 1}}, {"text": "😏 “那你得再努力一点”", "dims": {"主动性": 1}}, {"text": "🤗 “因为你让我很舒服”", "dims": {"温柔度": 1}}, {"text": "😈 夹紧看他什么反应", "dims": {"技巧": 1}}]}, {"q": "中途他问你“感觉怎么样”，你？", "options": [{"text": "🗣️ “别停，继续”", "dims": {"主动性": 1}}, {"text": "🫂 “就这样，很好”", "dims": {"温柔度": 1}}, {"text": "🎯 “往左边一点”", "dims": {"技巧": 1}}, {"text": "😏 “你觉得呢？”", "dims": {"情趣": 1}}]}, {"q": "他忽然加快了速度，你？", "options": [{"text": "🫂 抓住他胳膊或床单", "dims": {"温柔度": 1}}, {"text": "🗣️ “对，就这样”", "dims": {"主动性": 1}}, {"text": "🔥 声音不自觉地变大了", "dims": {"情趣": 1}}, {"text": "😈 夹住他让他慢一点", "dims": {"技巧": 1, "持久力": 1}}]}, {"q": "他停下来换姿势的时候，你？", "options": [{"text": "😏 “别停太久”", "dims": {"主动性": 1}}, {"text": "🫂 趁空档亲他一下", "dims": {"温柔度": 1}}, {"text": "🎯 “换个角度试试”", "dims": {"技巧": 1}}, {"text": "😈 拉着他的腰不让他走", "dims": {"持久力": 1}}]}, {"q": "你对玩具的态度是？", "options": [{"text": "🎉 非常感兴趣，想一起探索", "dims": {"情趣": 1}}, {"text": "🤷 可以试试不排斥", "dims": {"情趣": 1}}, {"text": "😤 不需要，他就够了", "dims": {"主动性": 1}}, {"text": "📖 挑好的试，不随便买", "dims": {"技巧": 1}}]}, {"q": "他问“你最喜欢哪一种”，你怎么回？", "options": [{"text": "😏 “你猜”", "dims": {"情趣": 1}}, {"text": "🔥 “刚才那种就挺好”", "dims": {"主动性": 1}}, {"text": "🤗 “你做什么我都喜欢”", "dims": {"温柔度": 1}}, {"text": "📱 “我给你看个视频你就知道了”", "dims": {"技巧": 1}}]}, {"q": "他突然说想试个新姿势，你？", "options": [{"text": "✅ “好啊，我也正想试”", "dims": {"情趣": 1}}, {"text": "🤔 “你先说说看是什么样的”", "dims": {"技巧": 1}}, {"text": "😏 “可以但你先让我舒服一次”", "dims": {"持久力": 1}}, {"text": "🤸 “来吧，什么姿势都接得住”", "dims": {"体力": 1}}]}, {"q": "快到了的时候，你通常？", "options": [{"text": "🗣️ 告诉他别停", "dims": {"主动性": 1}}, {"text": "😶 闭眼咬唇自己忍着", "dims": {"温柔度": 1}}, {"text": "😈 夹住他不让他动", "dims": {"技巧": 1}}, {"text": "🔊 声音会不自觉变大", "dims": {"情趣": 1}}]}, {"q": "你最想被夸的是哪句？", "options": [{"text": "「你好紧好舒服」", "dims": {"技巧": 1}}, {"text": "「跟你做最爽了」", "dims": {"主动性": 1}}, {"text": "「你好主动我好喜欢」", "dims": {"主动性": 1}}, {"text": "「你的反应好诚实」", "dims": {"情趣": 1}}]}, {"q": "你的“恢复时间”大概是多久？", "options": [{"text": "⏱️ 很短，很快又想要了", "dims": {"持久力": 1}}, {"text": "⏰ 需要休息但抱着就好", "dims": {"温柔度": 1}}, {"text": "💤 得睡一觉第二天再说", "dims": {"体力": 1}}, {"text": "😏 看他会不会撩，会的话随时可以", "dims": {"体力": 1}}]}, {"q": "你最受不了他做什么？", "options": [{"text": "💨 太快完事", "dims": {"持久力": 1}}, {"text": "🤖 毫无互动只顾自己", "dims": {"温柔度": 1}}, {"text": "🪵 全程不出声像块木头", "dims": {"情趣": 1}}, {"text": "😴 做完转身就睡", "dims": {"温柔度": 1}}]}, {"q": "你更怕哪种情况发生？", "options": [{"text": "⚡ 他太快结束", "dims": {"持久力": 1}}, {"text": "🤖 他全程像块木头不互动", "dims": {"温柔度": 1}}, {"text": "🪵 他完全不出声", "dims": {"持久力": 1}}, {"text": "😴 做完就转头睡", "dims": {"温柔度": 1}}]}, {"q": "如果他说“你闺蜜说你挺会的”，你？", "options": [{"text": "😏 “那你试试看？”", "dims": {"主动性": 1}}, {"text": "🤭 脸红不说话", "dims": {"温柔度": 1}}, {"text": "🔥 “她说的可不止这些”", "dims": {"情趣": 1}}, {"text": "😏 “那你怕不怕？”", "dims": {"体力": 1}}]}, {"q": "他累了你还没到，你？", "options": [{"text": "😈 “换我来”", "dims": {"体力": 1, "持久力": 1}}, {"text": "🫂 “那先歇一会儿”", "dims": {"温柔度": 1}}, {"text": "😏 “我给你点动力”", "dims": {"情趣": 1}}, {"text": "🫦 “你躺好，我来”", "dims": {"技巧": 1, "体力": 1}}]}, {"q": "他结束后问“还行吗”，你？", "options": [{"text": "🗣️ “你觉得我看上去像还行吗”", "dims": {"主动性": 1}}, {"text": "🫂 “嗯，挺好的”", "dims": {"温柔度": 1}}, {"text": "🔥 “你下次可以再久一点”", "dims": {"持久力": 1}}, {"text": "🫦 “你觉得呢？”", "dims": {"情趣": 1}}]}, {"q": "他做到一半手机响了，你？", "options": [{"text": "🔥 “别管它，继续”", "dims": {"体力": 1}}, {"text": "🤷 “你看一下万一有事”", "dims": {"温柔度": 1}}, {"text": "😂 “你接呗，我不出声”", "dims": {"情趣": 1}}, {"text": "✋ 伸手把手机拿过来按掉", "dims": {"主动性": 1}}]}, {"q": "你觉得床上合不合，影响感情吗？", "options": [{"text": "💯 非常影响——这是感情的温度计", "dims": {"主动性": 1, "体力": 1, "技巧": 1, "情趣": 1, "温柔度": 1, "持久力": 1}}, {"text": "🤷 有点影响但不是全部", "dims": {"温柔度": 1}}, {"text": "🎯 不太影响——感情好的话可以慢慢磨合", "dims": {"温柔度": 1}}, {"text": "🔥 挺影响的——这能看出两个人合不合适", "dims": {"持久力": 1}}]}, {"q": "你被折腾到腿软的时候，你的反应是？", "options": [{"text": "😏 “再来，我还能撑”", "dims": {"体力": 1, "持久力": 1}}, {"text": "🫂 靠在他身上不想动", "dims": {"温柔度": 1}}, {"text": "🗣️ “你今天太可以了”", "dims": {"持久力": 1}}, {"text": "😂 “完了明天肯定起不来”", "dims": {"情趣": 1}}]}, {"q": "你每周运动频率大概是多少？", "options": [{"text": "🏃 3次以上，有氧或力量", "dims": {"体力": 2}}, {"text": "🧘 瑜伽或拉伸为主", "dims": {"技巧": 1}}, {"text": "🚶 偶尔散步", "dims": {"体力": 1}}, {"text": "🛋️ 基本不运动", "dims": {}}]}, {"q": "你觉得最消耗体力的姿势是？", "options": [{"text": "🐶 后入式——膝盖和大腿最酸", "dims": {"体力": 1}}, {"text": "👸 女上位——蹲着或者坐着", "dims": {"体力": 1, "持久力": 1}}, {"text": "🤸 站立式——需要腰腹力量", "dims": {"体力": 1, "技巧": 1}}, {"text": "🛏️ 传教士——还好，不太累", "dims": {}}]}, {"q": "连续做两次以上，你的状态是？", "options": [{"text": "🔥 越来越好，第二次更放得开", "dims": {"体力": 1, "持久力": 1}}, {"text": "😴 第二次开始犯困", "dims": {"体力": 1}}, {"text": "🫦 看他表现，他行我就行", "dims": {"持久力": 1}}, {"text": "🛌 一次就够了，质量比数量重要", "dims": {"温柔度": 1}}]}, {"q": "第二天早上起来你发现自己嗓子哑了，你？", "options": [{"text": "😏 回忆一下昨晚发生了什么", "dims": {"情趣": 1}}, {"text": "💪 “原来我昨晚这么猛”", "dims": {"体力": 1}}, {"text": "🫂 看他一眼然后撒娇", "dims": {"温柔度": 1}}, {"text": "🔥 “下次还得这么来”", "dims": {"主动性": 1, "持久力": 1}}]}, {"q": "他停下来歇口气的时候，你？", "options": [{"text": "😏 “别停，继续”", "dims": {"持久力": 1, "主动性": 1}}, {"text": "🫂 “你先歇一下没事”", "dims": {"温柔度": 1}}, {"text": "🗣️ “刚才那个节奏就很好”", "dims": {"技巧": 1}}, {"text": "🔥 趁他歇着自己来", "dims": {"体力": 1, "主动性": 1}}]}, {"q": "你觉得最能体现一个男生“体力”的场景是？", "options": [{"text": "💪 扛着你从客厅走到卧室", "dims": {"体力": 1}}, {"text": "🏃 全程保持一个节奏不喘", "dims": {"体力": 1, "持久力": 1}}, {"text": "🔄 换了好几个姿势依然有力", "dims": {"体力": 1, "技巧": 1}}, {"text": "🏋️ 第二天还能再来一次", "dims": {"体力": 1, "持久力": 1}}]}, {"q": "他表现特别好的时候，你会？", "options": [{"text": "🔥 第二天主动奖励他", "dims": {"主动性": 1, "持久力": 1}}, {"text": "🫂 抱着他说“你好厉害”", "dims": {"温柔度": 1}}, {"text": "😏 发消息跟他复盘昨晚细节", "dims": {"情趣": 1}}, {"text": "📱 跟闺蜜炫耀", "dims": {"情趣": 1}}]}, {"q": "你觉得持久力对你来说意味着什么？", "options": [{"text": "⏰ 他全程带着你起起伏伏", "dims": {"持久力": 1, "技巧": 1}}, {"text": "⚡ 中间换姿势也不停", "dims": {"体力": 1, "持久力": 1}}, {"text": "🫂 做完之后还有余力抱着你睡", "dims": {"温柔度": 1, "持久力": 1}}, {"text": "🔄 第二天还想再来一次", "dims": {"持久力": 1, "主动性": 1}}]}, {"q": "如果让你用一个动物形容他在床上的表现，你会选？", "options": [{"text": "🐺 狼——野性，持久", "dims": {"持久力": 1}}, {"text": "🐆 豹——快准狠，爆发力", "dims": {"体力": 1}}, {"text": "🐻 熊——有力，温柔", "dims": {"体力": 1, "温柔度": 1}}, {"text": "🐉 龙——神秘，每次不一样", "dims": {"情趣": 1}}]}];
+var specialQuestions = [{"q": "你觉得阿细做朋友_______？", "options": [{"text": "一流", "effect": "all+3"}, {"text": "二流", "effect": "none"}, {"text": "下流", "effect": "all=0"}], "isSpecial": true}];
+var typeMap = {"温柔骑士": {"emoji": "🤴", "match": "搭配「野性猎手」<br>温柔与激情的碰撞最来电"}, "野性猎手": {"emoji": "🐺", "match": "搭配「温柔骑士」或「调情大师」<br>有人接住你的热情"}, "老司机": {"emoji": "🚗", "match": "搭配「调情大师」<br>技术配氛围，体验拉满"}, "调情大师": {"emoji": "🍷", "match": "搭配「老司机」<br>你负责氛围ta负责操作"}, "探索家": {"emoji": "🧗", "match": "搭配「永动机」<br>体力配持久，不知疲倦"}, "永动机": {"emoji": "⚡", "match": "搭配「探索家」<br>持久配体力，持续输出"}, "六边形战士": {"emoji": "💎", "match": "搭配「一技之长」<br>全能补偏科，完美互补"}, "一技之长": {"emoji": "🦶", "match": "搭配「六边形战士」<br>偏科找全能，短板被覆盖"}, "闷骚王": {"emoji": "🌙", "match": "搭配「野性猎手」<br>来点燃你"}, "一条废柴": {"emoji": "🪵", "match": "搭配「签签爸爸」"}};
+var fallbackReports = {"温柔骑士": "温柔骑士驾到！你的温柔就像冬天的暖被子，躺进去就不想出来。前戏是你的主场，事后抱抱是签名动作。忠告：找个野性猎手互补，不然你俩能温柔到天亮都没进入正题😂", "野性猎手": "野性猎手上线！你在床上就像饿了三天的狮子——主动、直接、充满掠食者的气场。忠告：找个温柔骑士搭档，不然对方可能需要上护具🐺", "老司机": "老司机请上车！你把床上运动当成精密工程，每个角度都经过计算。别人在享受，你在研究。忠告：偶尔也放下技术手册，靠感觉来一次🚗", "调情大师": "调情大师来了！对你来说氛围感大于一切。没有蜡烛和音乐？不好意思今晚取消。忠告：找个主动的人，不然你们光布置现场就天亮了🍷", "探索家": "探索家请注意！你的体力让人怀疑你是不是偷偷吃了什么。各种姿势都能hold住。忠告：记得买跌打损伤药，对方可能需要🧗", "永动机": "永动机启动！你的持久力让人怀疑你是不是充电宝成精了。从日落到日出都能保持在线。忠告：对方可能需要中场休息，别太卷了⚡", "六边形战士": "六边形战士诞生！你的六维雷达图几乎是个正六边形，没有短板。忠告：太全能了反而没特色，试试把某一项练到极致💎", "一技之长": "一技之长选手！你有一项绝活是真的绝，但其他方面嘛……建议别提。忠告：把你那一招练到登峰造极，一招鲜吃遍天🦶", "闷骚王": "闷骚王现身！表面温柔内敛，骨子里全是戏。你的温柔和情趣值加起来比其他四项还高。忠告：找个野性猎手把你点燃，不然你永远闷着骚🌙", "一条废柴": "恭喜解锁「废柴」成就！六维全部归零，阿细都不知道怎么评价你。忠告：先从学会不要选「下流」开始吧🪵"};
+
+var gender = '';
+var currentQ = 0;
+var selectedQs = [];
+var scores = {};
+var specialTriggered = false;
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function startQuiz(g) {
+  gender = g;
+  currentQ = 0;
+  specialTriggered = false;
+  scores = {'主动性':0,'体力':0,'技巧':0,'情趣':0,'温柔度':0,'持久力':0};
+
+  // Random 12 from 30
+  var qs = gender === 'male' ? maleQuestions : femaleQuestions;
+  var shuffled = qs.slice().sort(function() { return Math.random() - 0.5; });
+  selectedQs = shuffled.slice(0, 12);
+
+  // 50% chance to insert special question at position 9 (10th question)
+  if (Math.random() < 0.25 && specialQuestions.length > 0) {
+    var sp = specialQuestions[Math.floor(Math.random() * specialQuestions.length)];
+    selectedQs[11] = sp;
+    specialTriggered = true;
+  }
+
+  showPage('quizPage');
+  renderQuestion();
+}
+
+function restart() {
+  showPage('modePage');
+}
+
+function goHome() {
+  window.location.href = 'home.html';
+}
+
+function renderQuestion() {
+  var q = selectedQs[currentQ];
+  var total = selectedQs.length;
+  var percent = (currentQ / total * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = percent + '%';
+  document.getElementById('progressText').textContent = (currentQ + 1) + ' / ' + total;
+
+  var card = document.getElementById('questionCard');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'card-in 0.4s ease';
+
+  var letters = ['A','B','C','D'];
+  var html = '<div class="question-num">第 ' + (currentQ + 1) + ' 题</div>';
+  html += '<div class="question-text">' + q.q + '</div>';
+  html += '<div class="options">';
+  q.options.forEach(function(opt, i) {
+    html += '<div class="option-btn" onclick="selectOption(' + i + ', this)">';
+    html += '<div class="option-letter">' + letters[i] + '</div>';
+    html += '<div>' + opt.text + '</div></div>';
+  });
+  html += '</div>';
+  card.innerHTML = html;
+}
+
+function selectOption(idx, el) {
+  el.classList.add('selected');
+  var allBtns = el.parentElement.querySelectorAll('.option-btn');
+  allBtns.forEach(function(b) { b.style.pointerEvents = 'none'; });
+
+  var q = selectedQs[currentQ];
+  var opt = q.options[idx];
+
+  // Handle special question effects
+  if (q.isSpecial) {
+    if (opt.effect === 'random+3') {
+      var dims = Object.keys(scores);
+      var rd = dims[Math.floor(Math.random() * dims.length)];
+      scores[rd] += 3;
+    } else if (opt.effect === 'all=0') {
+      for (var k in scores) scores[k] = 0;
+    }
+    // 'none' does nothing
+  } else {
+    // Normal scoring: add dims
+    if (opt.dims) {
+      for (var dim in opt.dims) {
+        scores[dim] += opt.dims[dim];
+      }
+    }
+  }
+
+  setTimeout(function() {
+    currentQ++;
+    if (currentQ < selectedQs.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 500);
+}
+
+function determineType() {
+  var total = 0;
+  var vals = [];
+  var dims = ['主动性','体力','技巧','情趣','温柔度','持久力'];
+  for (var i = 0; i < dims.length; i++) {
+    total += scores[dims[i]];
+    vals.push(scores[dims[i]]);
+  }
+  var maxVal = Math.max.apply(null, vals);
+  var minVal = Math.min.apply(null, vals);
+
+  // 1. 废柴
+  if (total <= 0) return '一条废柴';
+
+  // 2. 六边形战士: 最高-最低 ≤ 2
+  if (maxVal - minVal <= 2 && total > 0) return '六边形战士';
+
+  // 3. 一技之长: 最高 ≥ 最低×3 且 最低 ≤ 1
+  if (minVal <= 1 && maxVal >= minVal * 3 && maxVal >= 3) return '一技之长';
+
+  // 4. 闷骚王: (温柔度+情趣) > (主动性+体力+技巧+持久力)
+  if ((scores['温柔度'] + scores['情趣']) > (scores['主动性'] + scores['体力'] + scores['技巧'] + scores['持久力'])) return '闷骚王';
+
+  // 5-10. 单维度最高 (≥ 其他每个)
+  if (scores['持久力'] >= scores['主动性'] && scores['持久力'] >= scores['体力'] && scores['持久力'] >= scores['技巧'] && scores['持久力'] >= scores['情趣'] && scores['持久力'] >= scores['温柔度']) return '永动机';
+  if (scores['体力'] >= scores['主动性'] && scores['体力'] >= scores['技巧'] && scores['体力'] >= scores['情趣'] && scores['体力'] >= scores['温柔度'] && scores['体力'] >= scores['持久力']) return '探索家';
+  if (scores['温柔度'] >= scores['主动性'] && scores['温柔度'] >= scores['体力'] && scores['温柔度'] >= scores['技巧'] && scores['温柔度'] >= scores['情趣'] && scores['温柔度'] >= scores['持久力']) return '温柔骑士';
+  if (scores['主动性'] >= scores['体力'] && scores['主动性'] >= scores['技巧'] && scores['主动性'] >= scores['情趣'] && scores['主动性'] >= scores['温柔度'] && scores['主动性'] >= scores['持久力']) return '野性猎手';
+  if (scores['技巧'] >= scores['主动性'] && scores['技巧'] >= scores['体力'] && scores['技巧'] >= scores['情趣'] && scores['技巧'] >= scores['温柔度'] && scores['技巧'] >= scores['持久力']) return '老司机';
+  if (scores['情趣'] >= scores['主动性'] && scores['情趣'] >= scores['体力'] && scores['情趣'] >= scores['技巧'] && scores['情趣'] >= scores['温柔度'] && scores['情趣'] >= scores['持久力']) return '调情大师';
+
+  return '老司机';
+}
+
+function drawRadarChart(canvasId) {
+  var canvas = document.getElementById(canvasId);
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  var cssW = 180, cssH = 180;
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  ctx.scale(dpr, dpr);
+
+  var cx = cssW / 2, cy = cssH / 2;
+  var radius = Math.min(cx, cy) - 30;
+  var dims = ['主动性','体力','技巧','情趣','温柔度','持久力'];
+  var n = dims.length;
+
+  // Normalize scores for chart (max possible ~12 per dim with multi-scoring)
+  var maxVal = 9;
+
+  for (var level = 3; level >= 1; level--) {
+    var r = radius * (level / 3);
+    ctx.beginPath();
+    for (var i = 0; i <= n; i++) {
+      var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+      ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
+    }
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  for (var i = 0; i <= n; i++) {
+    var idx = i % n;
+    var angle = (Math.PI * 2 * idx) / n - Math.PI / 2;
+    var val = Math.sqrt(Math.min(scores[dims[idx]], 9) / 9);
+    val = Math.max(0.08, val);
+    ctx.lineTo(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle));
+  }
+  ctx.fillStyle = 'rgba(245, 87, 108, 0.25)';
+  ctx.fill();
+  ctx.strokeStyle = '#f5576c';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    var val = Math.sqrt(Math.min(scores[dims[i]], 9) / 9);
+    val = Math.max(0.08, val);
+    ctx.beginPath();
+    ctx.arc(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle), 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#f5576c';
+    ctx.fill();
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.8)';
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  for (var i = 0; i < n; i++) {
+    var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    ctx.fillText(dims[i], cx + (radius + 20) * Math.cos(angle), cy + (radius + 20) * Math.sin(angle));
+  }
+}
+
+function generateAIReport(type, callback) {
+  var TK = ["ghp_wgKIbURm","KbscYDN03D","o84FOIRonx","bH1p1R8i"].join("");
+  var genderText = gender === 'male' ? '男生' : '女生';
+  var scoreDesc = Object.entries(scores).map(function(e) { return e[0]+':'+e[1]+'分'; }).join('、');
+
+  var styles = [
+    { name: "先损再夸", order: "1. 用一句搞笑的话总结ta的床上风格\n2. 先对低分维度用搞笑比喻吐槽\n3. 再夸最高的1-2个维度（7+优秀，8+罕见），夸完可以小损一下\n4. 最后用一句损友式的建议结尾\n结构：总结→损→夸→建议" },
+    { name: "先夸再损", order: "1. 用一句搞笑的话总结ta的床上风格\n2. 先夸最高的1-2个维度（7+优秀，8+罕见），真心夸\n3. 然后话锋一转，对低分维度搞笑吐槽\n4. 最后用一句损友式的建议结尾\n结构：总结→夸→损→建议" },
+    { name: "欲扬先抑", order: "1. 开头先狠狠损ta最弱的维度，让人以为完蛋了\n2. 突然话锋一转，大力夸ta最强的维度，反差越大越好\n3. 最后用一句意味深长的建议结尾\n结构：重损→大夸→建议" },
+    { name: "毒舌颁奖", order: "1. 像颁奖典礼一样，先宣布ta获得了什么搞笑奖项（根据最高维度）\n2. 然后吐槽ta差点没入围的维度\n3. 最后给出评委建议\n结构：颁奖→吐槽→评委建议" },
+    { name: "体检报告", order: "1. 像医生写体检报告一样，逐项点评维度（高分标注优秀，低分标注需复查）\n2. 给出一个搞笑的综合诊断结论\n3. 最后开一个搞笑的处方建议\n结构：检查→诊断→处方" }
+  ];
+  var style = styles[Math.floor(Math.random() * styles.length)];
+  var prompt = '帮我分析这个人的床品。\n\n' +
+    '性别：' + genderText + '\n' +
+    '床品类型：' + type + '\n' +
+    '六维得分：' + scoreDesc + '\n\n' +
+    '本次采用「' + style.name + '」风格：\n' + style.order + '\n\n' +
+    '通用要求：\n- 比喻贴切易懂，逻辑通顺\n- 可以开黄腔但不能侮辱人格（禁用鸡/婊/渣等词）\n- 150字以内\n- 满分9分，4-6分主力区间，7+优秀，8+罕见';
+
+  fetch('https://models.inference.ai.azure.com/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + TK
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: '你是「阿细」，一个毒舌但有分寸的床品分析师。你说话像损友，用搞笑的方式点评别人的床上表现。绝对不能出现侮辱性、歧视性、贬低人格的词语（如鸡、婊、渣等）。你的吐槽是朋友间的玩笑，不是人身攻击。只对最好的1-2个维度给夸奖，其他维度用搞笑比喻吐槽。' },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 300,
+      temperature: 0.9
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      callback(data.choices[0].message.content);
+    } else {
+      callback(fallbackReports[type]);
+    }
+  })
+  .catch(function(e) {
+    console.error('AI API error:', e);
+    callback(fallbackReports[type]);
+  });
+}
+
+function showResult() {
+  document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('loadingText').textContent = '阿细正在为你评估床品...';
+
+  var type = determineType();
+  var info = typeMap[type];
+
+  var html = '<div class="result-type-emoji">' + info.emoji + '</div>';
+  html += '<div class="result-type-name">' + type + '</div>';
+  html += '<div class="match-suggest">💕 ' + info.match + '</div>';
+  html += '<div class="radar-wrap"><canvas id="radarChart"></canvas></div>';
+  html += '<div class="report-text" id="reportText"><div class="report-loading"><img src="data:image/jpeg;base64,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" style="width:24px;height:24px;border-radius:50%;vertical-align:middle;margin-right:6px;">阿细正在为你评估床品...</div></div>';
+
+  document.getElementById('resultInner').innerHTML = html;
+  document.getElementById('loadingOverlay').classList.add('hidden');
+  showPage('resultPage');
+
+  setTimeout(function() { drawRadarChart('radarChart'); }, 100);
+
+  generateAIReport(type, function(report) {
+    document.getElementById('reportText').innerHTML = report;
+  });
+}
+
+function createStars() {
+  var c = document.getElementById('stars');
+  for (var i = 0; i < 60; i++) {
+    var s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 100 + '%';
+    s.style.width = s.style.height = (Math.random() * 2 + 1) + 'px';
+    s.style.animationDuration = (Math.random() * 3 + 2) + 's';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    c.appendChild(s);
+  }
+}
+createStars();
+</script>
+</body>
+</html>
