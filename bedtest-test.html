@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>床品测试</title>
 <style>
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 @keyframes gradient-shift {
   0% { background-position: 0% 50%; }
@@ -127,22 +128,22 @@ body {
 .loading-spinner { width:36px;height:36px; border:3px solid rgba(255,255,255,0.2); border-top-color:#f5576c; border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin { 100%{transform:rotate(360deg)} }
 .loading-text { color:rgba(255,255,255,0.6); margin-top:12px; font-size:14px; }
+
 </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
 <div class="loading-overlay hidden" id="loadingOverlay">
   <div class="loading-spinner"></div>
-  <div class="loading-text" id="loadingText">AI 正在分析你的床品...</div>
+  <div class="loading-text" id="loadingText">阿细正在为你评估床品...</div>
 </div>
 
 <div class="container">
-  <!-- 性别选择页 -->
   <div class="page active" id="modePage">
     <div class="mode-page">
       <div class="mode-icon">🛏️</div>
       <div class="mode-title">床品测试</div>
-      <div class="mode-subtitle">测测你是什么类型的床上选手<br>AI 生成你的专属报告</div>
+      <div class="mode-subtitle">测测你是什么类型的床上选手<br>阿细为你生成专属报告</div>
       <div class="mode-buttons">
         <div class="mode-btn" onclick="startQuiz('male')">
           <div class="btn-icon">🧑</div>
@@ -156,16 +157,14 @@ body {
     </div>
   </div>
 
-  <!-- 答题页 -->
   <div class="page" id="quizPage">
     <div class="quiz-page">
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-      <div class="progress-text" id="progressText">1 / 10</div>
+      <div class="progress-text" id="progressText">1 / 12</div>
       <div class="question-card" id="questionCard"></div>
     </div>
   </div>
 
-  <!-- 结果页 -->
   <div class="page" id="resultPage">
     <div class="result-page">
       <div class="result-card">
@@ -180,96 +179,18 @@ body {
 </div>
 
 <script>
-// ==================== 题目数据 ====================
-var maleQuestions = [
-  { q:'周末晚上，她说想要一个特别的夜晚，你会？', options:[
-    {text:'🕯️ 布置好蜡烛和音乐，营造氛围', dim:'情趣'}, {text:'💪 直接把她公主抱进卧室', dim:'主动性'},
-    {text:'🛁 先帮她放好热水，一起泡个澡', dim:'温柔度'}, {text:'📖 上网研究了几个新花样', dim:'技巧'}]},
-  { q:'她说「你今晚好像特别有精神」，你的反应是？', options:[
-    {text:'😏 那当然，我可是储备了好几天', dim:'持久力'}, {text:'🔥 边说边把她拉过来', dim:'主动性'},
-    {text:'😘 轻轻亲她额头说「因为想你」', dim:'温柔度'}, {text:'🏋️ 不说话，直接展示最近健身的成果', dim:'体力'}]},
-  { q:'关于「前戏」，你的态度是？', options:[
-    {text:'⏰ 越充分越好，至少半小时起步', dim:'温柔度'}, {text:'🎯 精准点穴，效率和质量并重', dim:'技巧'},
-    {text:'🎭 喜欢角色扮演增加趣味', dim:'情趣'}, {text:'⚡ 看心情，有时候直接也很好', dim:'主动性'}]},
-  { q:'你觉得自己最大的「床上优势」是什么？', options:[
-    {text:'⏱️ 持久在线，从不让她失望', dim:'持久力'}, {text:'💡 花样多，总有新惊喜', dim:'情趣'},
-    {text:'🤸 体力好，各种姿势都hold住', dim:'体力'}, {text:'👐 手法好，知道怎么让她舒服', dim:'技巧'}]},
-  { q:'她今晚兴致不高，你会？', options:[
-    {text:'🫂 抱着她聊天，不强求', dim:'温柔度'}, {text:'💋 慢慢撩拨，用亲吻唤醒她', dim:'技巧'},
-    {text:'😂 讲笑话逗她开心，制造轻松氛围', dim:'情趣'}, {text:'🏃 那我去做100个俯卧撑消耗精力', dim:'体力'}]},
-  { q:'你们尝试新姿势，你的学习方式是？', options:[
-    {text:'📱 提前看教程，做好功课', dim:'技巧'}, {text:'🎲 即兴发挥，怎么舒服怎么来', dim:'主动性'},
-    {text:'🗣️ 问她喜欢什么，按她的来', dim:'温柔度'}, {text:'🔄 反复练习直到完美', dim:'持久力'}]},
-  { q:'你理想的「频率」是？', options:[
-    {text:'📅 每天都可以，精力充沛', dim:'体力'}, {text:'🌊 看感觉，有chemistry就来', dim:'主动性'},
-    {text:'🎯 质量大于数量，每次都要到位', dim:'技巧'}, {text:'🎪 不固定，但每次要有新花样', dim:'情趣'}]},
-  { q:'事后，你一般会？', options:[
-    {text:'🫂 搂着她说甜言蜜语', dim:'温柔度'}, {text:'💬 复盘讨论刚才的感受', dim:'技巧'},
-    {text:'😴 体力消耗太大，直接睡了', dim:'体力'}, {text:'🔄 休息一下准备第二轮', dim:'持久力'}]},
-  { q:'她夸你「今晚好厉害」，你觉得她指的是？', options:[
-    {text:'⏰ 时间够久，她很满足', dim:'持久力'}, {text:'🎯 找到了她的敏感点', dim:'技巧'},
-    {text:'💪 体力爆棚，全程高能', dim:'体力'}, {text:'🎉 今晚的情趣游戏很成功', dim:'情趣'}]},
-  { q:'如果用一道菜形容你的风格，你选？', options:[
-    {text:'🌶️ 麻辣火锅——热烈直接', dim:'主动性'}, {text:'🍲 老火靓汤——慢炖入味', dim:'持久力'},
-    {text:'🍣 精致料理——讲究技法', dim:'技巧'}, {text:'🎂 创意甜品——总有惊喜', dim:'情趣'}]}
-];
+var maleQuestions = [{"q": "周末晚上她说想要一个特别的夜晚，你会？", "options": [{"text": "🕯️ 布置好蜡烛音乐，营造氛围", "dims": {"情趣": 2}}, {"text": "💪 直接公主抱进卧室", "dims": {"主动性": 2, "体力": 1}}, {"text": "🛁 帮她放水一起泡澡", "dims": {"温柔度": 2}}, {"text": "📖 上网研究新花样", "dims": {"技巧": 2}}]}, {"q": "她说「你今晚特别有精神」，你？", "options": [{"text": "😏 储备了好几天", "dims": {"持久力": 2}}, {"text": "🔥 边说边把她拉过来", "dims": {"主动性": 2}}, {"text": "😘 亲她额头说因为想你", "dims": {"温柔度": 2}}, {"text": "🏋️ 展示健身成果", "dims": {"体力": 2}}]}, {"q": "关于前戏，你的态度是？", "options": [{"text": "⏰ 至少半小时起步", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "🎯 精准点穴效率质量并重", "dims": {"技巧": 2}}, {"text": "🎭 角色扮演增加趣味", "dims": {"情趣": 2, "主动性": 1}}, {"text": "⚡ 看心情直接也很好", "dims": {"主动性": 2}}]}, {"q": "你觉得自己最大的床上优势？", "options": [{"text": "⏱️ 持久在线从不让她失望", "dims": {"持久力": 2, "体力": 1}}, {"text": "💡 花样多总有新惊喜", "dims": {"情趣": 2}}, {"text": "🤸 各种姿势都hold住", "dims": {"体力": 2, "主动性": 1}}, {"text": "👐 手法好知道让她舒服", "dims": {"技巧": 2, "温柔度": 1}}]}, {"q": "她今晚兴致不高，你会？", "options": [{"text": "🫂 抱着她聊天不强求", "dims": {"温柔度": 2}}, {"text": "💋 慢慢撩拨用亲吻唤醒", "dims": {"技巧": 2, "主动性": 1}}, {"text": "😂 讲笑话制造轻松氛围", "dims": {"情趣": 2}}, {"text": "🏃 去做俯卧撑消耗精力", "dims": {"体力": 2}}]}, {"q": "尝试新姿势，你的学习方式？", "options": [{"text": "📱 提前看教程做功课", "dims": {"技巧": 2}}, {"text": "🎲 即兴发挥舒服就行", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🗣️ 问她喜欢按她来", "dims": {"温柔度": 2}}, {"text": "🔄 反复练习直到完美", "dims": {"持久力": 2, "技巧": 1}}]}, {"q": "你理想的频率是？", "options": [{"text": "📅 每天都行精力充沛", "dims": {"体力": 2, "持久力": 1}}, {"text": "🌊 看感觉有chemistry就来", "dims": {"主动性": 2}}, {"text": "🎯 质量大于数量每次到位", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🎪 不固定但每次要新花样", "dims": {"情趣": 2}}]}, {"q": "事后你一般会？", "options": [{"text": "🫂 搂着她说甜言蜜语", "dims": {"温柔度": 2}}, {"text": "💬 复盘讨论刚才感受", "dims": {"技巧": 2, "情趣": 1}}, {"text": "😴 体力消耗太大直接睡", "dims": {"体力": 2}}, {"text": "🔄 休息一下准备第二轮", "dims": {"持久力": 2, "主动性": 1}}]}, {"q": "她夸你「今晚好厉害」，指的是？", "options": [{"text": "⏰ 时间够久很满足", "dims": {"持久力": 2}}, {"text": "🎯 找到了敏感点", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "💪 体力爆棚全程高能", "dims": {"体力": 2, "主动性": 1}}, {"text": "🎉 情趣游戏很成功", "dims": {"情趣": 2}}]}, {"q": "用一道菜形容你的风格？", "options": [{"text": "🌶️ 麻辣火锅热烈直接", "dims": {"主动性": 2, "体力": 1}}, {"text": "🍲 老火靓汤慢炖入味", "dims": {"持久力": 2, "温柔度": 1}}, {"text": "🍣 精致料理讲究技法", "dims": {"技巧": 2}}, {"text": "🎂 创意甜品总有惊喜", "dims": {"情趣": 2}}]}, {"q": "她穿了一套你没见过的内衣出现，你？", "options": [{"text": "🔥 直接扑上去", "dims": {"主动性": 3}}, {"text": "👀 让她转个圈慢慢欣赏", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "📸 等一下让我拍张照", "dims": {"情趣": 2, "技巧": 1}}, {"text": "💪 把她举起来扔到床上", "dims": {"体力": 2, "主动性": 1}}]}, {"q": "你更喜欢在哪里做？", "options": [{"text": "🛏️ 卧室大床舒适第一", "dims": {"温柔度": 2}}, {"text": "🚿 浴室刺激水花四溅", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🛋️ 客厅沙发随时随地", "dims": {"主动性": 2, "体力": 1}}, {"text": "🏨 酒店换环境有新鲜感", "dims": {"情趣": 2}}]}, {"q": "她说「你就不能温柔一点吗」，你？", "options": [{"text": "😘 立刻放慢速度轻声细语", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "🐺 不行被你太撩了控制不住", "dims": {"主动性": 2}}, {"text": "😏 先温柔后面再说", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🤝 好你来主导", "dims": {"温柔度": 2, "情趣": 1}}]}, {"q": "你被她撩得不行了，反应是？", "options": [{"text": "🐺 直接反扑把她压住", "dims": {"主动性": 3, "体力": 1}}, {"text": "🗣️ 再撩我就不客气了", "dims": {"情趣": 2, "主动性": 1}}, {"text": "🫂 先亲个够再说", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "💪 抱起她往卧室走", "dims": {"体力": 2, "主动性": 1}}]}, {"q": "你更享受哪种节奏？", "options": [{"text": "⚡ 快准狠一波流", "dims": {"主动性": 2, "体力": 1}}, {"text": "🌊 慢慢升温层层递进", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "🔄 快慢交替收放自如", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🎭 每次不一样看心情", "dims": {"情趣": 2}}]}, {"q": "你的持久力大概在什么水平？", "options": [{"text": "⏱️ 15分钟内速战速决", "dims": {"主动性": 2}}, {"text": "⏰ 半小时以上稳稳的", "dims": {"持久力": 2, "体力": 1}}, {"text": "🔄 看状态有时长有时短", "dims": {"技巧": 2}}, {"text": "♾️ 体力够可以一直来", "dims": {"持久力": 2, "体力": 2}}]}, {"q": "她主动骑上来，你会？", "options": [{"text": "😎 躺平享受让她表演", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "💪 配合她的节奏一起动", "dims": {"体力": 2, "技巧": 1}}, {"text": "🔄 一会儿翻身换我来", "dims": {"主动性": 2, "持久力": 1}}, {"text": "👐 抓住她的腰帮她控制节奏", "dims": {"技巧": 2, "主动性": 1}}]}, {"q": "你觉得叫床这件事？", "options": [{"text": "🔥 越大声说明我越厉害", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🤫 不用太大声我能感觉到", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "😏 会故意让她叫出来", "dims": {"技巧": 2, "主动性": 1}}, {"text": "🎤 互相交流感受更好", "dims": {"情趣": 2, "温柔度": 1}}]}, {"q": "你在那方面有没有自信？", "options": [{"text": "💯 非常有伴侣都说好", "dims": {"主动性": 2, "技巧": 1}}, {"text": "🤷 还行吧中等偏上", "dims": {"温柔度": 2}}, {"text": "📈 一直在进步越来越好", "dims": {"技巧": 2, "持久力": 1}}, {"text": "💪 自信来自于我的体力", "dims": {"体力": 2, "持久力": 1}}]}, {"q": "你觉得最能让女生到达的方式？", "options": [{"text": "👅 充分的前戏和口", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🎯 找对位置角度持续刺激", "dims": {"技巧": 2, "持久力": 1}}, {"text": "💪 大力出奇迹节奏带起来", "dims": {"体力": 2, "主动性": 1}}, {"text": "🧠 语言挑逗+身体配合", "dims": {"情趣": 2, "技巧": 1}}]}, {"q": "如果她说「再快一点」，你？", "options": [{"text": "🏃 立刻加速全力以赴", "dims": {"体力": 2, "主动性": 1}}, {"text": "😏 偏不我要控制节奏", "dims": {"技巧": 2, "主动性": 1}}, {"text": "🔄 先快后慢吊她胃口", "dims": {"技巧": 2, "情趣": 1}}, {"text": "💪 加速同时加大力度", "dims": {"体力": 2, "持久力": 1}}]}, {"q": "你对道具的态度？", "options": [{"text": "🎉 非常欢迎增加乐趣", "dims": {"情趣": 3}}, {"text": "🤷 可以试试不排斥", "dims": {"情趣": 1, "技巧": 1}}, {"text": "😤 不需要我自己就够了", "dims": {"主动性": 2, "体力": 1}}, {"text": "📖 愿意研究正确使用", "dims": {"技巧": 2, "情趣": 1}}]}, {"q": "你一晚上最多来几次？", "options": [{"text": "1️⃣ 一次但质量很高", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "2️⃣ 两次刚刚好", "dims": {"持久力": 2}}, {"text": "3️⃣ 三次以上不是问题", "dims": {"体力": 2, "持久力": 2}}, {"text": "🔄 看对方状态不勉强", "dims": {"温柔度": 2, "情趣": 1}}]}, {"q": "她说「教教我」，你？", "options": [{"text": "🎯 手把手教每个细节", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🔥 不用教跟着感觉来", "dims": {"主动性": 2, "情趣": 1}}, {"text": "📖 给她看了参考视频", "dims": {"技巧": 2, "情趣": 1}}, {"text": "😘 你怎么做我都喜欢", "dims": {"温柔度": 2}}]}, {"q": "你觉得Size重要吗？", "options": [{"text": "📏 重要但技巧更重要", "dims": {"技巧": 2}}, {"text": "💪 当然重要硬实力", "dims": {"体力": 2, "主动性": 1}}, {"text": "🤷 不重要合适最好", "dims": {"温柔度": 2}}, {"text": "🧠 角度和深度比长度重要", "dims": {"技巧": 2, "持久力": 1}}]}, {"q": "你最想被夸的一句话？", "options": [{"text": "「你好持久」", "dims": {"持久力": 3}}, {"text": "「你好会」", "dims": {"技巧": 3}}, {"text": "「你好有力」", "dims": {"体力": 2, "主动性": 1}}, {"text": "「跟你在一起好有感觉」", "dims": {"情趣": 2, "温柔度": 1}}]}, {"q": "你更喜欢哪种启动方式？", "options": [{"text": "🫂 从亲吻拥抱慢慢升温", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "⚡ 被她一个眼神就硬了", "dims": {"主动性": 2, "情趣": 1}}, {"text": "💆 互相按摩自然发生", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🔥 直接脱衣服不废话", "dims": {"主动性": 3}}]}, {"q": "做完之后的恢复时间？", "options": [{"text": "⏱️ 10分钟就能再来", "dims": {"体力": 2, "持久力": 2}}, {"text": "⏰ 半小时左右", "dims": {"持久力": 2}}, {"text": "😴 得睡一觉才行", "dims": {"体力": 1}}, {"text": "🤷 看对方还想不想", "dims": {"温柔度": 2, "情趣": 1}}]}, {"q": "亲密关系中最重要的是？", "options": [{"text": "🔥 双方都爽", "dims": {"主动性": 1, "技巧": 1, "体力": 1}}, {"text": "💗 情感连接", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🎯 技术到位", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🎪 新鲜感不断", "dims": {"情趣": 2, "主动性": 1}}]}, {"q": "给自己的床品打分？", "options": [{"text": "💯 95分以上完美", "dims": {"主动性": 2, "技巧": 1}}, {"text": "😎 80分优秀选手", "dims": {"技巧": 2}}, {"text": "🤗 70分温柔挂", "dims": {"温柔度": 2, "持久力": 1}}, {"text": "📈 60分但潜力大", "dims": {"情趣": 1, "温柔度": 1, "技巧": 1}}]}];
+var femaleQuestions = [{"q": "你觉得床上最重要的事情是？", "options": [{"text": "💗 被重视全程关注我的反应", "dims": {"温柔度": 2}}, {"text": "🔥 激情要有被征服的感觉", "dims": {"主动性": 2, "体力": 1}}, {"text": "🎯 技术在线精准找到点", "dims": {"技巧": 2}}, {"text": "🎪 有趣不千篇一律", "dims": {"情趣": 2}}]}, {"q": "你比较受不了的表现？", "options": [{"text": "⚡ 太快结束刚进状态就完了", "dims": {"持久力": 2}}, {"text": "🪵 像块木头全程等我主动", "dims": {"主动性": 2}}, {"text": "🤖 毫无技巧一个姿势到底", "dims": {"技巧": 2}}, {"text": "😐 没有情趣完成任务一样", "dims": {"情趣": 2}}]}, {"q": "让你身体发软的瞬间？", "options": [{"text": "🎤 耳边低声说话气息喷在脖子上", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "💪 单手把你抱起换位置", "dims": {"体力": 2, "主动性": 1}}, {"text": "👐 他的手法让你弓起腰", "dims": {"技巧": 2, "主动性": 1}}, {"text": "🔥 突然把你按在墙上", "dims": {"主动性": 3}}]}, {"q": "理想的前戏时长？", "options": [{"text": "⏰ 越久越好慢慢来", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "⚡ 看状态直接也很刺激", "dims": {"主动性": 2}}, {"text": "🎯 不在于时间在于懂不懂路子", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🎭 用情趣道具增加乐趣", "dims": {"情趣": 2, "技巧": 1}}]}, {"q": "你喜欢什么时间段亲密？", "options": [{"text": "🌙 深夜安静浪漫", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "☀️ 早晨精力最充沛", "dims": {"体力": 2}}, {"text": "🌅 黄昏慢慢享受不着急", "dims": {"持久力": 2, "温柔度": 1}}, {"text": "⚡ 随时随地来了感觉就好", "dims": {"主动性": 2, "情趣": 1}}]}, {"q": "对方哪个特质让你最上头？", "options": [{"text": "🏋️ 身材好体力惊人", "dims": {"体力": 2, "主动性": 1}}, {"text": "🧠 很会学习和改进", "dims": {"技巧": 2, "持久力": 1}}, {"text": "💐 营造浪漫氛围的能力", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "⏱️ 节奏感好持久稳定", "dims": {"持久力": 2}}]}, {"q": "你喜欢他怎么暗示？", "options": [{"text": "🫂 从背后搂住手慢慢往下", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "👀 眼神锁住你按到床上", "dims": {"主动性": 3}}, {"text": "💌 发暧昧信息制造悬念", "dims": {"情趣": 2}}, {"text": "💆 先按摩手法越来越有章法", "dims": {"技巧": 2, "温柔度": 1}}]}, {"q": "事后最希望他怎么做？", "options": [{"text": "🫂 抱着你亲额头说辛苦了", "dims": {"温柔度": 2}}, {"text": "💬 认真聊感受下次更好", "dims": {"技巧": 2, "情趣": 1}}, {"text": "🔄 休息一会来第二轮", "dims": {"持久力": 2, "体力": 1}}, {"text": "🛁 一起泡澡继续浪漫", "dims": {"情趣": 2, "温柔度": 1}}]}, {"q": "好床品的人应该具备什么？", "options": [{"text": "💪 体力和力量hold住场面", "dims": {"体力": 2, "主动性": 1}}, {"text": "🎯 懂得察言观色随时调整", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "⏱️ 控制节奏收放自如", "dims": {"持久力": 2, "技巧": 1}}, {"text": "🔥 主动出击不需要提示", "dims": {"主动性": 2}}]}, {"q": "用一个词形容向往的亲密关系？", "options": [{"text": "🌶️ 火辣激情四射", "dims": {"主动性": 2, "体力": 1}}, {"text": "🌊 缠绵如水般温柔", "dims": {"温柔度": 2, "持久力": 1}}, {"text": "🎢 探索总有新大陆", "dims": {"情趣": 2, "技巧": 1}}, {"text": "🏔️ 磅礴排山倒海", "dims": {"体力": 2, "持久力": 1}}]}, {"q": "他突然从背后抱住你亲脖子，你？", "options": [{"text": "😍 头往后靠享受这一刻", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🔄 转身面对他主动亲回去", "dims": {"主动性": 2}}, {"text": "🦊 假装挣扎让他更用力", "dims": {"情趣": 2, "主动性": 1}}, {"text": "💋 拉他的手往下引导", "dims": {"技巧": 2, "主动性": 1}}]}, {"q": "你在床上偏向哪种角色？", "options": [{"text": "👸 被宠着照顾的小公主", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🐺 主动出击的女王", "dims": {"主动性": 3}}, {"text": "🎭 今天公主明天女王", "dims": {"情趣": 2, "主动性": 1}}, {"text": "🤝 平等互动你来我往", "dims": {"技巧": 2, "温柔度": 1}}]}, {"q": "他的哪个身体部位最让你欲罢不能？", "options": [{"text": "🤲 手好看骨节分明", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "💪 手臂和胸肌有力量感", "dims": {"体力": 2, "主动性": 1}}, {"text": "🗣️ 锁骨和脖子线条好看", "dims": {"情趣": 2}}, {"text": "👁️ 眼神专注看你的时候", "dims": {"温柔度": 2, "情趣": 1}}]}, {"q": "你比较喜欢他怎么进入？", "options": [{"text": "🌊 慢慢来一点一点", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "⚡ 直接果断别犹豫", "dims": {"主动性": 2, "体力": 1}}, {"text": "🗣️ 一边说话一边来分散注意", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "🎯 找好角度精准到位", "dims": {"技巧": 3}}]}, {"q": "你更喜欢哪种节奏？", "options": [{"text": "⚡ 快节奏激烈到喘不过气", "dims": {"主动性": 2, "体力": 1}}, {"text": "🌊 慢节奏感受每一下", "dims": {"温柔度": 2, "持久力": 1}}, {"text": "🔄 快慢交替被他拿捏", "dims": {"技巧": 2, "情趣": 1}}, {"text": "💃 我来控制节奏", "dims": {"主动性": 2, "技巧": 1}}]}, {"q": "你接受一晚多次吗？", "options": [{"text": "✅ 当然欢迎越多越好", "dims": {"体力": 2, "持久力": 2}}, {"text": "🤔 两次可以三次看状态", "dims": {"持久力": 2}}, {"text": "1️⃣ 一次就好但质量要高", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🎭 看心情和氛围", "dims": {"情趣": 2}}]}, {"q": "你叫床吗？", "options": [{"text": "🎤 会叫而且控制不住", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🤫 会但比较克制", "dims": {"温柔度": 2}}, {"text": "😏 会故意叫给他听", "dims": {"情趣": 2, "主动性": 1}}, {"text": "🔇 不太会但用其他方式表达", "dims": {"技巧": 2, "温柔度": 1}}]}, {"q": "你觉得他的尺寸重要吗？", "options": [{"text": "📏 挺重要的不能太小", "dims": {"体力": 2}}, {"text": "🤷 不重要技术和感觉更关键", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🎯 合适最好太大也不行", "dims": {"技巧": 2}}, {"text": "💗 有感情什么都不重要", "dims": {"温柔度": 2, "情趣": 1}}]}, {"q": "你更喜欢在哪做？", "options": [{"text": "🛏️ 干净舒服的大床", "dims": {"温柔度": 2}}, {"text": "🚿 浴室一边洗一边来", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🏨 酒店房间新鲜感满满", "dims": {"情趣": 2}}, {"text": "🚗 车里刺激的空间", "dims": {"主动性": 2, "情趣": 2}}]}, {"q": "你达到高潮主要靠什么？", "options": [{"text": "👅 前戏和口", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "🎯 特定姿势和角度", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🧠 心理+身体双重刺激", "dims": {"情趣": 2, "温柔度": 1}}, {"text": "💪 持续有力的节奏", "dims": {"体力": 2, "持久力": 1}}]}, {"q": "他说「你今晚好紧」，你的反应？", "options": [{"text": "😳 有点害羞但内心窃喜", "dims": {"温柔度": 2}}, {"text": "😏 那你得更努力了", "dims": {"主动性": 2, "情趣": 1}}, {"text": "🤗 因为你让我很舒服", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "🔥 夹紧看你受得了吗", "dims": {"主动性": 2, "技巧": 1}}]}, {"q": "你对道具的态度？", "options": [{"text": "🎉 非常感兴趣一起探索", "dims": {"情趣": 3}}, {"text": "🤷 可以试试不排斥", "dims": {"情趣": 1, "技巧": 1}}, {"text": "😤 不需要他就够了", "dims": {"主动性": 2}}, {"text": "📖 挑好的试不随便买", "dims": {"技巧": 2, "情趣": 1}}]}, {"q": "你觉得你的床品属于哪种？", "options": [{"text": "🔥 主动型你想要就来拿", "dims": {"主动性": 3}}, {"text": "🐱 被动型但配合度很高", "dims": {"温柔度": 2, "技巧": 1}}, {"text": "🎭 百变型不同人不同样", "dims": {"情趣": 2, "主动性": 1}}, {"text": "🧪 实验型喜欢尝试新东西", "dims": {"情趣": 2, "技巧": 1}}]}, {"q": "他突然说想试个新姿势，你？", "options": [{"text": "✅ 好啊我也正想试", "dims": {"情趣": 2, "主动性": 1}}, {"text": "🤔 先说说是什么我考虑下", "dims": {"技巧": 2}}, {"text": "😏 可以但你先让我舒服", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "💪 来吧什么姿势都接得住", "dims": {"体力": 2, "主动性": 1}}]}, {"q": "你被他弄到快到了的时候？", "options": [{"text": "🗣️ 会告诉他别停", "dims": {"主动性": 2, "技巧": 1}}, {"text": "😶 闭眼咬唇默默享受", "dims": {"温柔度": 2}}, {"text": "🦊 夹住他不让他动", "dims": {"技巧": 2, "主动性": 1}}, {"text": "🔊 声音不自觉变大", "dims": {"情趣": 2}}]}, {"q": "你最想被夸的一句话？", "options": [{"text": "「你好紧好舒服」", "dims": {"技巧": 2, "温柔度": 1}}, {"text": "「跟你做最爽了」", "dims": {"主动性": 2, "技巧": 1}}, {"text": "「你好主动好喜欢」", "dims": {"主动性": 2, "情趣": 1}}, {"text": "「你的身体反应好诚实」", "dims": {"情趣": 2, "温柔度": 1}}]}, {"q": "你的不应期有多长？", "options": [{"text": "⏱️ 很短很快又想要了", "dims": {"持久力": 2, "主动性": 1}}, {"text": "⏰ 需要休息但抱着就好", "dims": {"温柔度": 2}}, {"text": "💤 得睡一觉第二天再来", "dims": {"体力": 1}}, {"text": "🔥 看他会不会撩没不应期", "dims": {"主动性": 2, "情趣": 1}}]}, {"q": "你最受不了他做什么？", "options": [{"text": "💨 太快完事都没感觉", "dims": {"持久力": 2, "技巧": 1}}, {"text": "🤖 毫无互动只顾自己", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🪵 全程不出声像木头", "dims": {"情趣": 2, "主动性": 1}}, {"text": "😴 做完转身就睡", "dims": {"温柔度": 2}}]}, {"q": "亲密关系中最重要的是？", "options": [{"text": "🔥 双方都满足", "dims": {"主动性": 1, "技巧": 1, "体力": 1}}, {"text": "💗 情感连接大于技术", "dims": {"温柔度": 2, "情趣": 1}}, {"text": "🎯 技术到位一次比一次好", "dims": {"技巧": 2, "持久力": 1}}, {"text": "🎪 保持新鲜感不腻", "dims": {"情趣": 2, "主动性": 1}}]}, {"q": "给自己的床品打分？", "options": [{"text": "💯 95分我很自信", "dims": {"主动性": 2, "技巧": 1}}, {"text": "😎 80分不差", "dims": {"技巧": 2}}, {"text": "🤗 70分温柔是强项", "dims": {"温柔度": 2, "持久力": 1}}, {"text": "📈 还在进步潜力股", "dims": {"情趣": 1, "温柔度": 1, "技巧": 1}}]}];
+var specialQuestions = [{"q": "你觉得阿细做朋友_______？", "options": [{"text": "一流", "effect": "all+3"}, {"text": "二流", "effect": "none"}, {"text": "下流", "effect": "all=0"}], "isSpecial": true}];
+var typeMap = {"温柔骑士": {"emoji": "🤴", "match": "适合搭配「野性猎手」，温柔与激情的碰撞最来电⚡"}, "野性猎手": {"emoji": "🐺", "match": "适合搭配「温柔骑士」或「感觉派」，有人接住你的热情🔥"}, "技术流": {"emoji": "🎯", "match": "适合搭配「探索家」，两个实力派强强联合💪"}, "感觉派": {"emoji": "🎭", "match": "适合搭配「野性猎手」，你负责氛围ta负责行动🎬"}, "探索家": {"emoji": "🧗", "match": "适合搭配「技术流」或「感觉派」，体力+技巧=完美🏆"}};
+var fallbackReports = {"温柔骑士": "恭喜获得「温柔骑士」称号！你的温柔就像冬天的暖被子，让人一旦躺进去就不想出来。前戏是你的主场，事后抱抱是你的签名动作。忠告：找个野性猎手互补，不然你俩能温柔到天亮都没进入正题😂", "野性猎手": "野性猎手上线！你在床上就像饿了三天的狮子看到羚羊——主动、直接、充满掠食者的气场。忠告：找个感觉派搭档，ta负责布置战场，你负责冲锋陷阵🐺", "技术流": "技术流大师驾到！你把床上运动当成了一门学问，每个角度都经过精密计算。别人在享受，你在研究。忠告：找个探索家一起切磋，你们能把这件事做成学术论文📚", "感觉派": "感觉派艺术家来了！对你来说氛围感大于一切。没有蜡烛和音乐？不好意思今晚取消。忠告：找个主动性强的人，不然你们光布置现场就天亮了🎬", "探索家": "探索家请注意！你的体力和持久力让人怀疑你是不是偷偷吃了什么。从日落到日出都能保持在线。忠告：找个同样精力旺盛的伙伴，不然对方可能需要提前买好跌打损伤药💊"};
 
-var femaleQuestions = [
-  { q:'你觉得床上最重要的事情是？', options:[
-    {text:'💗 感觉被重视，全程关注我的反应', dim:'温柔度'}, {text:'🔥 激情，要有那种被「征服」的感觉', dim:'主动性'},
-    {text:'🎯 技术在线，能精准找到我的点', dim:'技巧'}, {text:'🎪 有趣，不千篇一律', dim:'情趣'}]},
-  { q:'你比较受不了另一半的哪种表现？', options:[
-    {text:'⚡ 太快结束，刚进入状态就完了', dim:'持久力'}, {text:'🪵 像块木头，全程等我主动', dim:'主动性'},
-    {text:'🤖 毫无技巧，一个姿势到底', dim:'技巧'}, {text:'😐 没有情趣，完成任务一样', dim:'情趣'}]},
-  { q:'让你「身体发软」的瞬间是？', options:[
-    {text:'🎤 他在耳边低声说话，气息喷在脖子上', dim:'温柔度'}, {text:'💪 单手把你抱起来换个位置', dim:'体力'},
-    {text:'👐 他的手法让你不自觉弓起腰', dim:'技巧'}, {text:'🔥 他突然把你按在墙上', dim:'主动性'}]},
-  { q:'你觉得理想的「前戏时长」是？', options:[
-    {text:'⏰ 越久越好，慢慢来最好', dim:'温柔度'}, {text:'⚡ 看状态，有时候直接也很刺激', dim:'主动性'},
-    {text:'🎯 不在于时间，在于他懂不懂路子', dim:'技巧'}, {text:'🎭 用情趣小道具增加乐趣', dim:'情趣'}]},
-  { q:'你比较喜欢什么时间段的亲密？', options:[
-    {text:'🌙 深夜，安静浪漫的氛围', dim:'情趣'}, {text:'☀️ 早晨，精力最充沛的时候', dim:'体力'},
-    {text:'🌅 黄昏，慢慢享受不着急', dim:'持久力'}, {text:'⚡ 随时随地，来了感觉就好', dim:'主动性'}]},
-  { q:'对方的哪个特质让你最「上头」？', options:[
-    {text:'🏋️ 身材好，体力惊人', dim:'体力'}, {text:'🧠 很会学习和改进', dim:'技巧'},
-    {text:'💐 营造浪漫氛围的能力', dim:'情趣'}, {text:'⏱️ 节奏感好，持久稳定', dim:'持久力'}]},
-  { q:'你比较喜欢他用什么方式「暗示」？', options:[
-    {text:'🫂 从背后搂住你，手慢慢往下', dim:'温柔度'}, {text:'👀 直接用眼神锁住你，按到床上', dim:'主动性'},
-    {text:'💌 发一条暧昧信息制造悬念', dim:'情趣'}, {text:'💆 先帮你按摩，手法越来越有章法', dim:'技巧'}]},
-  { q:'事后，你最希望他怎么做？', options:[
-    {text:'🫂 抱着你，亲你额头说「宝贝辛苦了」', dim:'温柔度'}, {text:'💬 认真聊刚才的感受，下次更好', dim:'技巧'},
-    {text:'🔄 休息一会儿来第二轮', dim:'持久力'}, {text:'🛁 一起去泡个澡，继续制造浪漫', dim:'情趣'}]},
-  { q:'你觉得「好床品」的人应该具备什么？', options:[
-    {text:'💪 体力和力量，hold住各种场面', dim:'体力'}, {text:'🎯 懂得察言观色，随时调整', dim:'技巧'},
-    {text:'⏱️ 能控制节奏，收放自如', dim:'持久力'}, {text:'🔥 主动出击，不需要你提示', dim:'主动性'}]},
-  { q:'用一个词形容你向往的亲密关系？', options:[
-    {text:'🌶️ 火辣——激情四射', dim:'主动性'}, {text:'🌊 缠绵——如水般温柔', dim:'温柔度'},
-    {text:'🎢 探索——总有新大陆', dim:'情趣'}, {text:'🏔️ 磅礴——排山倒海', dim:'体力'}]}
-];
-
-// ==================== 类型数据 ====================
-var typeMap = {
-  '温柔骑士': { emoji:'🤴', desc:'温柔是你最大的武器', match:'适合搭配「野性猎手」，温柔与激情的碰撞最来电⚡' },
-  '野性猎手': { emoji:'🐺', desc:'主动出击，势不可挡', match:'适合搭配「温柔骑士」或「感觉派」，有人接住你的热情🔥' },
-  '技术流':   { emoji:'🎯', desc:'精通各路技法的大师', match:'适合搭配「探索家」，两个实力派强强联合💪' },
-  '感觉派':   { emoji:'🎭', desc:'氛围感拉满的浪漫达人', match:'适合搭配「野性猎手」，你负责氛围ta负责行动🎬' },
-  '探索家':   { emoji:'🧗', desc:'体力惊人，探索无止境', match:'适合搭配「技术流」或「感觉派」，体力+技巧=完美🏆' }
-};
-
-var fallbackReports = {
-  '温柔骑士': '恭喜获得「温柔骑士」称号！你的温柔就像冬天的暖被子，让人一旦躺进去就不想出来。前戏是你的主场，事后抱抱是你的签名动作。找个「野性猎手」互补，不然你俩能温柔到天亮都没进入正题😂',
-  '野性猎手': '野性猎手上线！你在床上就像饿了三天的狮子看到羚羊——主动、直接、充满掠食者的气场。你的主动性让对方完全不用思考，躺平就行。找个「感觉派」搭档，ta负责布置战场，你负责冲锋陷阵🐺',
-  '技术流':   '技术流大师驾到！你把床上运动当成了一门学问，每个角度都经过精密计算。别人在享受，你在研究。找个「探索家」一起切磋，你们能把这件事做成学术论文📚',
-  '感觉派':   '感觉派艺术家来了！对你来说，氛围感大于一切。没有蜡烛和音乐？不好意思，今晚取消。你的情趣值拉满，每次都像拍一部浪漫电影。找个主动性强的人，不然你们光布置现场就天亮了🎬',
-  '探索家':   '探索家请注意！你的体力和持久力让人怀疑你是不是偷偷吃了什么。从日落到日出，你都能保持在线。找个同样精力旺盛的伙伴，不然对方可能需要提前买好跌打损伤药💊'
-};
-
-// ==================== 状态 ====================
 var gender = '';
 var currentQ = 0;
-var answers = [];
+var selectedQs = [];
+var scores = {};
+var specialTriggered = false;
 
-// ==================== 页面控制 ====================
 function showPage(id) {
   document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
@@ -278,15 +199,26 @@ function showPage(id) {
 function startQuiz(g) {
   gender = g;
   currentQ = 0;
-  answers = [];
+  specialTriggered = false;
+  scores = {'主动性':0,'体力':0,'技巧':0,'情趣':0,'温柔度':0,'持久力':0};
+
+  // Random 12 from 30
+  var qs = gender === 'male' ? maleQuestions : femaleQuestions;
+  var shuffled = qs.slice().sort(function() { return Math.random() - 0.5; });
+  selectedQs = shuffled.slice(0, 12);
+
+  // 50% chance to insert special question at position 9 (10th question)
+  if (Math.random() < 0.5 && specialQuestions.length > 0) {
+    var sp = specialQuestions[Math.floor(Math.random() * specialQuestions.length)];
+    selectedQs[9] = sp;
+    specialTriggered = true;
+  }
+
   showPage('quizPage');
   renderQuestion();
 }
 
 function restart() {
-  gender = '';
-  currentQ = 0;
-  answers = [];
   showPage('modePage');
 }
 
@@ -294,17 +226,12 @@ function goHome() {
   window.location.href = 'home-test.html';
 }
 
-// ==================== 答题 ====================
-function getQuestions() {
-  return gender === 'male' ? maleQuestions : femaleQuestions;
-}
-
 function renderQuestion() {
-  var qs = getQuestions();
-  var q = qs[currentQ];
-  var percent = (currentQ / qs.length * 100).toFixed(0);
+  var q = selectedQs[currentQ];
+  var total = selectedQs.length;
+  var percent = (currentQ / total * 100).toFixed(0);
   document.getElementById('progressFill').style.width = percent + '%';
-  document.getElementById('progressText').textContent = (currentQ + 1) + ' / ' + qs.length;
+  document.getElementById('progressText').textContent = (currentQ + 1) + ' / ' + total;
 
   var card = document.getElementById('questionCard');
   card.style.animation = 'none';
@@ -329,11 +256,29 @@ function selectOption(idx, el) {
   var allBtns = el.parentElement.querySelectorAll('.option-btn');
   allBtns.forEach(function(b) { b.style.pointerEvents = 'none'; });
 
-  answers.push(idx);
+  var q = selectedQs[currentQ];
+  var opt = q.options[idx];
+
+  // Handle special question effects
+  if (q.isSpecial) {
+    if (opt.effect === 'all+3') {
+      for (var k in scores) scores[k] += 3;
+    } else if (opt.effect === 'all=0') {
+      for (var k in scores) scores[k] = 0;
+    }
+    // 'none' does nothing
+  } else {
+    // Normal scoring: add dims
+    if (opt.dims) {
+      for (var dim in opt.dims) {
+        scores[dim] += opt.dims[dim];
+      }
+    }
+  }
 
   setTimeout(function() {
     currentQ++;
-    if (currentQ < getQuestions().length) {
+    if (currentQ < selectedQs.length) {
       renderQuestion();
     } else {
       showResult();
@@ -341,27 +286,12 @@ function selectOption(idx, el) {
   }, 500);
 }
 
-// ==================== 评分 ====================
-function computeScores() {
-  var qs = getQuestions();
-  var scores = { '主动性':0, '体力':0, '技巧':0, '情趣':0, '温柔度':0, '持久力':0 };
-  answers.forEach(function(ansIdx, qIdx) {
-    var dim = qs[qIdx].options[ansIdx].dim;
-    scores[dim]++;
-  });
-  var normalized = {};
-  for (var key in scores) {
-    normalized[key] = Math.min(100, Math.max(15, scores[key] * 25));
-  }
-  return { raw: scores, normalized: normalized };
-}
-
-function determineType(scores) {
-  var sorted = Object.entries(scores.raw).sort(function(a, b) { return b[1] - a[1]; });
+function determineType() {
+  var sorted = Object.entries(scores).sort(function(a, b) { return b[1] - a[1]; });
   var topDim = sorted[0][0];
   var dimToType = {
-    '温柔度': '温柔骑士', '主动性': '野性猎手', '技巧': '技术流',
-    '情趣': '感觉派', '体力': '探索家', '持久力': '探索家'
+    '温柔度':'温柔骑士','主动性':'野性猎手','技巧':'技术流',
+    '情趣':'感觉派','体力':'探索家','持久力':'探索家'
   };
   var type = dimToType[topDim] || '技术流';
   if (sorted[0][1] === sorted[1][1]) {
@@ -373,8 +303,7 @@ function determineType(scores) {
   return type;
 }
 
-// ==================== 雷达图 ====================
-function drawRadarChart(canvasId, scores) {
+function drawRadarChart(canvasId) {
   var canvas = document.getElementById(canvasId);
   var ctx = canvas.getContext('2d');
   var dpr = window.devicePixelRatio || 1;
@@ -387,25 +316,27 @@ function drawRadarChart(canvasId, scores) {
 
   var cx = cssW / 2, cy = cssH / 2;
   var radius = Math.min(cx, cy) - 30;
-  var dims = ['主动性', '体力', '技巧', '情趣', '温柔度', '持久力'];
+  var dims = ['主动性','体力','技巧','情趣','温柔度','持久力'];
   var n = dims.length;
 
-  // Background rings
+  // Normalize scores for chart (max possible ~12 per dim with multi-scoring)
+  var maxVal = 1;
+  for (var i = 0; i < dims.length; i++) {
+    if (scores[dims[i]] > maxVal) maxVal = scores[dims[i]];
+  }
+  maxVal = Math.max(maxVal, 6);
+
   for (var level = 3; level >= 1; level--) {
     var r = radius * (level / 3);
     ctx.beginPath();
     for (var i = 0; i <= n; i++) {
       var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-      var x = cx + r * Math.cos(angle);
-      var y = cy + r * Math.sin(angle);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      ctx.lineTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
     }
     ctx.strokeStyle = 'rgba(255,255,255,0.12)';
     ctx.lineWidth = 1;
     ctx.stroke();
   }
-
-  // Axis lines
   for (var i = 0; i < n; i++) {
     var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
     ctx.beginPath();
@@ -414,66 +345,54 @@ function drawRadarChart(canvasId, scores) {
     ctx.strokeStyle = 'rgba(255,255,255,0.15)';
     ctx.stroke();
   }
-
-  // Data polygon
   ctx.beginPath();
   for (var i = 0; i <= n; i++) {
     var idx = i % n;
     var angle = (Math.PI * 2 * idx) / n - Math.PI / 2;
-    var val = scores.normalized[dims[idx]] / 100;
-    var x = cx + radius * val * Math.cos(angle);
-    var y = cy + radius * val * Math.sin(angle);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    var val = Math.min(1, scores[dims[idx]] / maxVal);
+    val = Math.max(0.08, val);
+    ctx.lineTo(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle));
   }
   ctx.fillStyle = 'rgba(245, 87, 108, 0.25)';
   ctx.fill();
   ctx.strokeStyle = '#f5576c';
   ctx.lineWidth = 2;
   ctx.stroke();
-
-  // Data points
   for (var i = 0; i < n; i++) {
     var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-    var val = scores.normalized[dims[i]] / 100;
-    var x = cx + radius * val * Math.cos(angle);
-    var y = cy + radius * val * Math.sin(angle);
+    var val = Math.min(1, scores[dims[i]] / maxVal);
+    val = Math.max(0.08, val);
     ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.arc(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle), 4, 0, Math.PI * 2);
     ctx.fillStyle = '#f5576c';
     ctx.fill();
   }
-
-  // Labels
   ctx.fillStyle = 'rgba(255,255,255,0.8)';
   ctx.font = '12px -apple-system, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   for (var i = 0; i < n; i++) {
     var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-    var labelR = radius + 20;
-    var x = cx + labelR * Math.cos(angle);
-    var y = cy + labelR * Math.sin(angle);
-    ctx.fillText(dims[i], x, y);
+    ctx.fillText(dims[i], cx + (radius + 20) * Math.cos(angle), cy + (radius + 20) * Math.sin(angle));
   }
 }
 
-// ==================== AI 报告 ====================
-function generateAIReport(type, scores, callback) {
+function generateAIReport(type, callback) {
   var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
   var genderText = gender === 'male' ? '男生' : '女生';
-  var scoreDesc = Object.entries(scores.raw).map(function(e) { return e[0]+':'+e[1]+'分'; }).join('、');
+  var scoreDesc = Object.entries(scores).map(function(e) { return e[0]+':'+e[1]+'分'; }).join('、');
 
-  var prompt = '你是一个幽默风趣的"床品分析师"，专门给人写搞笑的床品报告。\n\n' +
-    '对象：一位' + genderText + '\n' +
-    '床品类型：' + type + '（' + typeMap[type].desc + '）\n' +
+  var prompt = '帮我分析这个人的床品。\n\n' +
+    '性别：' + genderText + '\n' +
+    '床品类型：' + type + '\n' +
     '六维得分：' + scoreDesc + '\n\n' +
-    '请用150字以内写一段幽默、搞笑、有梗的"床品分析报告"。要求：\n' +
-    '1. 先用一句话总结这个人的床上风格（要搞笑）\n' +
-    '2. 用网络热梗或有趣比喻描述ta的特点\n' +
-    '3. 最后给一句话的匹配建议\n' +
-    '4. 语气轻松幽默，像朋友之间开玩笑\n' +
-    '5. 可以稍微露骨一点但不要低俗\n' +
-    '注意：这是朋友群里的娱乐小游戏，保持轻松有趣！';
+    '要求：\n' +
+    '1. 用一句露骨但搞笑的话总结ta的床上风格（比如"你就是那种前戏比正片长的人"）\n' +
+    '2. 根据最高分和最低分维度，用毒舌但有梗的比喻点评（可以用网络热梗、成人笑话等）\n' +
+    '3. 指出ta床上最大的优点和最致命的弱点\n' +
+    '4. 最后用一句损友式的忠告结尾\n' +
+    '5. 可以露骨，可以开黄腔，但要搞笑不要猥琐\n' +
+    '6. 150字以内，语气像朋友群里互相损';
 
   fetch('https://models.inference.ai.azure.com/chat/completions', {
     method: 'POST',
@@ -484,7 +403,7 @@ function generateAIReport(type, scores, callback) {
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: '你是一个专业但幽默的"床品分析师"，擅长用搞笑的方式分析人们的亲密关系风格。' },
+        { role: 'system', content: '你是「阿细」，一个毒舌但专业的床品分析师，说话风格像损友，擅长用露骨但搞笑的方式点评别人的床上表现。你不会回避敏感词，但会用幽默包装。' },
         { role: 'user', content: prompt }
       ],
       max_tokens: 300,
@@ -505,40 +424,30 @@ function generateAIReport(type, scores, callback) {
   });
 }
 
-// ==================== 显示结果 ====================
 function showResult() {
   document.getElementById('loadingOverlay').classList.remove('hidden');
+  document.getElementById('loadingText').textContent = '阿细正在为你评估床品...';
 
-  var scores = computeScores();
-  var type = determineType(scores);
+  var type = determineType();
   var info = typeMap[type];
 
-  // Build result HTML
   var html = '<div class="result-type-emoji">' + info.emoji + '</div>';
   html += '<div class="result-type-name">' + type + '</div>';
-  html += '<div class="result-type-desc">' + info.desc + '</div>';
-  html += '<div class="radar-wrap"><canvas id="radarChart"></canvas></div>';
-  html += '<div class="report-text" id="reportText"><div class="report-loading">🤖 AI 正在撰写你的专属报告...</div></div>';
   html += '<div class="match-suggest">💕 ' + info.match + '</div>';
+  html += '<div class="radar-wrap"><canvas id="radarChart"></canvas></div>';
+  html += '<div class="report-text" id="reportText"><div class="report-loading">🤖 阿细正在为你评估床品...</div></div>';
 
   document.getElementById('resultInner').innerHTML = html;
-
-  // Hide loading, show result
   document.getElementById('loadingOverlay').classList.add('hidden');
   showPage('resultPage');
 
-  // Draw radar chart
-  setTimeout(function() {
-    drawRadarChart('radarChart', scores);
-  }, 100);
+  setTimeout(function() { drawRadarChart('radarChart'); }, 100);
 
-  // Generate AI report
-  generateAIReport(type, scores, function(report) {
+  generateAIReport(type, function(report) {
     document.getElementById('reportText').innerHTML = report;
   });
 }
 
-// ==================== 星星 ====================
 function createStars() {
   var c = document.getElementById('stars');
   for (var i = 0; i < 60; i++) {
