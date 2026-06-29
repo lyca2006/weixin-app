@@ -339,11 +339,7 @@ function drawRadarChart(canvasId) {
   var n = dims.length;
 
   // Normalize scores for chart (max possible ~12 per dim with multi-scoring)
-  var maxVal = 1;
-  for (var i = 0; i < dims.length; i++) {
-    if (scores[dims[i]] > maxVal) maxVal = scores[dims[i]];
-  }
-  maxVal = Math.max(maxVal, 6);
+  var maxVal = 9;
 
   for (var level = 3; level >= 1; level--) {
     var r = radius * (level / 3);
@@ -368,7 +364,7 @@ function drawRadarChart(canvasId) {
   for (var i = 0; i <= n; i++) {
     var idx = i % n;
     var angle = (Math.PI * 2 * idx) / n - Math.PI / 2;
-    var val = Math.min(1, scores[dims[idx]] / maxVal);
+    var val = Math.min(1, Math.min(scores[dims[idx]], 9) / 9);
     val = Math.max(0.08, val);
     ctx.lineTo(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle));
   }
@@ -379,7 +375,7 @@ function drawRadarChart(canvasId) {
   ctx.stroke();
   for (var i = 0; i < n; i++) {
     var angle = (Math.PI * 2 * i) / n - Math.PI / 2;
-    var val = Math.min(1, scores[dims[i]] / maxVal);
+    var val = Math.min(1, Math.min(scores[dims[i]], 9) / 9);
     val = Math.max(0.08, val);
     ctx.beginPath();
     ctx.arc(cx + radius * val * Math.cos(angle), cy + radius * val * Math.sin(angle), 4, 0, Math.PI * 2);
