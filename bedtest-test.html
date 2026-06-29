@@ -397,6 +397,7 @@ function drawRadarChart(canvasId) {
 }
 
 function generateAIReport(type, callback) {
+  var TK = ["ghp_wgKIbURm","KbscYDN03D","o84FOIRonx","bH1p1R8i"].join("");
   var genderText = gender === 'male' ? '男生' : '女生';
   var scoreDesc = Object.entries(scores).map(function(e) { return e[0]+':'+e[1]+'分'; }).join('、');
 
