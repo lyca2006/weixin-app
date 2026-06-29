@@ -208,7 +208,7 @@ function startQuiz(g) {
   selectedQs = shuffled.slice(0, 12);
 
   // 50% chance to insert special question at position 9 (10th question)
-  if (Math.random() < 0.5 && specialQuestions.length > 0) {
+  if (Math.random() < 0.25 && specialQuestions.length > 0) {
     var sp = specialQuestions[Math.floor(Math.random() * specialQuestions.length)];
     selectedQs[11] = sp;
     specialTriggered = true;
