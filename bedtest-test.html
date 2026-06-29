@@ -403,10 +403,17 @@ function generateAIReport(type, callback) {
     { name: "欲扬先抑", order: "说实话，第一眼看你的数据我差点想把你归到{某个夸张类型}那一档。{损点，一句话}。但是——等一下，仔细一看，你这{长板A}和{长板B}是真的能打。{一句话夸}。\n建议：{一句话具体建议}。\n120字内" },
   ];
   var style = styles[Math.floor(Math.random() * styles.length)];
+  // 计算长板和短板
+  var sortedDims = Object.entries(scores).sort(function(a,b){return b[1]-a[1];});
+  var topDims = sortedDims.slice(0,2).map(function(d){return d[0]+'('+d[1]+'分)'}).join('、');
+  var bottomDims = sortedDims.slice(-2).reverse().map(function(d){return d[0]+'('+d[1]+'分)'}).join('、');
+
   var prompt = '帮我写一份床品分析报告。\n\n' +
     '性别：' + genderText + '\n' +
     '床品类型：' + type + '\n' +
-    '六维得分：' + scoreDesc + '\n\n' +
+    '六维得分：' + scoreDesc + '\n' +
+    '长板（夸这些）：' + topDims + '\n' +
+    '短板（损这些）：' + bottomDims + '\n\n' +
     '本次采用「' + style.name + '」风格，按以下结构输出：\n' + style.order + '\n\n' +
     '底线规则：\n- 允许：朋友间互怼、开黄腔、比喻夸张\n- 禁止：任何贬损人格的词语\n- 6分以下用自嘲友好的表达\n- 得分参考：7-9分拉满要夸爆，4-6分主力区间正常水平，0-3分有上升空间娱乐自嘲';
 
