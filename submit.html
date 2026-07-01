@@ -1053,26 +1053,76 @@ async function submitAll() {
     time: new Date().toLocaleString('zh-CN')
   };
 
-  const intro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
-  profile.introOverride = { title: intro.title, desc: intro.desc };
-  if (intro.types) profile.types = intro.types;
+  var templateIntro = gender === 'female' ? generateFemaleIntro(answers) : generateMaleIntro(answers);
+  if (templateIntro.types) profile.types = templateIntro.types;
+
+  var qaList = '';
+  var qs = gender === 'male' ? maleQuestions : femaleQuestions;
+  qs.forEach(function(q) {
+    if (answers[q.id]) qaList += q.q + ' → ' + answers[q.id] + '\n';
+  });
 
   try {
-    const TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'];
-    const token = TK.join('');
-    const ts = Date.now();
-    const safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
-    const filename = `submissions/${gender}_${ts}_${safeName}.json`;
-    const content = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
+    var TK = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+    var genderText = gender === 'male' ? '男生' : '女生';
+    var aiPrompt = '根据这位' + genderText + '的答题内容，写一段爆赞的个人介绍。\n\n昵称：' + nickname + '\n答题内容：\n' + qaList + '\n\n要求：\n1. 标题要惊艳有梗，格式：emoji + 称号·副标题（参考：「👑 万人迷·灵魂社交家」「🎯 暖男天花板·情商之王」「🚀 行走的绩优股·潜力无限」），要根据答题内容提炼ta最亮眼的特质\n2. 描述要猛夸：先点出ta最突出的1-2个特质，用让人心动的语言夸到位，再埋一个小有趣的梗结尾\n3. 让看完的人忍不住想认识这个人\n4. 有具体细节，不要空洞的大词\n5. 描述控制在100字以内\n请用JSON格式返回：{\"title\":\"称号\",\"desc\":\"描述\"}';
 
-    const resp = await fetch(`https://api.github.com/repos/lyca2006/weixin-app/contents/${filename}`, {
+    var aiResp = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TK },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: '你是一个专门给群友写「夸夸介绍」的文案天才。你的介绍风格是：标题惊艳有梗，描述先猛夸再埋梗，让人看完忍不住想认识这个人。参考优秀标题如「👑 万人迷·灵魂社交家」「🚀 行走的绩优股·潜力无限」「🎯 暖男天花板·情商之王」。返回纯JSON格式，不要markdown。' },
+          { role: 'user', content: aiPrompt }
+        ],
+        max_tokens: 300, temperature: 0.8
+      })
+    });
+
+    if (aiResp.ok) {
+      var aiData = await aiResp.json();
+      if (aiData.choices && aiData.choices[0] && aiData.choices[0].message) {
+        var aiText = aiData.choices[0].message.content.trim();
+        try {
+          aiText = aiText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+          var aiIntro = JSON.parse(aiText);
+          if (aiIntro.title && aiIntro.desc) {
+            profile.introOverride = { title: aiIntro.title, desc: aiIntro.desc };
+            console.log('AI生成介绍成功');
+          } else {
+            profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+          }
+        } catch(pe) {
+          console.log('AI返回格式异常，使用模板', pe);
+          profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+        }
+      } else {
+        profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+      }
+    } else {
+      profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+    }
+  } catch(aiErr) {
+    console.log('AI调用失败，使用模板', aiErr);
+    profile.introOverride = { title: templateIntro.title, desc: templateIntro.desc };
+  }
+
+  try {
+    var token = ['ghp_wgKIbURm','KbscYDN03D','o84FOIRonx','bH1p1R8i'].join('');
+    var ts = Date.now();
+    var safeName = nickname.replace(/[^a-zA-Z0-9\u4e00-\u9fff]/g, '_');
+    var filename = 'submissions/' + gender + '_' + ts + '_' + safeName + '.json';
+    var fileContent = btoa(unescape(encodeURIComponent(JSON.stringify(profile, null, 2))));
+
+    var resp = await fetch('https://api.github.com/repos/lyca2006/weixin-app/contents/' + filename, {
       method: 'PUT',
       headers: {
-        'Authorization': `token ${token}`,
+        'Authorization': 'token ' + token,
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json'
       },
-      body: JSON.stringify({ message: `档案: ${nickname}`, content: content, branch: 'main' })
+      body: JSON.stringify({ message: '档案: ' + nickname, content: fileContent, branch: 'main' })
     });
 
     if (resp.ok) {
@@ -1084,6 +1134,9 @@ async function submitAll() {
     alert('网络错误，请检查网络后重试');
     console.error(e);
   }
+
+  document.getElementById('loading').classList.add('hidden');
+}
 
   document.getElementById('loading').classList.add('hidden');
 }
